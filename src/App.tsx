@@ -5,6 +5,7 @@ import ProductList from "./pages/ProductList";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import { CartProvider } from "./context/CartContext";
+import Footer from "./components/footer";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
         </Routes>
+        <Footer/>
       </BrowserRouter>
     </CartProvider>
   );
