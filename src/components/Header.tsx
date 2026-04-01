@@ -14,6 +14,7 @@ import {
 } from '@storefront-ui/react';
 import { useCart } from '../context/CartContext';
 
+//poc use
 const categories = [
   {
     label: 'Women',
