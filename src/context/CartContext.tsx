@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { type Product } from '../lib/api/client';
+import { type Product } from '../middleware/api/client';
 
 type CartItem = Product & { quantity: number };
 

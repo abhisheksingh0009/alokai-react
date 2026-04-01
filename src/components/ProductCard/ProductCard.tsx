@@ -1,5 +1,5 @@
 import { SfButton, SfRating, SfCounter, SfLink, SfIconShoppingCart, SfIconFavorite } from '@storefront-ui/react';
-import type { Product } from '../../lib/api/client';
+import type { Product } from '../../middleware/api/client';
 import { useCart } from '../../context/CartContext';
 
 export default function ProductCard({ product }: { product: Product }) {

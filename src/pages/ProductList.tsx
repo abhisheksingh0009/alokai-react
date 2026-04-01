@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard/ProductCard";
-import { fetchProducts, type Product } from "../lib/api/client";
+import { fetchProducts, type Product } from "../middleware/api/client";
 
 // Fallback mock products
 const mockProducts: Product[] = [

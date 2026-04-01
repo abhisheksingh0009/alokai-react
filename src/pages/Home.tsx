@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SfButton } from '@storefront-ui/react';
 import ProductCard from '../components/ProductCard/ProductCard';
-import { fetchProducts, type Product } from '../lib/api/client';
+import { fetchProducts, type Product } from '../middleware/api/client';
 import heroImg from '../assets/hero.png';
 
 const categories = [

@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { SfButton } from "@storefront-ui/react";
 import { useCart } from "../context/CartContext";
-import { fetchProduct, type Product } from "../lib/api/client";
+import { fetchProduct, type Product } from "../middleware/api/client";
 
 export default function PDP() {
   const { id } = useParams();
