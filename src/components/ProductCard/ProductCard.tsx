@@ -4,7 +4,6 @@ import { useCart } from '../../context/CartContext';
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart()!;
-
   return (
     <div className="border border-neutral-200 rounded-xl hover:shadow-lg max-w-[300px]">
       <div className="relative">
