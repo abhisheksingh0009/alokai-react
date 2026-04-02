@@ -22,18 +22,18 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative h-[420px] flex items-center justify-center overflow-hidden bg-green-800">
+      {/* <section className="relative h-[420px] flex items-center justify-center overflow-hidden bg-slate-900">
         <img src={heroImg} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-40" />
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Welcome to My Store</h1>
-          <p className="text-lg mb-6 text-green-100">Discover the latest trends at unbeatable prices</p>
+          <p className="text-lg mb-6 text-slate-300">Discover the latest trends at unbeatable prices</p>
           <Link to="/products">
-            <SfButton size="lg" className="bg-white !text-green-700 hover:bg-green-50 font-semibold">
+            <SfButton size="lg" className="bg-emerald-500 !text-white hover:bg-emerald-600 font-semibold">
               Shop Now
             </SfButton>
           </Link>
         </div>
-      </section>
+      </section> */}
 
       {/* Categories */}
       <section className="max-w-6xl mx-auto px-4 py-12">
@@ -43,7 +43,7 @@ export default function Home() {
             <Link
               key={cat.label}
               to="/products"
-              className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-neutral-200 rounded-xl hover:border-green-600 hover:shadow-md transition-all"
+              className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-neutral-200 rounded-xl hover:border-emerald-500 hover:shadow-md transition-all"
             >
               <span className="text-4xl">{cat.emoji}</span>
               <span className="font-semibold text-neutral-800">{cat.label}</span>
@@ -57,7 +57,7 @@ export default function Home() {
         <section className="max-w-6xl mx-auto px-4 pb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Featured Products</h2>
-            <Link to="/products" className="text-green-700 font-medium hover:underline">
+            <Link to="/products" className="text-emerald-600 font-medium hover:underline">
               View all →
             </Link>
           </div>

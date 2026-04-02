@@ -53,7 +53,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="bg-green-700 text-white">
+    <header className="bg-slate-900 text-white">
       {/* Top bar */}
       <div className="flex items-center gap-4 px-4 py-3 md:px-6">
         {/* Hamburger - mobile */}
@@ -74,13 +74,13 @@ export default function Header() {
 
         {/* Search */}
         <form className="hidden md:flex flex-1">
-          <div className="flex w-full border-2 border-white rounded-md overflow-hidden">
+          <div className="flex w-full bg-slate-700/60 border border-slate-500 rounded-lg overflow-hidden focus-within:border-cyan-400 focus-within:bg-slate-700 transition-all">
             <input
               type="text"
               placeholder="Search products..."
-              className="flex-1 px-4 py-2 text-neutral-900 text-base outline-none"
+              className="flex-1 px-4 py-2 bg-transparent text-white text-sm outline-none placeholder:text-slate-400"
             />
-            <button type="submit" className="bg-white px-4 flex items-center justify-center text-green-700 hover:bg-green-50">
+            <button type="submit" className="px-4 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
               <SfIconSearch />
             </button>
           </div>
@@ -95,7 +95,7 @@ export default function Header() {
             <SfIconShoppingCart className="text-white" />
             Cart
             {cartCount > 0 && (
-              <span className="ml-1 bg-white text-green-700 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="ml-1 bg-emerald-400 text-slate-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 {cartCount}
               </span>
             )}
@@ -104,13 +104,13 @@ export default function Header() {
       </div>
 
       {/* Desktop nav with megamenu */}
-      <nav className="hidden md:block bg-green-800" ref={megaMenuRef}>
+      <nav className="hidden md:block bg-slate-800" ref={megaMenuRef}>
         <ul className="flex px-6">
           {categories.map((cat) => (
             <li key={cat.label} className="relative">
               <button
-                className={`px-4 py-3 text-sm font-medium text-white hover:bg-green-600 transition-colors ${
-                  activeMegaMenu === cat.label ? 'bg-green-600' : ''
+                className={`px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 transition-colors ${
+                  activeMegaMenu === cat.label ? 'bg-slate-700' : ''
                 }`}
                 onMouseEnter={() => setActiveMegaMenu(cat.label)}
                 onClick={() => setActiveMegaMenu(activeMegaMenu === cat.label ? null : cat.label)}
@@ -129,7 +129,7 @@ export default function Header() {
                       <li key={sub}>
                         <Link
                           to="/products"
-                          className="block px-6 py-2 text-sm hover:bg-neutral-100 hover:text-green-700"
+                          className="block px-6 py-2 text-sm hover:bg-neutral-100 hover:text-emerald-600"
                           onClick={() => setActiveMegaMenu(null)}
                         >
                           {sub}
@@ -142,7 +142,7 @@ export default function Header() {
             </li>
           ))}
           <li>
-            <Link to="/products" className="block px-4 py-3 text-sm font-medium text-white hover:bg-green-600">
+            <Link to="/products" className="block px-4 py-3 text-sm font-medium text-white hover:bg-slate-700">
               All Products
             </Link>
           </li>
@@ -166,7 +166,7 @@ export default function Header() {
         {activeCategory ? (
           <>
             <button
-              className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-green-700 hover:bg-neutral-100 w-full"
+              className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-emerald-600 hover:bg-neutral-100 w-full"
               onClick={() => setActiveCategory(null)}
             >
               <SfIconChevronLeft size="sm" /> Back
