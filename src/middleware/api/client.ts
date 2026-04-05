@@ -7,6 +7,15 @@ export type Product = {
   images: string[];
   thumbnail: string;
   description: string;
+  rating?: number;
+  stock?: number;
+  category?: string;
+  discountPercentage?: number;
+  brand?: string;
+  warrantyInformation?: string;
+  shippingInformation?: string;
+  returnPolicy?: string;
+  tags?: string[];
 };
 
 type ProductsResponse = { products: Product[] };
@@ -27,6 +36,10 @@ export function fetchProductsByCategory(category: string): Promise<Product[]> {
   return get<ProductsResponse>(apiConfig.endpoints.productsByCategory, { category }).then(d => d.products ?? []);
 }
 
+type CategoryItem = string | { slug: string; name: string; url: string };
+
 export function fetchCategories(): Promise<string[]> {
-  return get<string[]>(apiConfig.endpoints.categories);
+  return get<CategoryItem[]>(apiConfig.endpoints.categories).then(items =>
+    items.map(item => (typeof item === 'string' ? item : item.slug))
+  );
 }
