@@ -7,6 +7,7 @@ export type Product = {
   images: string[];
   thumbnail: string;
   description: string;
+  discountPercentage?: number;
 };
 
 type ProductsResponse = { products: Product[] };

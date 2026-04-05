@@ -1,9 +1,17 @@
 import { SfButton, SfRating, SfCounter, SfLink, SfIconShoppingCart, SfIconFavorite } from '@storefront-ui/react';
 import type { Product } from '../../middleware/api/client';
 import { useCart } from '../../context/CartContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart()!;
+  const { showToast } = useToast();
+
+  function handleAddToCart() {
+    addToCart(product);
+    showToast();
+  }
+
   return (
     <div className="border border-neutral-200 rounded-xl hover:shadow-lg max-w-[300px]">
       <div className="relative">
@@ -40,7 +48,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {product.description}
         </p>
         <span className="block pb-2 font-bold typography-text-lg">${product.price}</span>
-        <SfButton size="sm" slotPrefix={<SfIconShoppingCart size="sm" />} onClick={() => addToCart(product)}>
+        <SfButton size="sm" slotPrefix={<SfIconShoppingCart size="sm" />} onClick={handleAddToCart}>
           Add to cart
         </SfButton>
       </div>
