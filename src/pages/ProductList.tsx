@@ -1,57 +1,143 @@
-import { useState, useEffect } from "react";
-import ProductCard from "../components/ProductCard/ProductCard";
-import { fetchProducts, type Product } from "../middleware/api/client";
-
-// Fallback mock products
-const mockProducts: Product[] = [
-  {
-    id: 1,
-    title: "Classic Sneakers",
-    price: 89.99,
-    images: ["https://via.placeholder.com/300?text=Sneakers"],
-    thumbnail: "https://via.placeholder.com/300?text=Sneakers",
-    description: "Comfortable everyday sneakers.",
-  },
-  {
-    id: 2,
-    title: "Leather Bag",
-    price: 129.99,
-    images: ["https://via.placeholder.com/300?text=Bag"],
-    thumbnail: "https://via.placeholder.com/300?text=Bag",
-    description: "Premium handcrafted leather bag.",
-  },
-];
+import { useState } from 'react';
+import { useProductFilters, SORT_OPTIONS } from '../hooks/useProductFilters';
+import { useProducts } from '../hooks/useProducts';
+import ProductListFilters from '../components/ProductList/ProductListFilters';
+import ProductListGrid from '../components/ProductList/ProductListGrid';
+import ProductListPagination from '../components/ProductList/ProductListPagination';
+import ProductListSkeleton from '../components/ProductList/ProductListSkeleton';
 
 export default function PLP() {
-  const [items, setItems] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    fetchProducts()
-      .then(data => {
-        setItems(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to fetch products:', err);
-        setItems(mockProducts);
-        setError(null);
-        setLoading(false);
-      });
-  }, []);
+  const {
+    filters, currentPage, setCurrentPage,
+    toggleCategory, togglePrice, setMinRating, setSortBy,
+    clearAll, hasFilters, activeFilterCount,
+  } = useProductFilters();
 
-  if (loading) return <div className="p-6">Loading products...</div>;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
+  const { loading, categories, filtered, paginated, totalItems } = useProducts(filters, currentPage);
+
+  if (loading) return <ProductListSkeleton />;
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Products</h1>
+    <div className="min-h-screen" style={{ background: '#F4F6F9' }}>
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {items.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        {/* Title + sort row */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight" style={{ color: '#111827' }}>Products</h1>
+            <p className="mt-1 text-sm" style={{ color: '#6B7280' }}>{filtered.length} items</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Mobile filter toggle */}
+            <button
+              className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
+              style={{ background: '#1B3A6B', color: '#fff' }}
+              onClick={() => setSidebarOpen(true)}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="8" y1="12" x2="20" y2="12" />
+                <line x1="12" y1="18" x2="20" y2="18" />
+              </svg>
+              Filters
+              {activeFilterCount > 0 && (
+                <span
+                  className="bg-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                  style={{ color: '#1B3A6B' }}
+                >
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
+            {/* Sort */}
+            <div className="relative">
+              <select
+                value={filters.sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className="appearance-none text-sm font-semibold pl-4 pr-10 py-2.5 rounded-xl outline-none cursor-pointer"
+                style={{ background: '#fff', color: '#111827', border: '1.5px solid #E2E8F0', minWidth: '175px' }}
+              >
+                {SORT_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+              <svg
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+                width="16" height="16" viewBox="0 0 20 20" fill="none"
+              >
+                <path d="M5 7.5L10 12.5L15 7.5" stroke="#1B3A6B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Layout: sidebar + grid */}
+        <div className="flex gap-8 items-start">
+
+          {/* Desktop sidebar */}
+          <aside
+            className="hidden lg:block w-60 shrink-0 rounded-2xl p-5 sticky top-6"
+            style={{ background: '#fff', border: '1px solid #E2E8F0' }}
+          >
+            <ProductListFilters
+              categories={categories}
+              filters={filters}
+              onToggleCategory={toggleCategory}
+              onTogglePrice={togglePrice}
+              onSetMinRating={setMinRating}
+              onClear={clearAll}
+              hasFilters={hasFilters}
+            />
+          </aside>
+
+          {/* Mobile sidebar drawer */}
+          {sidebarOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden">
+              <div className="absolute inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
+              <div
+                className="absolute left-0 top-0 bottom-0 w-72 overflow-y-auto p-6"
+                style={{ background: '#fff' }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <span className="font-bold text-base" style={{ color: '#111827' }}>Filters</span>
+                  <button onClick={() => setSidebarOpen(false)} style={{ color: '#6B7280' }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+                <ProductListFilters
+                  categories={categories}
+                  filters={filters}
+                  onToggleCategory={toggleCategory}
+                  onTogglePrice={togglePrice}
+                  onSetMinRating={setMinRating}
+                  onClear={clearAll}
+                  hasFilters={hasFilters}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Product grid + pagination */}
+          <div className="flex-1 min-w-0">
+            <ProductListGrid
+              products={paginated}
+              hasFilters={hasFilters}
+              onClearFilters={clearAll}
+            />
+            <ProductListPagination
+              totalItems={totalItems}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

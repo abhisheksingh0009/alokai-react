@@ -1,7 +1,7 @@
 export const apiConfig = {
   baseUrl: 'https://dummyjson.com',
   endpoints: {
-    products: '/products?limit=${limit}&skip=${skip}&select=id,title,price,thumbnail,images,description',
+    products: '/products?limit=${limit}&skip=${skip}&select=id,title,price,thumbnail,images,description,rating,stock,category,discountPercentage',
     product: '/products/${id}',
     searchProducts: '/products/search?q=${query}',
     productsByCategory: '/products/category/${category}',
