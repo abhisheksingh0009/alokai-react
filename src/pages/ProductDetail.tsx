@@ -1,13 +1,12 @@
 import { useState } from "react"; 
 import { useParams, Link } from "react-router-dom";
 import { useAsync } from "react-use";
-import { SfRating, SfIconShoppingCart, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout } from "@storefront-ui/react";
-import { useCart } from "../context/CartContext";
+import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout } from "@storefront-ui/react";
+import AddToCartButton from "../components/AddToCartButton";
 import { fetchProduct } from "../middleware/api/client";
 
 export default function PDP() {
   const { id } = useParams();
-  const { addToCart } = useCart()!;
   const [activeImage, setActiveImage] = useState(0);
 
   const { loading, error, value: product } = useAsync(
@@ -227,14 +226,7 @@ export default function PDP() {
 
             {/* CTA buttons */}
             <div className="flex gap-3">
-              <button
-                onClick={() => addToCart(product)}
-                className="flex-1 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
-                style={{ background: '#1B3A6B' }}
-              >
-                <SfIconShoppingCart size="sm" />
-                Add to Cart
-              </button>
+              <AddToCartButton product={product} variant="filled" label="Add to Cart" className="flex-1" />
               <button
                 className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shrink-0"
                 style={{ border: '1.5px solid #E2E8F0', background: '#fff', color: '#1B3A6B' }}
