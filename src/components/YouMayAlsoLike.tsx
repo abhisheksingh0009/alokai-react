@@ -1,42 +1,123 @@
-import { SfButton } from '@storefront-ui/react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { SfRating } from '@storefront-ui/react';
 import { useCart } from '../context/CartContext';
-import { fetchProducts, type Product } from '../middleware/api/client';
+import { fetchProductsByCategory, type Product } from '../middleware/api/client';
+import AddToCartButton from './AddToCartButton';
 
 export default function YouMayAlsoLike() {
-  const { cart, addToCart } = useCart()!;
+  const { cart } = useCart()!;
   const [suggestions, setSuggestions] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetchProducts(8).then(products => {
-      const cartIds = new Set(cart.map(i => i.id));
-      setSuggestions(products.filter(p => !cartIds.has(p.id)).slice(0, 4));
-    });
+    const cartIds = new Set(cart.map(i => i.id));
+    const categories = [...new Set(cart.map(i => i.category).filter(Boolean))] as string[];
+
+    if (categories.length === 0) {
+      setSuggestions([]);
+      return;
+    }
+
+    Promise.all(categories.map(cat => fetchProductsByCategory(cat)))
+      .then(results => {
+        const perCategory = 2;
+        const picked = results.flatMap(products =>
+          products.filter(p => !cartIds.has(p.id)).slice(0, perCategory)
+        );
+        setSuggestions(picked);
+      });
   }, [cart]);
 
   if (suggestions.length === 0) return null;
 
+
   return (
-    <div className="mt-12">
-      <h2 className="text-xl font-bold text-neutral-900 mb-4">You may also like</h2>
+    <div className="mt-14">
+      <div className="flex items-center gap-3 mb-2">
+        <h2 className="text-xl font-bold text-neutral-900">You may also like</h2>
+        <div className="flex-1 h-px" style={{ background: '#E2E8F0' }} />
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {suggestions.map(product => (
-          <div key={product.id} className="rounded-2xl border border-neutral-100 bg-white hover:shadow-md transition-shadow flex flex-col overflow-hidden">
-            <Link to={`/product/${product.id}`}>
-              <img src={product.thumbnail} alt={product.title} className="w-full h-36 object-cover" />
-            </Link>
-            <div className="p-3 flex flex-col gap-2 flex-1">
-              <Link to={`/product/${product.id}`} className="text-sm font-medium text-neutral-800 leading-snug hover:underline line-clamp-2 no-underline">
-                {product.title}
-              </Link>
-              <div className="flex items-center justify-between mt-auto">
-                <span className="font-bold text-neutral-900">${product.price}</span>
-                <SfButton size="sm" variant="secondary" onClick={() => addToCart(product)}>+ Add</SfButton>
+        {suggestions.map(product => {
+          const discount = product.discountPercentage ?? 0;
+          const isSale = discount >= 5;
+          const originalPrice = isSale ? product.price / (1 - discount / 100) : null;
+          const rating = product.rating ?? 0;
+
+          return (
+            <div
+              key={product.id}
+              className="group bg-white rounded-2xl overflow-hidden flex flex-col h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+              style={{ border: '1px solid #E2E8F0' }}
+            >
+              {/* Image */}
+              <div className="relative overflow-hidden" style={{ background: '#F8F9FB' }}>
+                <Link to={`/product/${product.id}`} className="block">
+                  <img
+                    src={product.thumbnail}
+                    alt={product.title}
+                    className="object-cover w-full aspect-square transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </Link>
+                {isSale && (
+                  <div
+                    className="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full text-white tracking-wide"
+                    style={{ background: '#EA580C' }}
+                  >
+                    {Math.round(discount)}% Off
+                  </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div className="flex flex-col flex-1 p-4">
+                {product.category && (
+                  <span
+                    className="text-xs font-bold uppercase tracking-widest mb-1.5"
+                    style={{ color: '#2563EB' }}
+                  >
+                    {product.category.replace(/-/g, ' ')}
+                  </span>
+                )}
+
+                <Link
+                  to={`/product/${product.id}`}
+                  className="no-underline font-semibold text-sm leading-snug mb-2 line-clamp-2"
+                  style={{ color: '#111827' }}
+                >
+                  {product.title}
+                </Link>
+
+                <div className="flex items-center gap-1.5 mb-3">
+                  <SfRating size="xs" value={rating} max={5} />
+                  <span className="text-xs" style={{ color: '#6B7280' }}>
+                    {rating > 0 ? rating.toFixed(1) : 'No reviews'}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap mt-auto mb-3">
+                  <span className="text-base font-bold" style={{ color: '#111827' }}>
+                    ${product.price.toFixed(2)}
+                  </span>
+                  {originalPrice && (
+                    <>
+                      <span className="text-xs line-through" style={{ color: '#9CA3AF' }}>
+                        ${originalPrice.toFixed(2)}
+                      </span>
+                      <span className="text-xs font-semibold" style={{ color: '#16A34A' }}>
+                        {Math.round(discount)}% off
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <AddToCartButton product={product} className="w-full py-2" />
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
