@@ -1,8 +1,9 @@
-import { useState } from "react"; 
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAsync } from "react-use";
 import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout } from "@storefront-ui/react";
 import AddToCartButton from "../components/AddToCartButton";
+import Breadcrumb from "../components/Breadcrumb";
 import { fetchProduct } from "../middleware/api/client";
 
 export default function PDP() {
@@ -67,19 +68,18 @@ export default function PDP() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm mb-8" style={{ color: '#6B7280' }}>
-          <Link to="/" className="hover:underline" style={{ color: '#1B3A6B' }}>Home</Link>
-          <span>/</span>
-          <Link to="/products" className="hover:underline" style={{ color: '#1B3A6B' }}>Products</Link>
-          {product.category && (
-            <>
-              <span>/</span>
-              <span className="capitalize">{product.category.replace(/-/g, ' ')}</span>
-            </>
-          )}
-          <span>/</span>
-          <span className="font-medium truncate max-w-[200px]" style={{ color: '#111827' }}>{product.title}</span>
-        </nav>
+        <div className="mb-10">
+          <Breadcrumb
+            items={[
+              { name: 'Home', link: '/' },
+              { name: 'Products', link: '/products' },
+              ...(product.category
+                ? [{ name: product.category.replace(/-/g, ' ') }]
+                : []),
+              { name: product.title },
+            ]}
+          />
+        </div>
 
         {/* ── Main layout ── */}
         <div className="flex flex-col lg:flex-row gap-10">
