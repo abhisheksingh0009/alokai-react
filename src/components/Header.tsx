@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   SfButton,
   SfIconShoppingCart,
@@ -13,6 +13,8 @@ import {
   useDisclosure,
 } from '@storefront-ui/react';
 import { useCart } from '../context/CartContext';
+import SearchResuts from '../search/SearchResults';
+import { fetchProducts, type Product } from '../middleware/api/client';
 
 //poc use
 const categories = [
@@ -41,6 +43,10 @@ export default function Header() {
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
   const megaMenuRef = useRef<HTMLDivElement>(null);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const [inputVal,setInputVal]=useState<string>("");
+  const [items, setItems] = useState<Product[]>([]);
+  const [showSuggestion,setShowSuggestion]=useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -51,6 +57,46 @@ export default function Header() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    fetchProducts().then(data => {
+      setItems(data);
+    })
+  }, []);
+
+  useEffect(()=>{
+    if (inputVal.length >= 3) {
+    setShowSuggestion(true);
+  } else {
+    setShowSuggestion(false);
+  }
+  },[inputVal]);
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if(!inputVal.trim()){
+      navigate('/');
+      return;
+    }
+    const firstMatch = items.find((p) => 
+      p.title.toLowerCase().startsWith(inputVal.toLowerCase())
+    );
+
+    if (firstMatch) {
+      navigate(`/product/${firstMatch.id}`);
+      setInputVal("");
+    }
+  };
+
+  const handleKeyDown=(e:React.KeyboardEvent<HTMLInputElement>)=>{
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      e.preventDefault(); 
+      if (showSuggestion) {
+        const firstItem = document.querySelector('[role="listbox"] [role="option"]') as HTMLElement;
+        firstItem?.focus();
+      }
+    }
+  }
 
   return (
     <header className="bg-slate-900 text-white">
@@ -73,16 +119,22 @@ export default function Header() {
         </Link>
 
         {/* Search */}
-        <form className="hidden md:flex flex-1">
-          <div className="flex w-full bg-slate-700/60 border border-slate-500 rounded-lg overflow-hidden focus-within:border-cyan-400 focus-within:bg-slate-700 transition-all">
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="flex-1 px-4 py-2 bg-transparent text-white text-sm outline-none placeholder:text-slate-400"
-            />
-            <button type="submit" className="px-4 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
-              <SfIconSearch />
-            </button>
+        <form className="hidden md:flex flex-1" onSubmit={handleSearchSubmit}>
+          <div className="container relative">
+            <div className="flex w-full bg-slate-700/60 border border-slate-500 rounded-lg overflow-hidden focus-within:border-cyan-400 focus-within:bg-slate-700 transition-all">
+              <input
+                type="text"
+                placeholder="Search products..."
+                className="flex-1 px-4 py-2 bg-transparent text-white text-sm outline-none placeholder:text-slate-400"
+                value={inputVal}
+                onChange={(e)=>setInputVal(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <button type="submit" className="px-4 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
+                <SfIconSearch />
+              </button>
+            </div>
+            <SearchResuts inputVal={inputVal} setInputVal={setInputVal} items={items} isOpen={showSuggestion}/>
           </div>
         </form>
 
