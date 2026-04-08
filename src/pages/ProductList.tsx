@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SfIconMenu, SfIconExpandMore, SfIconClose } from '@storefront-ui/react';
 import { useProductFilters, SORT_OPTIONS } from '../hooks/useProductFilters';
 import { useProducts } from '../hooks/useProducts';
 import ProductListFilters from '../components/ProductList/ProductListFilters';
@@ -37,11 +38,7 @@ export default function PLP() {
               style={{ background: '#1B3A6B', color: '#fff' }}
               onClick={() => setSidebarOpen(true)}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="4" y1="6" x2="20" y2="6" />
-                <line x1="8" y1="12" x2="20" y2="12" />
-                <line x1="12" y1="18" x2="20" y2="18" />
-              </svg>
+              <SfIconMenu size="sm" />
               Filters
               {activeFilterCount > 0 && (
                 <span
@@ -65,12 +62,7 @@ export default function PLP() {
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
-              <svg
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
-                width="16" height="16" viewBox="0 0 20 20" fill="none"
-              >
-                <path d="M5 7.5L10 12.5L15 7.5" stroke="#1B3A6B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <SfIconExpandMore size="sm" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#1B3A6B]" />
             </div>
           </div>
         </div>
@@ -105,10 +97,7 @@ export default function PLP() {
                 <div className="flex items-center justify-between mb-6">
                   <span className="font-bold text-base" style={{ color: '#111827' }}>Filters</span>
                   <button onClick={() => setSidebarOpen(false)} style={{ color: '#6B7280' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
+                    <SfIconClose size="sm" />
                   </button>
                 </div>
                 <ProductListFilters

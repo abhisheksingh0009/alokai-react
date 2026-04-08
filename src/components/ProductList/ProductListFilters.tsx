@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SfIconExpandMore } from '@storefront-ui/react';
 import { PRICE_RANGES, type Filters } from '../../hooks/useProductFilters';
 
 interface Props {
@@ -40,16 +41,14 @@ function AccordionSection({ title, badge, open, onToggle, children }: AccordionS
             </span>
           ) : null}
         </span>
-        <svg
-          width="16" height="16" viewBox="0 0 20 20" fill="none"
+        <SfIconExpandMore
+          size="sm"
+          className="text-[#6B7280]"
           style={{
-            color: '#6B7280',
             transition: 'transform 0.2s',
             transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
           }}
-        >
-          <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        />
       </button>
       {open && <div className="pb-4">{children}</div>}
     </section>
