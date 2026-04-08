@@ -1,10 +1,9 @@
 import React from "react";
-import { SfRating, SfLink } from "@storefront-ui/react";
+import { SfRating, SfLink, SfIconFavorite } from "@storefront-ui/react";
 import type { Product } from "../../middleware/api/client";
-import { useCart } from "../../context/CartContext";
+import AddToCartButton from "../AddToCartButton";
 
 export default function ProductCard({ product }: { product: Product }) {
-  const { addToCart } = useCart()!;
   const rating = product.rating ?? 0;
   const reviewCount = product.stock ?? 0;
   const discount = product.discountPercentage ?? 0;
@@ -41,9 +40,7 @@ export default function ProductCard({ product }: { product: Product }) {
           style={{ border: '1px solid #E2E8F0' }}
           aria-label="Add to wishlist"
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1B3A6B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
+          <SfIconFavorite size="sm" className="text-[#1B3A6B]" />
         </button>
       </div>
 
@@ -101,24 +98,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* CTA */}
-        <button
-          onClick={() => addToCart(product)}
-          className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 group/btn"
-          style={{ border: '1.5px solid #1B3A6B', color: '#1B3A6B', background: 'transparent' }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = '#1B3A6B';
-            (e.currentTarget as HTMLButtonElement).style.color = '#fff';
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-            (e.currentTarget as HTMLButtonElement).style.color = '#1B3A6B';
-          }}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
-          </svg>
-          Add to cart
-        </button>
+        <AddToCartButton product={product} className="w-full py-2.5" />
       </div>
     </div>
   );

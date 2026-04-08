@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAsync } from 'react-use';
-import { fetchProducts, fetchCategories, type Product } from '../middleware/api/client';
+import { fetchProducts, type Product } from '../middleware/api/client';
 import { PRICE_RANGES, type Filters } from './useProductFilters';
 
 export const PAGE_SIZE = 9;
@@ -12,13 +12,16 @@ const MOCK_PRODUCTS: Product[] = [
 
 export function useProducts(filters: Filters, currentPage: number) {
   const { loading, error, value: rawProducts } = useAsync(fetchProducts, []);
-  const { value: rawCategories } = useAsync(fetchCategories, []);
 
-  const categories: string[] = rawCategories ?? [];
+  const allProducts: Product[] = rawProducts ?? (error ? MOCK_PRODUCTS : []);
+
+  const categories: string[] = useMemo(
+    () => [...new Set(allProducts.map(p => p.category).filter((c): c is string => !!c))].sort(),
+    [allProducts]
+  );
 
   const filtered = useMemo(() => {
-    const products: Product[] = rawProducts ?? (error ? MOCK_PRODUCTS : []);
-    let list = [...products];
+    let list = [...allProducts];
 
     if (filters.categories.length > 0)
       list = list.filter(p => p.category && filters.categories.includes(p.category));
@@ -36,7 +39,7 @@ export function useProducts(filters: Filters, currentPage: number) {
     if (filters.sortBy === 'rating')     list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
 
     return list;
-  }, [rawProducts, error, filters]);
+  }, [allProducts, filters]);
 
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 

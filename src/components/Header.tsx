@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   SfButton,
   SfIconShoppingCart,
+  SfIconFavorite,
+  SfIconPerson,
   SfIconMenu,
   SfIconClose,
   SfIconSearch,
@@ -41,7 +43,9 @@ export default function Header() {
   const { isOpen: isDrawerOpen, open: openDrawer, close: closeDrawer } = useDisclosure();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const megaMenuRef = useRef<HTMLDivElement>(null);
+  const accountRef = useRef<HTMLDivElement>(null);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const [inputVal,setInputVal]=useState<string>("");
   const [items, setItems] = useState<Product[]>([]);
@@ -52,6 +56,9 @@ export default function Header() {
     function handleClickOutside(e: MouseEvent) {
       if (megaMenuRef.current && !megaMenuRef.current.contains(e.target as Node)) {
         setActiveMegaMenu(null);
+      }
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setIsAccountOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -140,9 +147,37 @@ export default function Header() {
 
         {/* Right actions */}
         <div className="flex items-center gap-4 ml-auto">
-          <Link to="/products" className="text-white font-medium hover:underline whitespace-nowrap">
-            Products
+          <Link to="/wishlist" className="flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap" aria-label="Wishlist">
+            <SfIconFavorite className="text-white" />
           </Link>
+          <div className="relative" ref={accountRef}>
+            <button
+              className="flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap"
+              aria-label="Account"
+              onClick={() => setIsAccountOpen(prev => !prev)}
+            >
+              <SfIconPerson className="text-white" />
+              <span className="hidden md:inline"></span>
+            </button>
+            {isAccountOpen && (
+              <div className="absolute right-0 top-full mt-2 w-40 bg-white text-neutral-900 rounded-lg shadow-xl z-50 py-1 border border-neutral-100">
+                <Link
+                  to="/login"
+                  className="block px-4 py-2.5 text-sm font-medium hover:bg-neutral-100 hover:text-emerald-600"
+                  onClick={() => setIsAccountOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="block px-4 py-2.5 text-sm font-medium hover:bg-neutral-100 hover:text-emerald-600"
+                  onClick={() => setIsAccountOpen(false)}
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
+          </div>
           <Link to="/cart" className="relative flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap">
             <SfIconShoppingCart className="text-white" />
             Cart
@@ -257,6 +292,20 @@ export default function Header() {
             <li>
               <SfListItem as={Link} to="/products" onClick={closeDrawer} className="px-4">
                 All Products
+              </SfListItem>
+            </li>
+            <li>
+              <SfListItem as={Link} to="/wishlist" onClick={closeDrawer} className="px-4">
+              </SfListItem>
+            </li>
+            <li>
+              <SfListItem as={Link} to="/login" onClick={closeDrawer} className="px-4">
+                Login
+              </SfListItem>
+            </li>
+            <li>
+              <SfListItem as={Link} to="/signup" onClick={closeDrawer} className="px-4">
+                Sign up
               </SfListItem>
             </li>
             <li>
