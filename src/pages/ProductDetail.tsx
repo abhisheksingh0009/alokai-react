@@ -256,9 +256,9 @@ export default function PDP() {
 
           </div>
           
-           <div className="mt-10 mb-10"><BannerOverlay/></div>
+          
         </div>
-       
+        <div className="mt-10 mb-10"><BannerOverlay/></div>
       </div>
     </div>
   );
