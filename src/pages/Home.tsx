@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 // import { SfButton } from '@storefront-ui/react';
 import ProductCard from '../components/ProductCard/ProductCard';
 import { fetchProducts, type Product } from '../middleware/api/client';
+import Carousel from '../components/Carousel/Carousel';
+import BannerOverlay from '../components/Carousel/BannerOverlay';
+import Banner2Col from '../components/Carousel/Banner2col';
 // import heroImg from '../assets/hero.png';
 
 const categories = [
@@ -21,6 +24,10 @@ export default function Home() {
 
   return (
     <div>
+      {/*Carousel*/}
+      <section className="relative  flex items-center justify-center max-w-6xl mx-auto px-4 pb-12">
+        <Carousel/>
+      </section>
       {/* Hero */}
       {/* <section className="relative h-[420px] flex items-center justify-center overflow-hidden bg-slate-900">
         <img src={heroImg} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-40" />
@@ -36,7 +43,7 @@ export default function Home() {
       </section> */}
 
       {/* Categories */}
-      <section className="max-w-6xl mx-auto px-4 py-12">
+      {/* <section className="max-w-6xl mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold mb-6">Shop by Category</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map(cat => (
@@ -50,7 +57,7 @@ export default function Home() {
             </Link>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* Featured Products */}
       {featured.length > 0 && (
@@ -68,6 +75,15 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/*single banner*/}
+      <section className="max-w-6xl mx-auto px-4 pb-12">
+        <BannerOverlay/>
+      </section>
+      {/*single banner*/}
+      <section className="max-w-6xl mx-auto px-4 pb-12">
+        <Banner2Col/>
+      </section>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShopp
 import AddToCartButton from "../components/common/AddToCartButton";
 import Breadcrumb from "../components/common/Breadcrumb";
 import { fetchProduct } from "../middleware/api/client";
+import BannerOverlay from "../components/Carousel/BannerOverlay";
 
 export default function PDP() {
   const { id } = useParams();
@@ -254,7 +255,10 @@ export default function PDP() {
             </div>
 
           </div>
+          
+           <div className="mt-10 mb-10"><BannerOverlay/></div>
         </div>
+       
       </div>
     </div>
   );
