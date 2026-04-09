@@ -1,0 +1,177 @@
+import { useState } from "react";
+import {
+  SfScrollable,
+  SfButton,
+  SfIconChevronLeft,
+  SfIconChevronRight,
+} from "@storefront-ui/react";
+import classNames from "classnames";
+
+// const withBase = (filepath: string) => `https://storage.googleapis.com/sfui_docs_artifacts_bucket_public/production/gallery/${filepath}`;
+
+// const images = [
+//   { imageSrc: withBase('gallery_1.png'), alt: 'backpack1' },
+//   { imageSrc: withBase('gallery_2.png'), alt: 'backpack2' },
+//   { imageSrc: withBase('gallery_3.png'), alt: 'backpack3' },
+//   { imageSrc: withBase('gallery_4.png'), alt: 'backpack4' },
+//   { imageSrc: withBase('gallery_5.png'), alt: 'backpack5' },
+//   { imageSrc: withBase('gallery_6.png'), alt: 'backpack6' },
+//   { imageSrc: withBase('gallery_7.png'), alt: 'backpack7' },
+//   { imageSrc: withBase('gallery_8.png'), alt: 'backpack8' },
+//   { imageSrc: withBase('gallery_9.png'), alt: 'backpack9' },
+//   { imageSrc: withBase('gallery_10.png'), alt: 'backpack10' },
+//   { imageSrc: withBase('gallery_11.png'), alt: 'backpack11' },
+// ];
+
+const withBase = (filepath: string) =>
+  `https://storage.googleapis.com/sfui_docs_artifacts_bucket_public/production/${filepath}`;
+
+const images = [
+  {
+    imageSrc: withBase("display.png"),
+    alt: "backpack1",
+    title: "Pack it Up",
+    subtitle: "Be active",
+    description: "Explore the great outdoors with our backpacks",
+    buttonText: "Discover now",
+    reverse: true,
+    backgroundColor: "bg-warning-200",
+  },
+  { imageSrc: withBase("display-2.png"), alt: "backpack2",title: 'Sunny Days Ahead',
+    subtitle: 'Be inspired',
+    description: 'Step out in style with our sunglasses collection',
+    buttonText: 'Discover now',
+    reverse: true,
+    backgroundColor: 'bg-negative-200', },
+  { imageSrc: withBase("display-3.png"), alt: "backpack3", title: 'Fresh and Bold',
+    subtitle: 'New collection',
+    description: 'Add a pop up color to your outfit',
+    buttonText: 'Discover now',
+    reverse: false,
+    backgroundColor: 'bg-secondary-200' },
+  { imageSrc: withBase("hero-bg.png"), alt: "backpack4" },
+  { imageSrc: withBase("hero-bg-2.png"), alt: "backpack5" },
+  { imageSrc: withBase("display-overlay.png"), alt: "backpack6" },
+  { imageSrc: withBase("hero-headphones.png"), alt: "headphones" },
+  { imageSrc: withBase("display-8.png"), alt: "backpack8" },
+];
+export default function Carousel() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  console.log("Image list:", images);
+  console.log("Total images:", images.length);
+  return (
+    <div className="relative flex flex-col w-full gap-1 mt-10 ">
+      <SfScrollable
+        className="h-[500px] w-full snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        wrapperClassName="group/scrollable h-full"
+        activeIndex={activeIndex}
+        isActiveIndexCentered
+        prevDisabled={activeIndex === 0}
+        nextDisabled={activeIndex === images.length - 1}
+        buttonsPlacement="block"
+        onPrev={() => {
+          setActiveIndex(() => activeIndex - 1);
+        }}
+        onNext={() => {
+          setActiveIndex(() => activeIndex + 1);
+        }}
+        slotPreviousButton={
+          <SfButton
+            className="hidden group-hover/scrollable:block disabled:!hidden absolute !rounded-full !p-3 z-10 top-1/2 left-4 bg-white"
+            variant="secondary"
+            size="lg"
+            slotPrefix={<SfIconChevronLeft />}
+          />
+        }
+        slotNextButton={
+          <SfButton
+            className="hidden group-hover/scrollable:block disabled:!hidden absolute !rounded-full !p-3 z-10 top-1/2 right-4 bg-white"
+            variant="secondary"
+            size="lg"
+            slotPrefix={<SfIconChevronRight />}
+          />
+        }
+      >
+        {images.map(
+          (
+            {
+              imageSrc,
+              alt,
+              title,
+              subtitle,
+              buttonText,
+              reverse,
+              backgroundColor,
+              description,
+            },
+            index,
+          ) => (
+            <div
+              className={classNames(
+                "relative flex flex-col md:flex-row justify-center basis-full snap-center snap-always shrink-0 grow overflow-hidden, gap-6",
+                backgroundColor,
+                { "md:flex-row-reverse": reverse },
+              )}
+            >
+              {(title || subtitle || buttonText || description) && (
+                <div className="w-full md:w-1/2 flex flex-col justify-center items-center text-center md:items-start md:text-start p-4 @sm:p-6 @3xl:p-10">
+                  {subtitle && (
+                    <p className="uppercase typography-text-xs block font-medium tracking-widest @3xl:typography-headline-6">
+                      {subtitle}
+                    </p>
+                  )}
+                  {title && (
+                    <h2 className="mb-4 mt-2 font-semibold text-6xl">
+                      {title}
+                    </h2>
+                  )}
+                  {description && (
+                    <p className="mb-6 max-w-[400px] typography-text-base text-gray-700">
+                      {description}
+                    </p>
+                  )}
+                  {buttonText && (
+                    <SfButton
+                      blank
+                      className="text-white bg-neutral-700 hover:bg-neutral-800 active:bg-neutral-900 pointer-events-none"
+                      tabIndex={-1}
+                    >
+                      {buttonText}
+                    </SfButton>
+                  )}
+                </div>
+              )}
+              <div className="w-full md:w-1/2 md:h-full overflow-hidden">
+                <img
+                  src={imageSrc}
+                  alt={alt}
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+            </div>
+          ),
+        )}
+      </SfScrollable>
+      <div className="shrink-0 basis-auto">
+        <div className="flex-row w-full flex gap-0.5 mt [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {images.map(({ alt }, index) => (
+            <button
+              key={`${index}-bullet`}
+              aria-label={alt}
+              aria-current={activeIndex === index}
+              type="button"
+              className={classNames(
+                "w-full relative mt-1 border-b-4 transition-colors focus-visible:outline focus-visible:outline-offset-0",
+                {
+                  "border-primary-700": activeIndex === index,
+                  "border-gray-200": activeIndex !== index,
+                },
+              )}
+              onClick={() => setActiveIndex(index)}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
