@@ -14,9 +14,9 @@ import {
   SfIconChevronLeft,
   useDisclosure,
 } from '@storefront-ui/react';
-import { useCart } from '../context/CartContext';
-import SearchResuts from '../search/SearchResults';
-import { fetchProducts, type Product } from '../middleware/api/client';
+import { useCart } from '../../context/CartContext';
+import SearchResuts from '../common/SearchResults';
+import { fetchProducts, type Product } from '../../middleware/api/client';
 
 //poc use
 const categories = [
@@ -133,14 +133,12 @@ export default function Header() {
               </linearGradient>
             </defs>
           </svg>
-          {/* Mobile: short abbr + tooltip on hover */}
-          <span className="md:hidden text-xl font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
-            A-M
-          </span>
-          <span className="absolute left-0 top-full mt-1 px-2 py-1 text-xs font-semibold text-white bg-slate-700 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:hidden whitespace-nowrap z-50">
-            ALOKAI-MART
-          </span>
-          {/* Desktop: full name */}
+          {/* Mobile: two lines */}
+          {/* <span className="md:hidden flex flex-col leading-tight font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+            <span className="text-sm">ALOKAI</span>
+            <span className="text-sm">MART</span>
+          </span> */}
+          {/* Desktop: single line */}
           <span className="hidden md:inline text-xl font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
             ALOKAI-MART
           </span>
@@ -302,11 +300,13 @@ export default function Header() {
             {categories.map((cat) => (
               <li key={cat.label}>
                 <SfListItem
-                  suffix={<SfIconChevronRight size="sm" />}
                   className="px-4"
                   onClick={() => setActiveCategory(cat.label)}
                 >
-                  {cat.label}
+                  <div className="flex items-center justify-between w-full">
+                    <span>{cat.label}</span>
+                    <SfIconChevronRight size="sm" />
+                  </div>
                 </SfListItem>
               </li>
             ))}

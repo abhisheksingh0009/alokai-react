@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Loader from './Loader';
+import Loader from '../common/Loader';
 
 const VALID_CODES: Record<string, number> = {
   SAVE10: 0.10,

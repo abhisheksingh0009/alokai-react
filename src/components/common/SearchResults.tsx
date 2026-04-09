@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState} from 'react';
-import { type Product } from '../middleware/api/client';
+import { type Product } from '../../middleware/api/client';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 import {
