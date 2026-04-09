@@ -14,9 +14,9 @@ import {
   SfIconChevronLeft,
   useDisclosure,
 } from '@storefront-ui/react';
-import { useCart } from '../context/CartContext';
-import SearchResuts from '../search/SearchResults';
-import { fetchProducts, type Product } from '../middleware/api/client';
+import { useCart } from '../../context/CartContext';
+import SearchResuts from '../common/SearchResults';
+import { fetchProducts, type Product } from '../../middleware/api/client';
 
 //poc use
 const categories = [
@@ -121,8 +121,27 @@ export default function Header() {
         </SfButton>
 
         {/* Logo */}
-        <Link to="/" className="text-white font-bold text-xl mr-6 whitespace-nowrap">
-          My Store
+        <Link to="/" className="flex items-center gap-2 mr-6 whitespace-nowrap group relative">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="34" height="34" rx="9" fill="url(#logoGrad)"/>
+            <path d="M11 14h12l-1.6 9.5H12.6L11 14z" fill="white"/>
+            <path d="M14 14c0-1.657 1.343-3 3-3s3 1.343 3 3" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#6366f1"/>
+                <stop offset="1" stopColor="#34d399"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          {/* Mobile: two lines */}
+          {/* <span className="md:hidden flex flex-col leading-tight font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+            <span className="text-sm">ALOKAI</span>
+            <span className="text-sm">MART</span>
+          </span> */}
+          {/* Desktop: single line */}
+          <span className="hidden md:inline text-xl font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+            ALOKAI-MART
+          </span>
         </Link>
 
         {/* Search */}
@@ -182,7 +201,7 @@ export default function Header() {
             <SfIconShoppingCart className="text-white" />
             Cart
             {cartCount > 0 && (
-              <span className="ml-1 bg-emerald-400 text-slate-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="ml-1 bg-emerald-400 text-slate-900 text-xs font-bold rounded-full w-5 h-5 hidden md:flex items-center justify-center">
                 {cartCount}
               </span>
             )}
@@ -281,11 +300,13 @@ export default function Header() {
             {categories.map((cat) => (
               <li key={cat.label}>
                 <SfListItem
-                  suffix={<SfIconChevronRight size="sm" />}
                   className="px-4"
                   onClick={() => setActiveCategory(cat.label)}
                 >
-                  {cat.label}
+                  <div className="flex items-center justify-between w-full">
+                    <span>{cat.label}</span>
+                    <SfIconChevronRight size="sm" />
+                  </div>
                 </SfListItem>
               </li>
             ))}

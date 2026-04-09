@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAsync } from "react-use";
 import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout } from "@storefront-ui/react";
-import AddToCartButton from "../components/AddToCartButton";
-import Breadcrumb from "../components/Breadcrumb";
+import AddToCartButton from "../components/common/AddToCartButton";
+import Breadcrumb from "../components/common/Breadcrumb";
 import { fetchProduct } from "../middleware/api/client";
 
 export default function PDP() {

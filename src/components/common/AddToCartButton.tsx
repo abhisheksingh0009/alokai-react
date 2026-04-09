@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { Product } from "../middleware/api/client";
-import { useCart } from "../context/CartContext";
-import { useToast } from "../context/ToastContext";
+import type { Product } from "../../middleware/api/client";
+import { useCart } from "../../context/CartContext";
+import { useToast } from "../../context/ToastContext";
 import Loader from "./Loader";
 import { SfIconShoppingCartCheckout } from "@storefront-ui/react";
 

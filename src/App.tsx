@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
+import Header from "./components/layout/Header";
 import Home from "./pages/Home";
 import ProductList from "./pages/ProductList";
 import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
+import Cart from "./components/cart/Cart";
 import { CartProvider } from "./context/CartContext";
 import { ToastProvider } from "./context/ToastContext";
-import Footer from "./components/Footer";
+import Footer from "./components/layout/Footer";
 
 export default function App() {
   return (

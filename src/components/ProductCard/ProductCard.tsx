@@ -1,7 +1,7 @@
 import React from "react";
 import { SfRating, SfLink, SfIconFavorite } from "@storefront-ui/react";
 import type { Product } from "../../middleware/api/client";
-import AddToCartButton from "../AddToCartButton";
+import AddToCartButton from "../common/AddToCartButton";
 
 export default function ProductCard({ product }: { product: Product }) {
   const rating = product.rating ?? 0;
