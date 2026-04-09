@@ -42,8 +42,8 @@ export default function PromoCode({ onApply }: Props) {
 
   return (
     <div className="flex-1 w-full">
-      <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#6B7280' }}>
-        Promo / Coupon Code
+      <label className="block text-xs mb-2" style={{ color: '#9CA3AF' }}>
+        Have a promo code?
       </label>
 
       {applied ? (
@@ -65,14 +65,14 @@ export default function PromoCode({ onApply }: Props) {
         </div>
       ) : (
         <>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <input
               type="text"
               value={input}
               onChange={e => { setInput(e.target.value); setError(''); }}
-              placeholder="Enter code (e.g. SAVE10)"
+              placeholder="e.g. SAVE10"
               disabled={loading}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none disabled:opacity-50 disabled:cursor-not-allowed uppercase placeholder:normal-case"
+              className="flex-1 px-3 py-2 rounded-lg text-sm outline-none disabled:opacity-50 disabled:cursor-not-allowed uppercase placeholder:normal-case"
               style={{
                 border: error ? '1.5px solid #EF4444' : '1.5px solid #E5E7EB',
                 color: '#111827',
@@ -83,7 +83,7 @@ export default function PromoCode({ onApply }: Props) {
             <button
               onClick={handleApply}
               disabled={loading}
-              className="px-5 py-2.5 rounded-xl text-sm font-bold shrink-0 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-w-[72px]"
+              className="px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center shrink-0"
               style={{ border: '1.5px solid #1B3A6B', color: '#1B3A6B', background: 'transparent' }}
               onMouseEnter={e => {
                 if (!loading) {

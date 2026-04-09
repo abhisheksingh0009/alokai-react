@@ -121,8 +121,29 @@ export default function Header() {
         </SfButton>
 
         {/* Logo */}
-        <Link to="/" className="text-white font-bold text-xl mr-6 whitespace-nowrap">
-          My Store
+        <Link to="/" className="flex items-center gap-2 mr-6 whitespace-nowrap group relative">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="34" height="34" rx="9" fill="url(#logoGrad)"/>
+            <path d="M11 14h12l-1.6 9.5H12.6L11 14z" fill="white"/>
+            <path d="M14 14c0-1.657 1.343-3 3-3s3 1.343 3 3" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#6366f1"/>
+                <stop offset="1" stopColor="#34d399"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          {/* Mobile: short abbr + tooltip on hover */}
+          <span className="md:hidden text-xl font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+            A-M
+          </span>
+          <span className="absolute left-0 top-full mt-1 px-2 py-1 text-xs font-semibold text-white bg-slate-700 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:hidden whitespace-nowrap z-50">
+            ALOKAI-MART
+          </span>
+          {/* Desktop: full name */}
+          <span className="hidden md:inline text-xl font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+            ALOKAI-MART
+          </span>
         </Link>
 
         {/* Search */}
@@ -182,7 +203,7 @@ export default function Header() {
             <SfIconShoppingCart className="text-white" />
             Cart
             {cartCount > 0 && (
-              <span className="ml-1 bg-emerald-400 text-slate-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="ml-1 bg-emerald-400 text-slate-900 text-xs font-bold rounded-full w-5 h-5 hidden md:flex items-center justify-center">
                 {cartCount}
               </span>
             )}
