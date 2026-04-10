@@ -1,9 +1,10 @@
 import { SfButton } from '@storefront-ui/react';
 import classNames from 'classnames';
+import banner2colImg from '../../assets/banner-2col.png';
 
 const displayDetails = [
   {
-    image: 'https://storage.googleapis.com/sfui_docs_artifacts_bucket_public/production/display-2.png',
+    image: banner2colImg,
     title: 'Pack it Up',
     subtitle: 'Be active',
     description: 'Explore the great outdoors with our backpacks',
