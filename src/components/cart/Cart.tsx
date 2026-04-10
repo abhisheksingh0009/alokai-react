@@ -80,7 +80,7 @@ export default function Cart() {
           <div className="flex flex-col lg:flex-row gap-8 items-start">
 
             {/* Left: Cart products + You May Also Like */}
-            <div className="flex-1 min-w-0 flex flex-col gap-6">
+            <div className="flex-1 min-w-0 overflow-hidden flex flex-col gap-6">
               <div className="rounded-2xl overflow-hidden flex flex-col" style={{ background: '#fff', border: '1px solid #E5E7EB' }}>
 
                 {/* Table header — desktop only */}
