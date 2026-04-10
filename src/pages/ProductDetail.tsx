@@ -6,6 +6,7 @@ import AddToCartButton from "../components/common/AddToCartButton";
 import Breadcrumb from "../components/common/Breadcrumb";
 import { fetchProduct } from "../middleware/api/client";
 import BannerOverlay from "../components/Carousel/BannerOverlay";
+import YouMayAlsoLike from "../components/YouMayAlsoLike";
 
 export default function PDP() {
   const { id } = useParams();
@@ -258,6 +259,9 @@ export default function PDP() {
           
           
         </div>
+        {product.category && (
+          <YouMayAlsoLike category={product.category} excludeId={product.id} />
+        )}
         <div className="mt-10 mb-10"><BannerOverlay/></div>
       </div>
     </div>

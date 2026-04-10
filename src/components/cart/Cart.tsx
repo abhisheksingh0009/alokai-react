@@ -28,8 +28,23 @@ export default function Cart() {
             Your Cart {cart.length > 0 && <span className="text-xl font-semibold" style={{ color: '#6B7280' }}>({cart.length})</span>}
           </h1>
           {cart.length > 0 && (
-            <Link to="/products" className="text-sm font-medium hover:underline flex items-center gap-1" style={{ color: '#1B3A6B' }}>
-              ← Continue Shopping
+            <Link
+              to="/products"
+              className="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200 hover:shadow-md"
+              style={{ color: '#1B3A6B', borderColor: '#1B3A6B', background: 'transparent' }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = '#1B3A6B';
+                (e.currentTarget as HTMLAnchorElement).style.color = '#fff';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+                (e.currentTarget as HTMLAnchorElement).style.color = '#1B3A6B';
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="transition-transform duration-200 group-hover:-translate-x-0.5">
+                <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Continue Shopping
             </Link>
           )}
         </div>
@@ -62,11 +77,11 @@ export default function Cart() {
 
         {/* Cart content */}
         {cart.length > 0 && (
-          <div className="flex flex-col lg:flex-row gap-8 items-stretch lg:items-start">
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-            {/* Left: Cart table */}
-            <div className="flex-1 min-w-0">
-              <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1px solid #E5E7EB' }}>
+            {/* Left: Cart products + You May Also Like */}
+            <div className="flex-1 min-w-0 flex flex-col gap-6">
+              <div className="rounded-2xl overflow-hidden flex flex-col" style={{ background: '#fff', border: '1px solid #E5E7EB' }}>
 
                 {/* Table header — desktop only */}
                 <div
@@ -97,6 +112,9 @@ export default function Cart() {
                   />
                 ))}
               </div>
+
+              {/* You May Also Like — inside left column */}
+              <YouMayAlsoLike />
             </div>
 
             {/* Right: Order Summary */}
@@ -110,8 +128,6 @@ export default function Cart() {
             />
           </div>
         )}
-
-        {cart.length > 0 && <YouMayAlsoLike />}
       </div>
     </div>
   );

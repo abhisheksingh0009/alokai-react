@@ -6,29 +6,18 @@ import {
   SfIconChevronRight,
 } from "@storefront-ui/react";
 import classNames from "classnames";
-
-// const withBase = (filepath: string) => `https://storage.googleapis.com/sfui_docs_artifacts_bucket_public/production/gallery/${filepath}`;
-
-// const images = [
-//   { imageSrc: withBase('gallery_1.png'), alt: 'backpack1' },
-//   { imageSrc: withBase('gallery_2.png'), alt: 'backpack2' },
-//   { imageSrc: withBase('gallery_3.png'), alt: 'backpack3' },
-//   { imageSrc: withBase('gallery_4.png'), alt: 'backpack4' },
-//   { imageSrc: withBase('gallery_5.png'), alt: 'backpack5' },
-//   { imageSrc: withBase('gallery_6.png'), alt: 'backpack6' },
-//   { imageSrc: withBase('gallery_7.png'), alt: 'backpack7' },
-//   { imageSrc: withBase('gallery_8.png'), alt: 'backpack8' },
-//   { imageSrc: withBase('gallery_9.png'), alt: 'backpack9' },
-//   { imageSrc: withBase('gallery_10.png'), alt: 'backpack10' },
-//   { imageSrc: withBase('gallery_11.png'), alt: 'backpack11' },
-// ];
-
-const withBase = (filepath: string) =>
-  `https://storage.googleapis.com/sfui_docs_artifacts_bucket_public/production/${filepath}`;
+import imgDisplay from "../../assets/carousel-display.png";
+import imgDisplay2 from "../../assets/carousel-display-2.png";
+import imgDisplay3 from "../../assets/carousel-display-3.png";
+import imgHeroBg from "../../assets/carousel-hero-bg.png";
+import imgHeroBg2 from "../../assets/carousel-hero-bg-2.png";
+import imgDisplayOverlay from "../../assets/carousel-display-overlay.png";
+import imgHeroHeadphones from "../../assets/carousel-hero-headphones.png";
+import imgDisplay8 from "../../assets/carousel-display-8.png";
 
 const images = [
   {
-    imageSrc: withBase("display.png"),
+    imageSrc: imgDisplay,
     alt: "backpack1",
     title: "Pack it Up",
     subtitle: "Be active",
@@ -37,28 +26,34 @@ const images = [
     reverse: true,
     backgroundColor: "bg-warning-200",
   },
-  { imageSrc: withBase("display-2.png"), alt: "backpack2",title: 'Sunny Days Ahead',
-    subtitle: 'Be inspired',
-    description: 'Step out in style with our sunglasses collection',
-    buttonText: 'Discover now',
+  {
+    imageSrc: imgDisplay2,
+    alt: "backpack2",
+    title: "Sunny Days Ahead",
+    subtitle: "Be inspired",
+    description: "Step out in style with our sunglasses collection",
+    buttonText: "Discover now",
     reverse: true,
-    backgroundColor: 'bg-negative-200', },
-  { imageSrc: withBase("display-3.png"), alt: "backpack3", title: 'Fresh and Bold',
-    subtitle: 'New collection',
-    description: 'Add a pop up color to your outfit',
-    buttonText: 'Discover now',
+    backgroundColor: "bg-negative-200",
+  },
+  {
+    imageSrc: imgDisplay3,
+    alt: "backpack3",
+    title: "Fresh and Bold",
+    subtitle: "New collection",
+    description: "Add a pop up color to your outfit",
+    buttonText: "Discover now",
     reverse: false,
-    backgroundColor: 'bg-secondary-200' },
-  { imageSrc: withBase("hero-bg.png"), alt: "backpack4" },
-  { imageSrc: withBase("hero-bg-2.png"), alt: "backpack5" },
-  { imageSrc: withBase("display-overlay.png"), alt: "backpack6" },
-  { imageSrc: withBase("hero-headphones.png"), alt: "headphones" },
-  { imageSrc: withBase("display-8.png"), alt: "backpack8" },
+    backgroundColor: "bg-secondary-200",
+  },
+  { imageSrc: imgHeroBg, alt: "backpack4" },
+  { imageSrc: imgHeroBg2, alt: "backpack5" },
+  { imageSrc: imgDisplayOverlay, alt: "backpack6" },
+  { imageSrc: imgHeroHeadphones, alt: "headphones" },
+  { imageSrc: imgDisplay8, alt: "backpack8" },
 ];
 export default function Carousel() {
   const [activeIndex, setActiveIndex] = useState(0);
-  console.log("Image list:", images);
-  console.log("Total images:", images.length);
   return (
     <div className="relative flex flex-col w-full gap-1 mt-10 ">
       <SfScrollable
@@ -108,13 +103,13 @@ export default function Carousel() {
           ) => (
             <div
               className={classNames(
-                "relative flex flex-col md:flex-row justify-center basis-full snap-center snap-always shrink-0 grow overflow-hidden, gap-6",
+                "relative flex flex-col md:flex-row basis-full snap-center snap-always shrink-0 grow overflow-hidden",
                 backgroundColor,
                 { "md:flex-row-reverse": reverse },
               )}
             >
               {(title || subtitle || buttonText || description) && (
-                <div className="w-full md:w-1/2 flex flex-col justify-center items-center text-center md:items-start md:text-start p-4 @sm:p-6 @3xl:p-10">
+                <div className="w-full md:w-1/2 shrink-0 flex flex-col justify-center items-center text-center md:items-start md:text-start p-4 @sm:p-6 @3xl:p-10">
                   {subtitle && (
                     <p className="uppercase typography-text-xs block font-medium tracking-widest @3xl:typography-headline-6">
                       {subtitle}
@@ -141,7 +136,7 @@ export default function Carousel() {
                   )}
                 </div>
               )}
-              <div className="w-full md:w-1/2 md:h-full overflow-hidden">
+              <div className={classNames("w-full flex-1 min-h-0 overflow-hidden", { "md:w-1/2": title || subtitle || buttonText || description })}>
                 <img
                   src={imageSrc}
                   alt={alt}
