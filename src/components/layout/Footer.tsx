@@ -40,8 +40,8 @@ export default function Footer() {
       {/* Top accent line */}
       <div className="h-1" style={{ background: 'linear-gradient(90deg, #f59e0b, #ef4444, #ec4899, #8b5cf6, #3b82f6, #10b981)' }} />
 
-      <div className="max-w-7xl mx-auto px-4 py-14 md:px-6">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
+      <div className="max-w-7xl mx-auto pl-10 pr-2 py-14 md:pl-18 lg:pr-24">
+        <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:grid-cols-4 text-left">
 
           {/* Brand */}
           <div className="flex flex-col gap-4">
@@ -68,7 +68,7 @@ export default function Footer() {
 
           {/* Shop */}
           <div>
-            <h3 className="font-bold text-sm mb-4 uppercase tracking-widest text-amber-400">Shop</h3>
+            <h3 className="font-bold text-xl mb-4 uppercase tracking-widest text-amber-400">Shop</h3>
             <ul className="flex flex-col gap-2">
               {footerLinks.shop.map(({ label, to }) => (
                 <li key={label}>
@@ -82,7 +82,7 @@ export default function Footer() {
 
           {/* Help */}
           <div>
-            <h3 className="font-bold text-sm mb-4 uppercase tracking-widest text-pink-400">Help</h3>
+            <h3 className="font-bold text-xl mb-4 uppercase tracking-widest text-pink-400">Help</h3>
             <ul className="flex flex-col gap-2">
               {footerLinks.help.map(({ label, to }) => (
                 <li key={label}>
@@ -94,10 +94,9 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Company + Newsletter */}
-          <div className="flex flex-col gap-6">
+          {/* Company*/}
             <div>
-              <h3 className="font-bold text-sm mb-4 uppercase tracking-widest text-purple-400">Company</h3>
+              <h3 className="font-bold text-xl mb-4 uppercase tracking-widest text-purple-400">Company</h3>
               <ul className="flex flex-col gap-2">
                 {footerLinks.company.map(({ label, to }) => (
                   <li key={label}>
@@ -109,8 +108,9 @@ export default function Footer() {
               </ul>
             </div>
 
-            <div>
-              <h3 className="font-bold text-sm mb-3 uppercase tracking-widest text-cyan-400">Newsletter</h3>
+          {/* { Newsletter } */}
+          <div className='col-span-2 lg:col-start-4 w-full max-w-[350px]'>
+              <h3 className="font-bold text-xl mb-3 uppercase tracking-widest text-cyan-400">Newsletter</h3>
               <p className="text-slate-400 text-sm mb-3">Get the latest deals and news.</p>
               <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
                 <input
@@ -124,14 +124,13 @@ export default function Footer() {
                 </SfButton>
               </form>
             </div>
-          </div>
         </div>
       </div>
 
       {/* Bottom bar */}
       <div className="border-t border-slate-600/80">
         <div className="max-w-7xl mx-auto px-4 py-4 md:px-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <p className="text-slate-400 text-sm">
+          <p className="text-slate-400 text-sm text-left">
             &copy; {new Date().getFullYear()} My Store. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-2">
