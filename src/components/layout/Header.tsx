@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   SfButton,
+  SfInput,
   SfIconShoppingCart,
   SfIconFavorite,
   SfIconPerson,
@@ -15,7 +16,7 @@ import {
   useDisclosure,
 } from '@storefront-ui/react';
 import { useCart } from '../../context/CartContext';
-import SearchResuts from '../common/SearchResults';
+import SearchResults from '../common/SearchResults';
 import { fetchProducts, type Product } from '../../middleware/api/client';
 
 //poc use
@@ -71,13 +72,9 @@ export default function Header() {
     })
   }, []);
 
-  useEffect(()=>{
-    if (inputVal.length >= 3) {
-    setShowSuggestion(true);
-  } else {
-    setShowSuggestion(false);
-  }
-  },[inputVal]);
+  useEffect(() => {
+    setShowSuggestion(inputVal.length >= 1);
+  }, [inputVal]);
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -122,45 +119,71 @@ export default function Header() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 mr-6 whitespace-nowrap group relative">
-          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="34" height="34" rx="9" fill="url(#logoGrad)"/>
-            <path d="M11 14h12l-1.6 9.5H12.6L11 14z" fill="white"/>
-            <path d="M14 14c0-1.657 1.343-3 3-3s3 1.343 3 3" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+          {/* Logo mark — premium tote bag */}
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="logoGrad" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
+              <linearGradient id="logoBg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
                 <stop stopColor="#6366f1"/>
-                <stop offset="1" stopColor="#34d399"/>
+                <stop offset="1" stopColor="#06b6d4"/>
+              </linearGradient>
+              <linearGradient id="logoSheen" x1="0" y1="0" x2="0" y2="40" gradientUnits="userSpaceOnUse">
+                <stop stopColor="white" stopOpacity="0.15"/>
+                <stop offset="1" stopColor="white" stopOpacity="0"/>
               </linearGradient>
             </defs>
+            <rect width="40" height="40" rx="11" fill="url(#logoBg)"/>
+            <rect width="40" height="40" rx="11" fill="url(#logoSheen)"/>
+            {/* Tote bag body — trapezoid */}
+            <path d="M10 18h20l-2 13H12L10 18z" fill="white" fillOpacity="0.95"/>
+            {/* Two rope handles */}
+            <path d="M15 18c0-3 1.5-6 5-6s5 3 5 6" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none" strokeOpacity="0.7"/>
+            {/* Horizontal band across bag */}
+            <path d="M10.6 22.5h18.8" stroke="url(#logoBg)" strokeWidth="2"/>
+            {/* Bold A on bag */}
+            <path d="M18 29l2-5 2 5M18.8 27.5h2.4" stroke="#6366f1" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          {/* Mobile: two lines */}
-          {/* <span className="md:hidden flex flex-col leading-tight font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
-            <span className="text-sm">ALOKAI</span>
-            <span className="text-sm">MART</span>
-          </span> */}
-          {/* Desktop: single line */}
-          <span className="hidden md:inline text-xl font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
-            ALOKAI-MART
-          </span>
+
+          {/* Wordmark */}
+          <div className="hidden md:flex flex-col leading-none gap-0.5">
+            <span className="text-[10px] font-semibold tracking-[0.3em] uppercase text-amber-400/80">Premium</span>
+            <span className="text-lg font-black tracking-[0.12em] uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">ALOKAI-MART</span>
+          </div>
         </Link>
 
         {/* Search */}
         <form className="hidden md:flex flex-1" onSubmit={handleSearchSubmit}>
-          <div className="container relative">
-            <div className="flex w-full bg-slate-700/60 border border-slate-500 rounded-lg overflow-hidden focus-within:border-cyan-400 focus-within:bg-slate-700 transition-all">
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="flex-1 px-4 py-2 bg-transparent text-white text-sm outline-none placeholder:text-slate-400"
-                value={inputVal}
-                onChange={(e)=>setInputVal(e.target.value)}
-                onKeyDown={handleKeyDown}
-              />
-              <button type="submit" className="px-4 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
-                <SfIconSearch />
-              </button>
-            </div>
-            <SearchResuts inputVal={inputVal} setInputVal={setInputVal} items={items} isOpen={showSuggestion}/>
+          <div className="relative w-full flex items-center">
+            <SfInput
+              value={inputVal}
+              placeholder="Search products..."
+              className="!text-white !placeholder-slate-400 !bg-transparent"
+              wrapperClassName="flex-1 !bg-slate-700/60 !border-slate-500 !border-r-0 !rounded-r-none focus-within:!border-cyan-400 focus-within:!bg-slate-700 transition-all"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputVal(e.target.value)}
+              onKeyDown={handleKeyDown}
+              slotPrefix={<SfIconSearch className="text-slate-400" />}
+              slotSuffix={
+                inputVal ? (
+                  <SfButton
+                    type="button"
+                    variant="tertiary"
+                    square
+                    size="sm"
+                    className="!text-slate-400 hover:!text-white"
+                    aria-label="Clear search"
+                    onClick={() => setInputVal('')}
+                  >
+                    <SfIconClose size="sm" />
+                  </SfButton>
+                ) : undefined
+              }
+            />
+            <SfButton
+              type="submit"
+              className="!bg-cyan-500 hover:!bg-cyan-400 !text-white !rounded-l-none !rounded-r-lg shrink-0 self-stretch !h-auto"
+            >
+              Search
+            </SfButton>
+            <SearchResults inputVal={inputVal} setInputVal={setInputVal} items={items} isOpen={showSuggestion}/>
           </div>
         </form>
 

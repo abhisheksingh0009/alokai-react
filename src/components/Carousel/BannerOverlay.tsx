@@ -1,4 +1,5 @@
 import { SfButton } from '@storefront-ui/react';
+import bannerOverlayImg from '../../assets/banner-overlay.png';
 
 const displayDetails = [
   {
@@ -6,7 +7,7 @@ const displayDetails = [
     subtitle: 'Special Offer',
     description: 'Score serious style points with our Open Capsule collection',
     buttonText: 'Coming Soon....',
-    backgroundImage: 'https://storage.googleapis.com/sfui_docs_artifacts_bucket_public/production/display-overlay.png',
+    backgroundImage: bannerOverlayImg,
   },
 ];
 
