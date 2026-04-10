@@ -6,6 +6,7 @@ export const apiConfig = {
     searchProducts: '/products/search?q=${query}',
     productsByCategory: '/products/category/${category}',
     categories: '/products/categories',
+    comments: '/comments?limit=${limit}&skip=${skip}',
   },
 };
 

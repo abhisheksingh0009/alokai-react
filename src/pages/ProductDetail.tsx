@@ -4,6 +4,7 @@ import { useAsync } from "react-use";
 import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout } from "@storefront-ui/react";
 import AddToCartButton from "../components/common/AddToCartButton";
 import Breadcrumb from "../components/common/Breadcrumb";
+import ReviewsSection from "../components/common/ReviewsSection";
 import { fetchProduct } from "../middleware/api/client";
 import BannerOverlay from "../components/Carousel/BannerOverlay";
 import YouMayAlsoLike from "../components/YouMayAlsoLike";
@@ -192,6 +193,15 @@ export default function PDP() {
               )}
             </div>
 
+            {/* Write a Review */}
+            <button
+              onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
+              className="self-start text-sm font-semibold underline underline-offset-2 transition-opacity duration-150 hover:opacity-70"
+              style={{ color: '#1B3A6B' }}
+            >
+              Write a Review
+            </button>
+
             {/* Price */}
             <div className="flex items-baseline gap-3 flex-wrap">
               <span className="text-4xl font-bold" style={{ color: '#111827' }}>
@@ -263,6 +273,11 @@ export default function PDP() {
           <YouMayAlsoLike category={product.category} excludeId={product.id} />
         )}
         <div className="mt-10 mb-10"><BannerOverlay/></div>
+
+        {/* Reviews Section */}
+        <div className="mb-10">
+          <ReviewsSection productId={product.id} />
+        </div>
       </div>
     </div>
   );

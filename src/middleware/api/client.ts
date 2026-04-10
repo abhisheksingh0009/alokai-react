@@ -36,6 +36,20 @@ export function fetchProductsByCategory(category: string): Promise<Product[]> {
   return get<ProductsResponse>(apiConfig.endpoints.productsByCategory, { category }).then(d => d.products ?? []);
 }
 
+export type Comment = {
+  id: number;
+  body: string;
+  postId: number;
+  likes: number;
+  user: { id: number; username: string; fullName: string };
+};
+
+type CommentsResponse = { comments: Comment[]; total: number; skip: number; limit: number };
+
+export function fetchComments(limit = 6, skip = 0): Promise<Comment[]> {
+  return get<CommentsResponse>(apiConfig.endpoints.comments, { limit, skip }).then(d => d.comments ?? []);
+}
+
 type CategoryItem = string | { slug: string; name: string; url: string };
 
 export function fetchCategories(): Promise<string[]> {
