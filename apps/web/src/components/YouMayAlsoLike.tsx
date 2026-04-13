@@ -13,17 +13,15 @@ export default function YouMayAlsoLike({ category, excludeId }: Props = {}) {
   const [suggestions, setSuggestions] = useState<Product[]>([]);
 
   useEffect(() => {
-    // PDP mode: fetch by explicit category
     if (category) {
       fetchProductsByCategory(category).then(products => {
         const others = products.filter(p => p.id !== excludeId);
         const shuffled = others.sort(() => Math.random() - 0.5);
-        setSuggestions(shuffled.slice(0, 4));
+        setSuggestions(shuffled.slice(0, 10));
       });
       return;
     }
 
-    // Cart mode: fetch from cart categories
     const cartIds = new Set(cart.map(i => i.id));
     const categories = [...new Set(cart.map(i => i.category).filter(Boolean))] as string[];
 
@@ -35,7 +33,7 @@ export default function YouMayAlsoLike({ category, excludeId }: Props = {}) {
     Promise.all(categories.map(cat => fetchProductsByCategory(cat)))
       .then(results => {
         const picked = results.flatMap(products =>
-          products.filter(p => !cartIds.has(p.id)).slice(0, 2)
+          products.filter(p => !cartIds.has(p.id)).slice(0, 5)
         );
         setSuggestions(picked);
       });
@@ -44,15 +42,14 @@ export default function YouMayAlsoLike({ category, excludeId }: Props = {}) {
   if (suggestions.length === 0) return null;
 
   return (
-    <div className="mt-14">
-      <div className="flex items-center gap-3 mb-2">
-        <h2 className="text-xl font-bold text-neutral-900">
+    <div className="mt-10">
+      <div className="flex items-center gap-3 mb-4">
+        <h2 className="text-xl font-bold text-neutral-900 whitespace-nowrap">
           {category ? `More from ${category.replace(/-/g, ' ')}` : 'You may also like'}
         </h2>
         <div className="flex-1 h-px" style={{ background: '#E2E8F0' }} />
       </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {suggestions.map(product => (
           <ProductCard key={product.id} product={product} />
         ))}

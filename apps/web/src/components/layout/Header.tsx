@@ -157,7 +157,7 @@ export default function Header() {
               value={inputVal}
               placeholder="Search products..."
               className="!text-white !placeholder-slate-400 !bg-transparent"
-              wrapperClassName="flex-1 !bg-slate-700/60 !border-slate-500 !border-r-0 !rounded-r-none focus-within:!border-cyan-400 focus-within:!bg-slate-700 transition-all"
+              wrapperClassName="flex-1 !bg-slate-700/60 !border-slate-500 !rounded-lg focus-within:!border-cyan-400 focus-within:!bg-slate-700 transition-all"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputVal(e.target.value)}
               onKeyDown={handleKeyDown}
               slotPrefix={<SfIconSearch className="text-slate-400" />}
@@ -177,12 +177,7 @@ export default function Header() {
                 ) : undefined
               }
             />
-            <SfButton
-              type="submit"
-              className="!bg-cyan-500 hover:!bg-cyan-400 !text-white !rounded-l-none !rounded-r-lg shrink-0 self-stretch !h-auto"
-            >
-              Search
-            </SfButton>
+
             <SearchResults inputVal={inputVal} setInputVal={setInputVal} items={items} isOpen={showSuggestion}/>
           </div>
         </form>
