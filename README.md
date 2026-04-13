@@ -1,73 +1,93 @@
-# React + TypeScript + Vite
+# Alokai Storefront POC
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A proof-of-concept e-commerce storefront built with **Alokai** (Storefront UI), **React 19**, **TypeScript**, and **Vite**. The project demonstrates a complete shopping experience — product listing, filtering, product detail pages, cart management, and customer reviews — all powered by the [DummyJSON](https://dummyjson.com) API.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+| Layer | Technology |
+|---|---|
+| Framework | React 19 + TypeScript |
+| Build tool | Vite |
+| UI components | Storefront UI v4 (`@storefront-ui/react`) |
+| Styling | Tailwind CSS v4 |
+| Routing | React Router v7 |
+| Async state | `react-use` (`useAsync`) |
+| Data source | DummyJSON REST API |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Home page** — Hero carousel, promotional banners, featured categories
+- **Product listing** — Paginated grid with category filters and search
+- **Product detail page (PDP)**
+  - Image gallery with thumbnail navigation
+  - Sale price, discount badge, stock indicator
+  - Add to Cart with toast feedback
+  - Wishlist button
+  - Trust badges (shipping, returns, warranty)
+  - "You may also like" recommendations
+  - Customer reviews section (deterministic per-product, sourced from DummyJSON comments)
+- **Cart** — Line items, quantity controls, promo code input, order summary
+- **Global state** — Cart context + Toast notification context
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/
+│   ├── Carousel/        # Hero banners and overlay banners
+│   ├── ProductCard/     # Reusable product card
+│   ├── ProductList/     # Grid, filters, pagination, skeleton
+│   ├── cart/            # Cart drawer, rows, summary, promo code
+│   ├── common/          # AddToCartButton, Breadcrumb, Review, ReviewsSection
+│   └── layout/          # Header, Footer
+├── context/             # CartContext, ToastContext
+├── hooks/               # useProducts, useProductFilters
+├── middleware/api/      # Typed API client + endpoint config (DummyJSON)
+└── pages/               # Home, ProductList, ProductDetail
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Getting Started
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js 18+
+- npm or pnpm
+
+### Install & run
+
+```bash
+npm install
+npm run dev
 ```
+
+The app will be available at `http://localhost:5173`.
+
+### Build for production
+
+```bash
+npm run build
+npm run preview
+```
+
+---
+
+## API
+
+All data is fetched from [DummyJSON](https://dummyjson.com). The API client lives in `src/middleware/api/` and exposes:
+
+| Function | Endpoint |
+|---|---|
+| `fetchProducts` | `GET /products` |
+| `fetchProduct` | `GET /products/:id` |
+| `searchProducts` | `GET /products/search` |
+| `fetchProductsByCategory` | `GET /products/category/:category` |
+| `fetchCategories` | `GET /products/categories` |
+| `fetchComments` | `GET /comments` |
