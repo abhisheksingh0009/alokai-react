@@ -16,6 +16,7 @@ import {
   useDisclosure,
 } from '@storefront-ui/react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import SearchResults from '../common/SearchResults';
 import { fetchProducts, type Product } from '../../middleware/api/client';
 
@@ -41,6 +42,7 @@ const categories = [
 
 export default function Header() {
   const { cart } = useCart()!;
+  const { user, logout } = useAuth();
   const { isOpen: isDrawerOpen, open: openDrawer, close: closeDrawer } = useDisclosure();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
@@ -187,31 +189,55 @@ export default function Header() {
           <Link to="/wishlist" className="flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap" aria-label="Wishlist">
             <SfIconFavorite className="text-white" />
           </Link>
-          <div className="relative" ref={accountRef}>
+          <div
+            className="relative"
+            ref={accountRef}
+          >
             <button
-              className="flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap"
+              className="flex items-center gap-1.5 text-white font-medium whitespace-nowrap"
               aria-label="Account"
               onClick={() => setIsAccountOpen(prev => !prev)}
             >
               <SfIconPerson className="text-white" />
-              <span className="hidden md:inline"></span>
+              <span className="hidden md:inline text-sm">{user ? user.name : ''}</span>
             </button>
             {isAccountOpen && (
-              <div className="absolute right-0 top-full mt-2 w-40 bg-white text-neutral-900 rounded-lg shadow-xl z-50 py-1 border border-neutral-100">
-                <Link
-                  to="/login"
-                  className="block px-4 py-2.5 text-sm font-medium hover:bg-neutral-100 hover:text-emerald-600"
-                  onClick={() => setIsAccountOpen(false)}
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="block px-4 py-2.5 text-sm font-medium hover:bg-neutral-100 hover:text-emerald-600"
-                  onClick={() => setIsAccountOpen(false)}
-                >
-                  Sign up
-                </Link>
+              <div className="absolute right-0 top-full mt-1 w-44 bg-white text-neutral-900 rounded-xl shadow-xl z-50 py-1.5 border border-neutral-100">
+                {user ? (
+                  <>
+                    <Link
+                      to="/account"
+                      className="block px-4 py-2.5 text-sm font-medium hover:bg-neutral-50 hover:text-emerald-600"
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      My Account
+                    </Link>
+                    <div className="border-t border-neutral-100 my-1" />
+                    <button
+                      className="w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-neutral-50 hover:text-red-500 transition-colors"
+                      onClick={() => { logout(); setIsAccountOpen(false); }}
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="block px-4 py-2.5 text-sm font-medium hover:bg-neutral-50 hover:text-emerald-600"
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="block px-4 py-2.5 text-sm font-medium hover:bg-neutral-50 hover:text-emerald-600"
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      Sign up
+                    </Link>
+                  </>
+                )}
               </div>
             )}
           </div>
