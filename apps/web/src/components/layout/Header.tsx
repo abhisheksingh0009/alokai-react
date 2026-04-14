@@ -16,6 +16,7 @@ import {
   useDisclosure,
 } from '@storefront-ui/react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import SearchResults from '../common/SearchResults';
 import { fetchProducts, type Product } from '../../middleware/api/client';
 
@@ -41,6 +42,7 @@ const categories = [
 
 export default function Header() {
   const { cart } = useCart()!;
+  const { user, logout } = useAuth();
   const { isOpen: isDrawerOpen, open: openDrawer, close: closeDrawer } = useDisclosure();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
@@ -187,31 +189,69 @@ export default function Header() {
           <Link to="/wishlist" className="flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap" aria-label="Wishlist">
             <SfIconFavorite className="text-white" />
           </Link>
-          <div className="relative" ref={accountRef}>
+          <div
+            className="relative"
+            ref={accountRef}
+          >
             <button
-              className="flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap"
+              className="flex items-center gap-1.5 text-white font-medium whitespace-nowrap"
               aria-label="Account"
               onClick={() => setIsAccountOpen(prev => !prev)}
             >
               <SfIconPerson className="text-white" />
-              <span className="hidden md:inline"></span>
+              <span className="hidden md:inline text-sm">{user ? user.name : ''}</span>
             </button>
             {isAccountOpen && (
-              <div className="absolute right-0 top-full mt-2 w-40 bg-white text-neutral-900 rounded-lg shadow-xl z-50 py-1 border border-neutral-100">
-                <Link
-                  to="/login"
-                  className="block px-4 py-2.5 text-sm font-medium hover:bg-neutral-100 hover:text-emerald-600"
-                  onClick={() => setIsAccountOpen(false)}
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="block px-4 py-2.5 text-sm font-medium hover:bg-neutral-100 hover:text-emerald-600"
-                  onClick={() => setIsAccountOpen(false)}
-                >
-                  Sign up
-                </Link>
+              <div className="absolute right-0 top-full mt-2 w-56 bg-slate-900 text-white rounded-2xl shadow-2xl z-50 overflow-hidden border border-slate-700">
+
+                {/* Header section */}
+                <div className="px-4 py-3 bg-slate-800 border-b border-slate-700 flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center">
+                    <SfIconPerson className="text-white" />
+                  </div>
+                  <span className="text-xs text-slate-400 font-medium">My Account</span>
+                </div>
+
+                {user ? (
+                  <>
+                    <Link
+                      to="/account"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-slate-800 transition-colors"
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      <span className="text-emerald-400">&#9679;</span>
+                      Profile
+                    </Link>
+                    <div className="border-t border-slate-700 mx-3" />
+                    <button
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-slate-800 text-red-400 hover:text-red-300 transition-colors"
+                      onClick={() => { logout(); setIsAccountOpen(false); }}
+                    >
+                      <span>&#8594;</span>
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-slate-800 transition-colors"
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      <span className="text-indigo-400">&#9679;</span>
+                      Login
+                    </Link>
+                    <div className="border-t border-slate-700 mx-3" />
+                    <Link
+                      to="/signup"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-slate-800 transition-colors"
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      <span className="text-cyan-400">&#9679;</span>
+                      Sign up
+                    </Link>
+                  </>
+                )}
               </div>
             )}
           </div>

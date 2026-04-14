@@ -3,14 +3,15 @@ import { useAsync } from 'react-use';
 import { fetchProducts, type Product } from '../middleware/api/client';
 import { PRICE_RANGES, type Filters } from './useProductFilters';
 
-export const PAGE_SIZE = 9;
+export const PAGE_SIZE = typeof window !== 'undefined' && window.innerWidth < 768 ? 10 : 20;
+export const LOAD_MORE_SIZE = typeof window !== 'undefined' && window.innerWidth < 768 ? 10 : 20;
 
 const MOCK_PRODUCTS: Product[] = [
   { id: 1, title: 'Classic Sneakers', price: 89.99, images: [], thumbnail: 'https://via.placeholder.com/300', description: 'Comfortable everyday sneakers.', rating: 4.2, stock: 12 },
   { id: 2, title: 'Leather Bag',      price: 129.99, images: [], thumbnail: 'https://via.placeholder.com/300', description: 'Premium handcrafted leather bag.', rating: 4.7, stock: 8 },
 ];
 
-export function useProducts(filters: Filters, currentPage: number) {
+export function useProducts(filters: Filters, loadedPages: number) {
   const { loading, error, value: rawProducts } = useAsync(fetchProducts, []);
 
   const allProducts: Product[] = rawProducts ?? (error ? MOCK_PRODUCTS : []);
@@ -41,13 +42,16 @@ export function useProducts(filters: Filters, currentPage: number) {
     return list;
   }, [allProducts, filters]);
 
-  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const visibleCount = PAGE_SIZE + (loadedPages - 1) * LOAD_MORE_SIZE;
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
 
   return {
     loading,
     categories,
     filtered,
-    paginated,
+    paginated: visible,
+    hasMore,
     totalItems: filtered.length,
   };
 }
