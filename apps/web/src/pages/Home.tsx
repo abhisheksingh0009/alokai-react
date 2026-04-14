@@ -19,14 +19,14 @@ export default function Home() {
   const [featured, setFeatured] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetchProducts().then(data => setFeatured(data.slice(0, 4))).catch(() => {});
+    fetchProducts().then(data => setFeatured(data.slice(0, 4))).catch(() => { });
   }, []);
 
   return (
     <div>
       {/*Carousel*/}
       <section className="relative  flex items-center justify-center max-w-6xl mx-auto px-4 pb-12">
-        <Carousel/>
+        <Carousel />
       </section>
       {/* Hero */}
       {/* <section className="relative h-[420px] flex items-center justify-center overflow-hidden bg-slate-900">
@@ -68,9 +68,11 @@ export default function Home() {
               View all →
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {featured.map(product => (
-              <ProductCard key={product.id} product={product} />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {featured.map((product, index) => (
+              <div key={product.id} className={index >= 2 ? 'hidden md:block' : ''}>
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         </section>
@@ -78,11 +80,11 @@ export default function Home() {
 
       {/*single banner*/}
       <section className="max-w-6xl mx-auto px-4 pb-12">
-        <BannerOverlay/>
+        <BannerOverlay />
       </section>
       {/*single banner*/}
       <section className="max-w-6xl mx-auto px-4 pb-12">
-        <Banner2Col/>
+        <Banner2Col />
       </section>
     </div>
   );
