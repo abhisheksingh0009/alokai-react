@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { SfIconMenu, SfIconExpandMore, SfIconClose } from '@storefront-ui/react';
 import { useProductFilters, SORT_OPTIONS } from '../hooks/useProductFilters';
 import { useProducts } from '../hooks/useProducts';
 import ProductListFilters from '../components/ProductList/ProductListFilters';
 import ProductListGrid from '../components/ProductList/ProductListGrid';
-import ProductListPagination from '../components/ProductList/ProductListPagination';
 import ProductListSkeleton from '../components/ProductList/ProductListSkeleton';
 
 export default function PLP() {
@@ -16,7 +15,33 @@ export default function PLP() {
     clearAll, hasFilters, activeFilterCount,
   } = useProductFilters();
 
-  const { loading, categories, filtered, paginated, totalItems } = useProducts(filters, currentPage);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const { loading, categories, filtered, paginated, hasMore } = useProducts(filters, currentPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => { setCurrentPage(1); }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || loadingMore) return;
+    setLoadingMore(true);
+    setTimeout(() => {
+      setCurrentPage(p => p + 1);
+      setLoadingMore(false);
+    }, 400);
+  }, [hasMore, loadingMore]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) loadMore(); },
+      { rootMargin: '200px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   if (loading) return <ProductListSkeleton />;
 
@@ -120,11 +145,18 @@ export default function PLP() {
               hasFilters={hasFilters}
               onClearFilters={clearAll}
             />
-            <ProductListPagination
-              totalItems={totalItems}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
+
+            {/* Infinite scroll sentinel + spinner */}
+            <div ref={sentinelRef} className="h-1" />
+            {(loadingMore || (hasMore && !loading)) && (
+              <div className="flex justify-center items-center gap-3 py-8">
+                <svg className="animate-spin h-5 w-5" style={{ color: '#1B3A6B' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="text-sm font-semibold" style={{ color: '#1B3A6B' }}>Loading</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
