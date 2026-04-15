@@ -11,10 +11,12 @@ import { CartProvider } from "./context/CartContext";
 import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./context/AuthContext";
 import Footer from "./components/layout/Footer";
+import { WishlistProvider } from "./context/WishlistContext";
+import Wishlist from "./components/Wishlist/Wishlist";
 
 export default function App() {
   return (
-    <AuthProvider>
+    <WishlistProvider>
       <CartProvider>
         <ToastProvider>
           <BrowserRouter>
@@ -24,14 +26,12 @@ export default function App() {
               <Route path="/products" element={<ProductList />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
-              <Route path="/login" element={<LoginForm />} />
-              <Route path="/signup" element={<SignupForm />} />
-              <Route path="/account" element={<AccountPage />} />
+              <Route path="/wishlist" element={<Wishlist />} />
             </Routes>
-            <Footer/>
+            <Footer />
           </BrowserRouter>
         </ToastProvider>
       </CartProvider>
-    </AuthProvider>
+    </WishlistProvider>
   );
 }
