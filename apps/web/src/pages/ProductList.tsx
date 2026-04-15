@@ -95,7 +95,7 @@ export default function PLP() {
         {/* Layout: sidebar + grid */}
         <div className="flex gap-8 items-start">
 
-          {/* Desktop sidebar */}
+          {/* Desktop sidebar — white */}
           <aside
             className="hidden lg:block w-60 shrink-0 rounded-2xl p-5 sticky top-6"
             style={{ background: '#fff', border: '1px solid #E2E8F0' }}
@@ -111,21 +111,26 @@ export default function PLP() {
             />
           </aside>
 
-          {/* Mobile sidebar drawer */}
+          {/* Mobile sidebar drawer — dark */}
           {sidebarOpen && (
             <div className="fixed inset-0 z-50 lg:hidden">
-              <div className="absolute inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
-              <div
-                className="absolute left-0 top-0 bottom-0 w-72 overflow-y-auto p-6"
-                style={{ background: '#fff' }}
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <span className="font-bold text-base" style={{ color: '#111827' }}>Filters</span>
-                  <button onClick={() => setSidebarOpen(false)} style={{ color: '#6B7280' }}>
+              <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+              <div className="absolute left-0 top-0 bottom-0 w-72 overflow-y-auto bg-slate-900 border-r border-slate-700 flex flex-col">
+                <div className="flex items-center justify-between px-4 py-3.5 bg-slate-800 border-b border-slate-700">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M1 3h12M3 7h8M5 11h4" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <span className="font-bold text-sm text-white tracking-wide">Filters</span>
+                  </div>
+                  <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white transition-colors">
                     <SfIconClose size="sm" />
                   </button>
                 </div>
                 <ProductListFilters
+                  dark
                   categories={categories}
                   filters={filters}
                   onToggleCategory={toggleCategory}
