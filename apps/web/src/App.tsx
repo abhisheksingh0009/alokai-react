@@ -7,22 +7,27 @@ import Cart from "./components/cart/Cart";
 import { CartProvider } from "./context/CartContext";
 import { ToastProvider } from "./context/ToastContext";
 import Footer from "./components/layout/Footer";
+import { WishlistProvider } from "./context/WishlistContext";
+import Wishlist from "./components/Wishlist/Wishlist";
 
 export default function App() {
   return (
-    <CartProvider>
-      <ToastProvider>
-        <BrowserRouter>
-          <Header />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<ProductList />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
-          </Routes>
-          <Footer/>
-        </BrowserRouter>
-      </ToastProvider>
-    </CartProvider>
+    <WishlistProvider>
+      <CartProvider>
+        <ToastProvider>
+          <BrowserRouter>
+            <Header />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<ProductList />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+            </Routes>
+            <Footer />
+          </BrowserRouter>
+        </ToastProvider>
+      </CartProvider>
+    </WishlistProvider>
   );
 }
