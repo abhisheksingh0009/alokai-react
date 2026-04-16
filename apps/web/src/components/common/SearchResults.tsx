@@ -14,6 +14,7 @@ interface SearchResultsProps {
   setInputVal: (value: string) => void;
   items: Product[];
   isOpen: boolean;
+  onSelect?: () => void;
 }
 
 function HighlightMatch({ text, query }: { text: string; query: string }) {
@@ -42,7 +43,7 @@ const categoryColors: Record<string, string> = {
 const getCategoryColor = (cat: string) =>
   categoryColors[cat.toLowerCase()] ?? 'bg-neutral-100 text-neutral-600';
 
-const SearchResults = ({ inputVal, setInputVal, items, isOpen }: SearchResultsProps) => {
+const SearchResults = ({ inputVal, setInputVal, items, isOpen, onSelect }: SearchResultsProps) => {
   const navigate = useNavigate();
   const listboxRef = useRef<HTMLUListElement>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
@@ -64,11 +65,13 @@ const SearchResults = ({ inputVal, setInputVal, items, isOpen }: SearchResultsPr
   const handleSelect = (id: number) => {
     navigate(`/product/${id}`);
     setInputVal('');
+    onSelect?.();
   };
 
   const handleViewAll = () => {
     navigate(`/products?search=${encodeURIComponent(inputVal)}`);
     setInputVal('');
+    onSelect?.();
   };
 
   if (!isOpen || !inputVal.trim()) return null;
