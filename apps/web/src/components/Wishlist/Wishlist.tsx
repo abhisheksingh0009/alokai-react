@@ -38,12 +38,16 @@ export default function Wishlist() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {Array.isArray(wishlist) ? (
+                    {Array.isArray(wishlist) && wishlist.length>0 ? (
                         wishlist.map((product) => (
                             <ProductCard key={product.id} product={product} />
                         ))
                     ) : (
-                        <p>No products found in your wishlist.</p>
+                        <div className='col-span-full flex flex-col items-center justify-center py-16 gap-4 lg:py-10'>
+                            <span className="text-7xl">♡</span>
+                            <p className="text-2xl font-bold" style={{ color: '#111827' }}>Your wishlist is empty</p>
+                            <p style={{ color: '#6B7280' }}>Looks like you haven't added anything yet.</p>
+                        </div>
                     )}
                 </div>
             </div>
