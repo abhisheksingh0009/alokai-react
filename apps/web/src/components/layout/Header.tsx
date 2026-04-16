@@ -28,6 +28,8 @@ export default function Header() {
   const [inputVal, setInputVal] = useState<string>('');
   const [items, setItems] = useState<Product[]>([]);
   const [showSuggestion, setShowSuggestion] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,36 +80,72 @@ export default function Header() {
       {/* Top bar */}
       <div className="flex items-center gap-4 px-4 py-3 md:px-6">
 
-        {/* Hamburger - mobile only */}
-        <SfButton
-          variant="tertiary"
-          square
-          className="text-white md:hidden"
-          aria-label="Open menu"
-          onClick={openDrawer}
-        >
-          <SfIconMenu className="text-white" />
-        </SfButton>
+        {/* Mobile search expanded — replaces entire bar */}
+        {mobileSearchOpen ? (
+          <form className="flex flex-1 md:hidden" onSubmit={(e) => { handleSearchSubmit(e); setMobileSearchOpen(false); }}>
+            <div className="relative flex-1">
+              <div className="flex w-full bg-slate-700/60 border border-slate-500 rounded-lg overflow-hidden focus-within:border-cyan-400 focus-within:bg-slate-700 transition-all">
+                <input
+                  ref={mobileSearchRef}
+                  type="text"
+                  placeholder="Search products..."
+                  className="flex-1 px-4 py-2 bg-transparent text-white text-sm outline-none placeholder:text-slate-400"
+                  value={inputVal}
+                  onChange={(e) => setInputVal(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+                <button
+                  type="button"
+                  className="px-3 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
+                  aria-label="Close search"
+                  onClick={() => { setMobileSearchOpen(false); setInputVal(''); }}
+                >
+                  <SfIconClose />
+                </button>
+              </div>
+              <SearchResults
+                inputVal={inputVal}
+                setInputVal={setInputVal}
+                items={items}
+                isOpen={showSuggestion}
+                onSelect={() => setMobileSearchOpen(false)}
+              />
+            </div>
+          </form>
+        ) : (
+          <>
+            {/* Hamburger - mobile only */}
+            <SfButton
+              variant="tertiary"
+              square
+              className="text-white md:hidden"
+              aria-label="Open menu"
+              onClick={openDrawer}
+            >
+              <SfIconMenu className="text-white" />
+            </SfButton>
 
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 mr-6 whitespace-nowrap">
-          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="34" height="34" rx="9" fill="url(#logoGrad)"/>
-            <path d="M11 14h12l-1.6 9.5H12.6L11 14z" fill="white"/>
-            <path d="M14 14c0-1.657 1.343-3 3-3s3 1.343 3 3" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
-            <defs>
-              <linearGradient id="logoGrad" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#6366f1"/>
-                <stop offset="1" stopColor="#34d399"/>
-              </linearGradient>
-            </defs>
-          </svg>
-          <span className="hidden md:inline text-xl font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
-            ALOKAI-MART
-          </span>
-        </Link>
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 mr-6 whitespace-nowrap">
+              <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="34" height="34" rx="9" fill="url(#logoGrad)"/>
+                <path d="M11 14h12l-1.6 9.5H12.6L11 14z" fill="white"/>
+                <path d="M14 14c0-1.657 1.343-3 3-3s3 1.343 3 3" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+                <defs>
+                  <linearGradient id="logoGrad" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#6366f1"/>
+                    <stop offset="1" stopColor="#34d399"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span className="hidden md:inline text-xl font-black tracking-widest uppercase bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+                ALOKAI-MART
+              </span>
+            </Link>
+          </>
+        )}
 
-        {/* Search */}
+        {/* Desktop search */}
         <form className="hidden md:flex flex-1" onSubmit={handleSearchSubmit}>
           <div className="container relative">
             <div className="flex w-full bg-slate-700/60 border border-slate-500 rounded-lg overflow-hidden focus-within:border-cyan-400 focus-within:bg-slate-700 transition-all">
@@ -127,8 +165,17 @@ export default function Header() {
           </div>
         </form>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-4 ml-auto">
+        {/* Right actions — hidden on mobile when search is open */}
+        <div className={`flex items-center gap-4 ml-auto ${mobileSearchOpen ? 'hidden md:flex' : ''}`}>
+          {/* Search icon - mobile only */}
+          <button
+            className="md:hidden text-white"
+            aria-label="Open search"
+            onClick={() => { setMobileSearchOpen(true); setTimeout(() => mobileSearchRef.current?.focus(), 50); }}
+          >
+            <SfIconSearch />
+          </button>
+
           <Link to="/wishlist" className="flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap" aria-label="Wishlist">
             <SfIconFavorite className="text-white" />
           </Link>
