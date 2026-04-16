@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   SfButton,
   SfIconShoppingCart,
@@ -15,6 +15,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import SearchResults from '../common/SearchResults';
 import { fetchProducts, type Product } from '../../middleware/api/client';
+import { useNavigation } from '../../context/NavigationContext';
 
 const categories = ['Women', 'Men', 'Kids', 'Electronics'];
 
@@ -31,6 +32,7 @@ export default function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { selectCategoryByNav, setSelectCategoryByNav } = useNavigation();
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -42,12 +44,17 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const location = useLocation();
+
+
   useEffect(() => {
-    fetchProducts().then(data => setItems(data));
+    fetchProducts().then(data => {
+      setItems(data);
+    })
   }, []);
 
   useEffect(() => {
-    setShowSuggestion(inputVal.length >= 3);
+    setShowSuggestion(inputVal.length >= 1);
   }, [inputVal]);
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -74,6 +81,21 @@ export default function Header() {
       }
     }
   };
+
+  const [activeNode, setActiveNode] = useState<string[]>([]);
+  const handleOpenMenu = (menuType: string[]) => () => {
+    setActiveNode(menuType);
+    open();
+  };
+
+  const seen = new Set<string>();
+  const uniqueMenuNodes = items?.filter(node => {
+    if (!node.category || !node.id) return false; // skip invalid
+    if (seen.has(node.category)) return false;    // skip duplicates
+    seen.add(node.category);
+    return true;
+  });
+
 
   return (
     <header className="bg-slate-900 text-white">
@@ -128,13 +150,13 @@ export default function Header() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 mr-6 whitespace-nowrap">
               <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="34" height="34" rx="9" fill="url(#logoGrad)"/>
-                <path d="M11 14h12l-1.6 9.5H12.6L11 14z" fill="white"/>
-                <path d="M14 14c0-1.657 1.343-3 3-3s3 1.343 3 3" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+                <rect width="34" height="34" rx="9" fill="url(#logoGrad)" />
+                <path d="M11 14h12l-1.6 9.5H12.6L11 14z" fill="white" />
+                <path d="M14 14c0-1.657 1.343-3 3-3s3 1.343 3 3" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none" />
                 <defs>
                   <linearGradient id="logoGrad" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#6366f1"/>
-                    <stop offset="1" stopColor="#34d399"/>
+                    <stop stopColor="#6366f1" />
+                    <stop offset="1" stopColor="#34d399" />
                   </linearGradient>
                 </defs>
               </svg>
@@ -259,18 +281,30 @@ export default function Header() {
       {/* Desktop nav - main categories only */}
       <nav className="hidden md:block bg-slate-800">
         <ul className="flex px-6">
-          {categories.map((cat) => (
-            <li key={cat}>
-              <Link
-                to="/products"
-                className="block px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 transition-colors"
+          <li>
+            <Link to="/" className={`block px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 ${selectCategoryByNav === null ? 'border-b-2 border-cyan-400 bg-slate-600 text-cyan-400 font-bold' : ''
+              }`} onClick={() => { setSelectCategoryByNav(null) }}>
+              Home
+            </Link>
+          </li>
+          {uniqueMenuNodes?.map((menuNode) => (
+            <li key={menuNode.id}>
+              <button
+
+
+                onClick={() => { setSelectCategoryByNav(menuNode.category); navigate('/products'); handleOpenMenu([(menuNode.id).toString()]) }}
+
+                className={`px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 transition-colors capitalize  ${selectCategoryByNav === menuNode?.category ? 'border-b-2 border-cyan-400 bg-slate-600 text-cyan-400 font-bold' : ''
+                  }`}
               >
-                {cat}
-              </Link>
+                {menuNode.category}
+              </button>
+
             </li>
           ))}
           <li>
-            <Link to="/products" className="block px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 transition-colors">
+            <Link to="/products" className={`block px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 ${location.pathname === '/products' && selectCategoryByNav === undefined ? 'border-b-2 border-cyan-400 bg-slate-600 text-cyan-400 font-bold' : ''
+              }`} onClick={() => { setSelectCategoryByNav(undefined) }} >
               All Products
             </Link>
           </li>
