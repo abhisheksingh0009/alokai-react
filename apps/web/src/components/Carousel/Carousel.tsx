@@ -6,13 +6,18 @@ import {
   SfIconChevronRight,
 } from "@storefront-ui/react";
 import classNames from "classnames";
-
-const withBase = (filepath: string) =>
-  `https://storage.googleapis.com/sfui_docs_artifacts_bucket_public/production/${filepath}`;
+import imgDisplay from "../../assets/carousel-display.png";
+import imgDisplay2 from "../../assets/carousel-display-2.png";
+import imgDisplay3 from "../../assets/carousel-display-3.png";
+import imgHeroBg from "../../assets/carousel-hero-bg.png";
+import imgHeroBg2 from "../../assets/carousel-hero-bg-2.png";
+import imgDisplayOverlay from "../../assets/carousel-display-overlay.png";
+import imgHeroHeadphones from "../../assets/carousel-hero-headphones.png";
+import imgDisplay8 from "../../assets/carousel-display-8.png";
 
 const images = [
   {
-    imageSrc: withBase("display.png"),
+    imageSrc: imgDisplay,
     alt: "backpack1",
     title: "Pack it Up",
     subtitle: "Be active",
@@ -22,7 +27,7 @@ const images = [
     backgroundColor: "bg-warning-200",
   },
   {
-    imageSrc: withBase("display-2.png"),
+    imageSrc: imgDisplay2,
     alt: "backpack2",
     title: "Sunny Days Ahead",
     subtitle: "Be inspired",
@@ -32,7 +37,7 @@ const images = [
     backgroundColor: "bg-negative-200",
   },
   {
-    imageSrc: withBase("display-3.png"),
+    imageSrc: imgDisplay3,
     alt: "backpack3",
     title: "Fresh and Bold",
     subtitle: "New collection",
@@ -41,12 +46,11 @@ const images = [
     reverse: false,
     backgroundColor: "bg-secondary-200",
   },
-  { imageSrc: withBase("hero-bg.png"), alt: "backpack4" },
-  { imageSrc: withBase("hero-bg-2.png"), alt: "backpack5" },
-  { imageSrc: withBase("display-overlay.png"), alt: "backpack6" },
-  { imageSrc: withBase("hero-headphones.png"), alt: "headphones" },
+  { imageSrc: imgHeroBg, alt: "backpack4" },
+  { imageSrc: imgHeroBg2, alt: "backpack5" },
+  { imageSrc: imgDisplayOverlay, alt: "backpack6" },
+  { imageSrc: imgHeroHeadphones, alt: "headphones" },
 ];
-
 export default function Carousel() {
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const scrollContainerRef = useRef<HTMLElement | null>(null);
@@ -157,7 +161,7 @@ export default function Carousel() {
                   )}
                 </div>
               )}
-              <div className="w-full md:w-1/2 md:h-full overflow-hidden">
+              <div className={classNames("w-full md:h-full overflow-hidden", { "md:w-1/2": title || subtitle || buttonText || description })}>
                 <img
                   src={imageSrc}
                   alt={alt}
