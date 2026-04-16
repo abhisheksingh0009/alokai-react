@@ -5,6 +5,7 @@ import { useProducts } from '../hooks/useProducts';
 import ProductListFilters from '../components/ProductList/ProductListFilters';
 import ProductListGrid from '../components/ProductList/ProductListGrid';
 import ProductListSkeleton from '../components/ProductList/ProductListSkeleton';
+import { useNavigation } from '../context/NavigationContext';
 
 export default function PLP() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -22,6 +23,19 @@ export default function PLP() {
 
   // Reset to page 1 when filters change
   useEffect(() => { setCurrentPage(1); }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
+  //const { selectCategoryByNav } = useNavigation();
+  const { selectCategoryByNav, setSelectCategoryByNav } = useNavigation();
+  useEffect(() => {
+    if (location.pathname === '/products' && selectCategoryByNav == null) {
+      clearAll();
+      setSelectCategoryByNav(undefined);
+    }
+    if (selectCategoryByNav) {
+      clearAll();
+      toggleCategory(selectCategoryByNav);
+    }
+
+  }, [selectCategoryByNav]);
 
   const loadMore = useCallback(() => {
     if (!hasMore || loadingMore) return;
@@ -120,7 +134,7 @@ export default function PLP() {
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center">
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M1 3h12M3 7h8M5 11h4" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+                        <path d="M1 3h12M3 7h8M5 11h4" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
                       </svg>
                     </div>
                     <span className="font-bold text-sm text-white tracking-wide">Filters</span>
