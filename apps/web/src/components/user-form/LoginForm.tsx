@@ -20,9 +20,21 @@ function handleInputValue(identifier:string,value:string){
   ))
 }
 
-function handleForm(event:any){
-  // event.preventDefault();
-  console.log(enteredValue)
+const [error, setError] = useState('');
+
+async function handleForm(event:any){
+  event.preventDefault();
+  setError('');
+  if (!enteredValue.email || !enteredValue.password) {
+    setError('Email and password are required.');
+    return;
+  }
+  try {
+    await login(enteredValue.email, enteredValue.password);
+    navigate('/account');
+  } catch (err: any) {
+    setError('Invalid credentials. Please try again.');
+  }
 }
 
   return (
@@ -54,7 +66,7 @@ function handleForm(event:any){
               placeholder="you@example.com"
               value={enteredValue.email}
               onChange={(event)=>handleInputValue('email',event.target.value)}
-              className="border border-neutral-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${error ? 'border-red-400' : 'border-neutral-300'}`}
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -64,10 +76,11 @@ function handleForm(event:any){
               type="password"
               placeholder="••••••••"
               value={enteredValue.password}
-               onChange={(event)=>handleInputValue('password',event.target.value)}
-              className="border border-neutral-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              onChange={(event)=>handleInputValue('password',event.target.value)}
+              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${error ? 'border-red-400' : 'border-neutral-300'}`}
             />
           </div>
+          {error && <p className="text-xs text-red-500 text-center">{error}</p>}
           <div className="flex gap-3 mt-2">
             <SfButton
               type="submit"

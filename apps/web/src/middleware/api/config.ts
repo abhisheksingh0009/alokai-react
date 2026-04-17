@@ -7,6 +7,7 @@ export const apiConfig = {
     productsByCategory: '/products/category/${category}',
     categories: '/products/categories',
     comments: '/comments?limit=${limit}&skip=${skip}',
+    users:'users'
   },
 };
 
