@@ -7,6 +7,9 @@
 node_modules/
 dist/
 
+# Prisma generated client
+apps/storefront-middleware/src/generated/
+
 # Environment variables — never commit real keys
 .env
 *.local
@@ -29,6 +32,9 @@ dist/
 
 # JetBrains IDE
 .idea/
+
+# AI assistant settings
+.claude/
 
 # Unit test reports
 TEST*.xml
