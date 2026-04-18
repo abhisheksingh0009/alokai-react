@@ -24,6 +24,7 @@ export const middlewareEndpoints = {
   wishlist:           '/api/wishlist',
   wishlistToggle:     '/api/wishlist/toggle',
   wishlistItem:       '/api/wishlist/${productId}',
+  reviews:            '/api/reviews/${productId}',
 };
 
 // function resolveEndpoint(endpoint: string, params: Record<string, string | number> = {}): string {

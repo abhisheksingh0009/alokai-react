@@ -3,6 +3,23 @@ import { prisma } from '../lib/prisma.js';
 
 const router = Router();
 
+const withReviewStats = {
+  _count: { select: { reviews: true } },
+  reviews: { select: { rating: true } },
+} as const;
+
+function attachAvgRating<T extends { reviews: { rating: number }[]; _count: { reviews: number } }>(
+  p: T
+): Omit<T, 'reviews'> & { avgReviewRating: number | null } {
+  const { reviews, ...rest } = p;
+  return {
+    ...rest,
+    avgReviewRating: reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : null,
+  };
+}
+
 // GET /api/products?limit=20&skip=0
 router.get('/', async (req, res, next) => {
   try {
@@ -10,11 +27,11 @@ router.get('/', async (req, res, next) => {
     const skip  = parseInt(req.query.skip  as string) || 0;
 
     const [products, total] = await Promise.all([
-      prisma.productDetails.findMany({ take: limit, skip }),
+      prisma.productDetails.findMany({ take: limit, skip, include: withReviewStats }),
       prisma.productDetails.count(),
     ]);
 
-    res.json({ products, total, limit, skip });
+    res.json({ products: products.map(attachAvgRating), total, limit, skip });
   } catch (err) {
     next(err);
   }
@@ -48,8 +65,9 @@ router.get('/search', async (req, res, next) => {
           { brand:       { contains: q, mode: 'insensitive' } },
         ],
       },
+      include: withReviewStats,
     });
-    res.json({ products });
+    res.json({ products: products.map(attachAvgRating) });
   } catch (err) {
     next(err);
   }
@@ -60,8 +78,9 @@ router.get('/category/:category', async (req, res, next) => {
   try {
     const products = await prisma.productDetails.findMany({
       where: { category: { equals: req.params.category, mode: 'insensitive' } },
+      include: withReviewStats,
     });
-    res.json({ products });
+    res.json({ products: products.map(attachAvgRating) });
   } catch (err) {
     next(err);
   }
@@ -73,10 +92,13 @@ router.get('/:id', async (req, res, next) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: 'Invalid product id' });
 
-    const product = await prisma.productDetails.findUnique({ where: { id } });
+    const product = await prisma.productDetails.findUnique({
+      where: { id },
+      include: withReviewStats,
+    });
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
-    res.json(product);
+    res.json(attachAvgRating(product));
   } catch (err) {
     next(err);
   }

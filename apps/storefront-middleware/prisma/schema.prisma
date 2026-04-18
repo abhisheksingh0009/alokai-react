@@ -20,6 +20,7 @@ model User {
   dateOfBirth      DateTime? @db.Date
   marketingConsent Boolean   @default(false)
   createdAt        DateTime  @default(now())
+  reviews          Review[]
 }
 
 model ProductDetails {
@@ -40,6 +41,7 @@ model ProductDetails {
   returnPolicy         String?  @map("returnpolicy")
   minimumOrderQuantity Int?     @map("minimumorderquantity")
   thumbnail            String?
+  reviews              Review[]
 
   @@map("productdetails")
 }
@@ -64,4 +66,20 @@ model Wishlist {
 
   @@unique([userEmail, productId])
   @@map("wishlist")
+}
+
+model Review {
+  id           Int            @id @default(autoincrement())
+  comment      String
+  likes        Int            @default(0)
+  providerName String         @map("provider_name")
+  productId    Int            @map("product_id")
+  userEmail    String         @map("user_email")
+  rating       Int            @default(5)
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  product ProductDetails @relation(fields: [productId], references: [id])
+  user    User           @relation(fields: [userEmail], references: [email])
+
+  @@map("reviews")
 }

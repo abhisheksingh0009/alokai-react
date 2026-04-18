@@ -5,8 +5,8 @@ import AddToCartButton from "../common/AddToCartButton";
 import WishlistButton from "../common/WishlistButton";
 
 export default function ProductCard({ product }: { product: Product }) {
-  const rating = product.rating ?? 0;
-  const reviewCount = product.stock ?? 0;
+  const reviewCount = product.reviewCount ?? 0;
+  const avgRating = product.avgReviewRating ?? 0;
   const discount = product.discountPercentage ?? 0;
   const originalPrice = discount >= 1 ? product.price / (1 - discount / 100) : null;
   const isSale = discount >= 5;
@@ -68,12 +68,18 @@ export default function ProductCard({ product }: { product: Product }) {
           {product.title}
         </SfLink>
 
-        {/* Rating */}
+        {/* Review count */}
         <div className="flex items-center gap-1.5 mb-3">
-          <SfRating size="xs" value={rating} max={5} />
-          <span className="text-xs" style={{ color: '#6B7280' }}>
-            {rating > 0 ? `${rating.toFixed(1)} (${reviewCount})` : 'No reviews'}
-          </span>
+          {reviewCount > 0 ? (
+            <>
+              <SfRating size="xs" value={avgRating} max={5} />
+              <span className="text-xs" style={{ color: '#6B7280' }}>
+                {avgRating.toFixed(1)} ({reviewCount})
+              </span>
+            </>
+          ) : (
+            <span className="text-xs" style={{ color: '#9CA3AF' }}>No reviews yet</span>
+          )}
         </div>
 
         {/* Price row */}

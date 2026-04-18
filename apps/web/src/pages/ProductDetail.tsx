@@ -1,22 +1,54 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useCallback, useEffect } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { useAsync } from "react-use";
-import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout } from "@storefront-ui/react";
+import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout, SfIconStarFilled } from "@storefront-ui/react";
 import AddToCartButton from "../components/common/AddToCartButton";
 import Breadcrumb from "../components/common/Breadcrumb";
 import ReviewsSection from "../components/common/ReviewsSection";
-import { fetchProductFromDB } from "../middleware/api/client";
+import { fetchProductFromDB, fetchReviews } from "../middleware/api/client";
 import BannerOverlay from "../components/Carousel/BannerOverlay";
 import YouMayAlsoLike from "../components/YouMayAlsoLike";
 
 export default function PDP() {
   const { id } = useParams();
+  const productNumId = parseInt(id!);
+  const location = useLocation();
   const [activeImage, setActiveImage] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
+
+  // Open modal automatically if returning from login with openReviewModal flag
+  useEffect(() => {
+    const state = location.state as { openReviewModal?: boolean } | null;
+    if (state?.openReviewModal) {
+      setModalOpen(true);
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, []);
 
   const { loading, error, value: product } = useAsync(
     () => fetchProductFromDB(id!),
     [id]
   );
+
+  const {
+    loading: reviewsLoading,
+    error: reviewsError,
+    value: reviews,
+  } = useAsync(
+    () => fetchReviews(productNumId),
+    [productNumId, reviewRefreshKey]
+  );
+
+  const handleReviewSuccess = useCallback(() => {
+    setReviewRefreshKey(k => k + 1);
+  }, []);
+
+  const hasReviews = !reviewsLoading && reviews && reviews.length > 0;
+  const avgRating =
+    hasReviews
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0;
 
   // ── Skeleton
   if (loading) {
@@ -62,8 +94,6 @@ export default function PDP() {
   const discount = product.discountPercentage ?? 0;
   const originalPrice = discount >= 1 ? product.price / (1 - discount / 100) : null;
   const isSale = discount >= 5;
-  const rating = product.rating ?? 0;
-  const reviewCount = product.stock ?? 0;
   const images = product.images?.length ? product.images : [product.thumbnail];
 
   return (
@@ -89,7 +119,6 @@ export default function PDP() {
 
           {/* ── Left: Image gallery ── */}
           <div className="w-full lg:w-[48%] shrink-0">
-            {/* Main image */}
             <div
               className="rounded-2xl overflow-hidden flex items-center justify-center"
               style={{ background: '#fff', border: '1px solid #E2E8F0', aspectRatio: '1/1' }}
@@ -101,7 +130,6 @@ export default function PDP() {
               />
             </div>
 
-            {/* Thumbnails */}
             {images.length > 1 && (
               <div className="flex gap-3 mt-4 flex-wrap">
                 {images.map((img, idx) => (
@@ -180,27 +208,31 @@ export default function PDP() {
 
             <div style={{ borderTop: '1px solid #E2E8F0' }} />
 
-            {/* Rating */}
-            <div className="flex items-center gap-2">
-              <SfRating size="sm" value={rating} max={5} />
-              <span className="text-sm font-medium" style={{ color: '#374151' }}>
-                {rating > 0 ? rating.toFixed(1) : '—'}
-              </span>
-              {reviewCount > 0 && (
-                <span className="text-sm" style={{ color: '#6B7280' }}>
-                  ({reviewCount} reviews)
+            {/* ── Review CTA ── */}
+            {hasReviews ? (
+              // Has reviews → show aggregate rating, click scrolls to reviews section
+              <button
+                onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
+                className="self-start flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all duration-150 hover:opacity-80"
+                style={{ background: '#FFF7ED', border: '1px solid #FED7AA' }}
+              >
+                <SfIconStarFilled size="xs" style={{ color: '#F59E0B' }} />
+                <SfRating size="xs" value={avgRating} max={5} />
+                <span className="text-sm font-semibold" style={{ color: '#92400E' }}>
+                  {avgRating.toFixed(1)} · {reviews.length} {reviews.length === 1 ? 'Review' : 'Reviews'}
                 </span>
-              )}
-            </div>
-
-            {/* Write a Review */}
-            <button
-              onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
-              className="self-start text-sm font-semibold underline underline-offset-2 transition-opacity duration-150 hover:opacity-70"
-              style={{ color: '#1B3A6B' }}
-            >
-              Write a Review
-            </button>
+              </button>
+            ) : (
+              // No reviews → open modal
+              <button
+                onClick={() => setModalOpen(true)}
+                className="self-start flex items-center gap-1.5 text-sm font-semibold underline underline-offset-2 transition-opacity duration-150 hover:opacity-70"
+                style={{ color: '#1B3A6B' }}
+              >
+                <SfIconStarFilled size="xs" style={{ color: '#F59E0B' }} />
+                Write a Review
+              </button>
+            )}
 
             {/* Price */}
             <div className="flex items-baseline gap-3 flex-wrap">
@@ -266,18 +298,27 @@ export default function PDP() {
             </div>
 
           </div>
-          
-          
         </div>
+
         {product.category && (
           <YouMayAlsoLike category={product.category} excludeId={product.id} />
         )}
-        <div className="mt-10 mb-10"><BannerOverlay/></div>
+        <div className="mt-10 mb-10"><BannerOverlay /></div>
 
         {/* Reviews Section */}
         <div className="mb-10">
-          <ReviewsSection productId={product.id} />
+          <ReviewsSection
+            productId={product.id}
+            reviews={reviews}
+            loading={reviewsLoading}
+            error={reviewsError}
+            onWriteReview={() => setModalOpen(true)}
+            modalOpen={modalOpen}
+            onModalClose={() => setModalOpen(false)}
+            onReviewSuccess={handleReviewSuccess}
+          />
         </div>
+
       </div>
     </div>
   );
