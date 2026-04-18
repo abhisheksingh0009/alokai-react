@@ -14,7 +14,7 @@ import {
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import SearchResults from '../common/SearchResults';
-import { fetchProducts, type Product } from '../../middleware/api/client';
+import { fetchProductsFromDB, type Product } from '../../middleware/api/client';
 import { useNavigation } from '../../context/NavigationContext';
 
 const categories = ['Women', 'Men', 'Kids', 'Electronics'];
@@ -48,8 +48,8 @@ export default function Header() {
 
 
   useEffect(() => {
-    fetchProducts().then(data => {
-      setItems(data);
+    fetchProductsFromDB().then(({ products }) => {
+      setItems(products);
     })
   }, []);
 
@@ -98,7 +98,7 @@ export default function Header() {
 
 
   return (
-    <header className="bg-slate-900 text-white">
+    <header className="bg-slate-900 text-white sticky top-0 z-50">
       {/* Top bar */}
       <div className="flex items-center gap-4 px-4 py-3 md:px-6">
 

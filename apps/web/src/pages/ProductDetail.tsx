@@ -5,7 +5,7 @@ import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShopp
 import AddToCartButton from "../components/common/AddToCartButton";
 import Breadcrumb from "../components/common/Breadcrumb";
 import ReviewsSection from "../components/common/ReviewsSection";
-import { fetchProduct } from "../middleware/api/client";
+import { fetchProductFromDB } from "../middleware/api/client";
 import BannerOverlay from "../components/Carousel/BannerOverlay";
 import YouMayAlsoLike from "../components/YouMayAlsoLike";
 
@@ -14,7 +14,7 @@ export default function PDP() {
   const [activeImage, setActiveImage] = useState(0);
 
   const { loading, error, value: product } = useAsync(
-    () => fetchProduct(id!),
+    () => fetchProductFromDB(id!),
     [id]
   );
 

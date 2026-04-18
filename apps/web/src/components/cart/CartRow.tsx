@@ -11,7 +11,7 @@ type Props = {
   inputId: string;
   min: number;
   max: number;
-  onRemove: (index: number) => void;
+  onRemove: (productId: number) => void;
 };
 
 export default function CartRow({ item, index, inputId, min, max, onRemove }: Props) {
@@ -116,7 +116,7 @@ export default function CartRow({ item, index, inputId, min, max, onRemove }: Pr
             aria-label="Remove"
             className="p-2 rounded-lg transition-colors hover:bg-red-50"
             style={{ color: '#D1D5DB' }}
-            onClick={() => onRemove(index)}
+            onClick={() => onRemove(item.id)}
             onMouseEnter={e => (e.currentTarget.style.color = '#EF4444')}
             onMouseLeave={e => (e.currentTarget.style.color = '#D1D5DB')}
           >

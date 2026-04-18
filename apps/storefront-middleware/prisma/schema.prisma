@@ -16,3 +16,47 @@ model User {
   phone     String
   createdAt DateTime @default(now())
 }
+
+model ProductDetails {
+  id                   Int      @id
+  title                String
+  description          String?
+  category             String?
+  price                Decimal? @db.Decimal(10, 2)
+  discountPercentage   Decimal? @db.Decimal(5, 2)  @map("discountpercentage")
+  rating               Decimal? @db.Decimal(3, 2)
+  stock                Int?
+  brand                String?
+  sku                  String?
+  weight               Decimal? @db.Decimal(5, 2)
+  warrantyInformation  String?  @map("warrantyinformation")
+  shippingInformation  String?  @map("shippinginformation")
+  availabilityStatus   String?  @map("availabilitystatus")
+  returnPolicy         String?  @map("returnpolicy")
+  minimumOrderQuantity Int?     @map("minimumorderquantity")
+  thumbnail            String?
+
+  @@map("productdetails")
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userEmail String   @map("user_email")
+  productId Int      @map("product_id")
+  quantity  Int      @default(1)
+  addedAt   DateTime @default(now()) @map("added_at")
+  updatedAt DateTime @updatedAt       @map("updated_at")
+
+  @@unique([userEmail, productId])
+  @@map("cart")
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userEmail String   @map("user_email")
+  productId Int      @map("product_id")
+  addedAt   DateTime @default(now()) @map("added_at")
+
+  @@unique([userEmail, productId])
+  @@map("wishlist")
+}

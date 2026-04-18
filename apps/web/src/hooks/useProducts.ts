@@ -1,20 +1,53 @@
-import { useMemo } from 'react';
-import { useAsync } from 'react-use';
-import { fetchProducts, type Product } from '../middleware/api/client';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { fetchProductsFromDB, type Product } from '../middleware/api/client';
 import { PRICE_RANGES, type Filters } from './useProductFilters';
 
-export const PAGE_SIZE = typeof window !== 'undefined' && window.innerWidth < 768 ? 10 : 20;
-export const LOAD_MORE_SIZE = typeof window !== 'undefined' && window.innerWidth < 768 ? 10 : 20;
+const PAGE_SIZE = 20;
 
-const MOCK_PRODUCTS: Product[] = [
-  { id: 1, title: 'Classic Sneakers', price: 89.99, images: [], thumbnail: 'https://via.placeholder.com/300', description: 'Comfortable everyday sneakers.', rating: 4.2, stock: 12 },
-  { id: 2, title: 'Leather Bag',      price: 129.99, images: [], thumbnail: 'https://via.placeholder.com/300', description: 'Premium handcrafted leather bag.', rating: 4.7, stock: 8 },
-];
+export { PAGE_SIZE };
+export const LOAD_MORE_SIZE = 20;
 
-export function useProducts(filters: Filters, loadedPages: number) {
-  const { loading, error, value: rawProducts } = useAsync(fetchProducts, []);
+export function useProducts(filters: Filters, _loadedPages: number) {
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [total, setTotal]             = useState(0);
+  const [skip, setSkip]               = useState(0);
+  const [loading, setLoading]         = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  // refetchKey resets everything and re-fetches from scratch
+  const [refetchKey, setRefetchKey]   = useState(0);
+  const isMounted = useRef(true);
 
-  const allProducts: Product[] = rawProducts ?? (error ? MOCK_PRODUCTS : []);
+  useEffect(() => { isMounted.current = true; return () => { isMounted.current = false; }; }, []);
+
+  // Initial / reset load
+  useEffect(() => {
+    setLoading(true);
+    setAllProducts([]);
+    setSkip(0);
+    fetchProductsFromDB(PAGE_SIZE, 0).then(({ products, total }) => {
+      if (!isMounted.current) return;
+      setAllProducts(products);
+      setTotal(total);
+      setSkip(PAGE_SIZE);
+    }).finally(() => {
+      if (isMounted.current) setLoading(false);
+    });
+  }, [refetchKey]);
+
+  // Load next page and append
+  const loadMore = useCallback(async () => {
+    if (loadingMore || skip >= total) return;
+    setLoadingMore(true);
+    const { products: next } = await fetchProductsFromDB(PAGE_SIZE, skip);
+    if (isMounted.current) {
+      setAllProducts(prev => [...prev, ...next]);
+      setSkip(s => s + PAGE_SIZE);
+    }
+    if (isMounted.current) setLoadingMore(false);
+  }, [loadingMore, skip, total]);
+
+  // Reset and re-fetch from scratch (called on clear filters)
+  const refetch = useCallback(() => setRefetchKey(k => k + 1), []);
 
   const categories: string[] = useMemo(
     () => [...new Set(allProducts.map(p => p.category).filter((c): c is string => !!c))].sort(),
@@ -42,15 +75,16 @@ export function useProducts(filters: Filters, loadedPages: number) {
     return list;
   }, [allProducts, filters]);
 
-  const visibleCount = PAGE_SIZE + (loadedPages - 1) * LOAD_MORE_SIZE;
-  const visible = filtered.slice(0, visibleCount);
-  const hasMore = visibleCount < filtered.length;
+  const hasMore = skip < total;
 
   return {
     loading,
+    loadingMore,
+    refetch,
+    loadMore,
     categories,
     filtered,
-    paginated: visible,
+    paginated: filtered,   // all loaded+filtered products visible at once
     hasMore,
     totalItems: filtered.length,
   };
