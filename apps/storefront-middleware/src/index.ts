@@ -2,6 +2,9 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth.js';
+import productsRouter from './routes/products.js';
+import cartRouter from './routes/cart.js';
+import wishlistRouter from './routes/wishlist.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -12,6 +15,9 @@ app.use(express.json());
 
 app.get('/', (_req, res) => res.json({ status: 'ok', message: 'Middleware running' }));
 app.use('/api/auth', authRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/wishlist', wishlistRouter);
 
 app.use(errorHandler);
 

@@ -11,40 +11,28 @@ export default function PLP() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const {
-    filters, currentPage, setCurrentPage,
+    filters, currentPage,
     toggleCategory, togglePrice, setMinRating, setSortBy,
     clearAll, hasFilters, activeFilterCount,
   } = useProductFilters();
 
-  const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const { loading, categories, filtered, paginated, hasMore } = useProducts(filters, currentPage);
+  const { loading, loadingMore, refetch, loadMore, categories, filtered, paginated, hasMore } = useProducts(filters, currentPage);
 
-  // Reset to page 1 when filters change
-  useEffect(() => { setCurrentPage(1); }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
-  //const { selectCategoryByNav } = useNavigation();
+  const handleClearAll = useCallback(() => { clearAll(); refetch(); }, [clearAll, refetch]);
+
   const { selectCategoryByNav, setSelectCategoryByNav } = useNavigation();
   useEffect(() => {
     if (location.pathname === '/products' && selectCategoryByNav == null) {
-      clearAll();
+      handleClearAll();
       setSelectCategoryByNav(undefined);
     }
     if (selectCategoryByNav) {
-      clearAll();
+      handleClearAll();
       toggleCategory(selectCategoryByNav);
     }
-
   }, [selectCategoryByNav]);
-
-  const loadMore = useCallback(() => {
-    if (!hasMore || loadingMore) return;
-    setLoadingMore(true);
-    setTimeout(() => {
-      setCurrentPage(p => p + 1);
-      setLoadingMore(false);
-    }, 400);
-  }, [hasMore, loadingMore]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -120,7 +108,7 @@ export default function PLP() {
               onToggleCategory={toggleCategory}
               onTogglePrice={togglePrice}
               onSetMinRating={setMinRating}
-              onClear={clearAll}
+              onClear={handleClearAll}
               hasFilters={hasFilters}
             />
           </aside>
@@ -150,7 +138,7 @@ export default function PLP() {
                   onToggleCategory={toggleCategory}
                   onTogglePrice={togglePrice}
                   onSetMinRating={setMinRating}
-                  onClear={clearAll}
+                  onClear={handleClearAll}
                   hasFilters={hasFilters}
                 />
               </div>
@@ -162,7 +150,7 @@ export default function PLP() {
             <ProductListGrid
               products={paginated}
               hasFilters={hasFilters}
-              onClearFilters={clearAll}
+              onClearFilters={handleClearAll}
             />
 
             {/* Infinite scroll sentinel + spinner */}

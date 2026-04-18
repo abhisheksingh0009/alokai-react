@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 // import { SfButton } from '@storefront-ui/react';
 import ProductCard from '../components/ProductCard/ProductCard';
-import { fetchProducts, type Product } from '../middleware/api/client';
+import { fetchProductsFromDB, type Product } from '../middleware/api/client';
 import Carousel from '../components/Carousel/Carousel';
 import BannerOverlay from '../components/Carousel/BannerOverlay';
 import Banner2Col from '../components/Carousel/Banner2col';
@@ -19,7 +19,7 @@ export default function Home() {
   const [featured, setFeatured] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetchProducts().then(data => setFeatured(data.slice(0, 4))).catch(() => { });
+    fetchProductsFromDB().then(({ products }) => setFeatured(products.slice(0, 4))).catch(() => { });
   }, []);
 
   return (

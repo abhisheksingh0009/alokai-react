@@ -1,54 +1,78 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { type Product } from '../middleware/api/client';
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { type Product, fetchWishlist, toggleWishlistItem } from '../middleware/api/client';
+import { useAuth } from './AuthContext';
 
-const WishlistContext = createContext<{
-    wishlist: Product[],
-    addToWishlist: (product: Product) => void,
-} | null>(null);
+function isLoggedIn() {
+  return !!localStorage.getItem('token');
+}
+
+interface WishlistContextType {
+  wishlist: Product[];
+  addToWishlist: (product: Product) => void;
+}
+
+const WishlistContext = createContext<WishlistContextType | null>(null);
+
+// ── Local (guest) helpers ────────────────────────────────────────────────────
+
+function loadLocalWishlist(): Product[] {
+  try { return JSON.parse(localStorage.getItem('wishlist') ?? '[]'); } catch { return []; }
+}
+
+function saveLocalWishlist(wishlist: Product[]) {
+  localStorage.setItem('wishlist', JSON.stringify(wishlist));
+}
+
+// ── Provider ──────────────────────────────────────────────────────────────────
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
-    const [wishlist, setWishlist] = useState<Product[]>([]);
+  const { user } = useAuth();
+  const [wishlist, setWishlist] = useState<Product[]>([]);
 
-    // Load wishlist from localStorage on mount
-    useEffect(() => {
-        const savedWishlist = localStorage.getItem('wishlist');
-        if (savedWishlist) {
-            try {
-                setWishlist(JSON.parse(savedWishlist));
-            } catch (error) {
-                console.error('Failed to parse wishlist from localStorage:', error);
-            }
-        }
-    }, []);
-
-    // Save wishlist to localStorage whenever it changes
-    useEffect(() => {
-        localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    }, [wishlist]);
-
-    function addToWishlist(product: Product) {
-        // console.log(product)
-        setWishlist((prev) => {
-            const exists = prev.find(item => item.id === product.id);
-            if (exists) {
-                return prev.filter((item) => item.id !== product.id);
-            } else {
-                return [{ ...product },...prev];
-            }
-        });
+  // ── On auth change: load DB wishlist on login, restore localStorage on logout
+  useEffect(() => {
+    if (!user) {
+      setWishlist(loadLocalWishlist());
+      return;
     }
 
-    return (
-        <WishlistContext.Provider value={{ wishlist, addToWishlist }}>
-            {children}
-        </WishlistContext.Provider>
-    );
+    (async () => {
+      // DB is source of truth — discard guest localStorage wishlist on login
+      localStorage.removeItem('wishlist');
+      const items = await fetchWishlist();
+      setWishlist(items);
+    })();
+  }, [user]);
+
+  // ── Persist guest wishlist to localStorage when not logged in
+  useEffect(() => {
+    if (!user) saveLocalWishlist(wishlist);
+  }, [wishlist, user]);
+
+  // ── addToWishlist — toggles: adds if absent, removes if present
+  const addToWishlist = useCallback(async (product: Product) => {
+    if (isLoggedIn()) {
+      const updated = await toggleWishlistItem(product.id);
+      setWishlist(updated);
+    } else {
+      setWishlist(prev => {
+        const exists = prev.find(i => i.id === product.id);
+        return exists
+          ? prev.filter(i => i.id !== product.id)
+          : [{ ...product }, ...prev];
+      });
+    }
+  }, []);
+
+  return (
+    <WishlistContext.Provider value={{ wishlist, addToWishlist }}>
+      {children}
+    </WishlistContext.Provider>
+  );
 }
 
 export function useWishlist() {
-    const context = useContext(WishlistContext);
-    if (!context) {
-        throw new Error("useWishlist must be used within a WishlistProvider");
-    }
-    return context;
+  const context = useContext(WishlistContext);
+  if (!context) throw new Error('useWishlist must be used within a WishlistProvider');
+  return context;
 }

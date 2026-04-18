@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
-import { fetchProductsByCategory, type Product } from '../middleware/api/client';
+import { fetchProductsByCategoryFromDB, type Product } from '../middleware/api/client';
 import ProductCard from './ProductCard/ProductCard';
 
 interface Props {
@@ -14,7 +14,7 @@ export default function YouMayAlsoLike({ category, excludeId }: Props = {}) {
 
   useEffect(() => {
     if (category) {
-      fetchProductsByCategory(category).then(products => {
+      fetchProductsByCategoryFromDB(category).then(products => {
         const others = products.filter(p => p.id !== excludeId);
         const shuffled = others.sort(() => Math.random() - 0.5);
         setSuggestions(shuffled.slice(0, 10));
@@ -30,7 +30,7 @@ export default function YouMayAlsoLike({ category, excludeId }: Props = {}) {
       return;
     }
 
-    Promise.all(categories.map(cat => fetchProductsByCategory(cat)))
+    Promise.all(categories.map(cat => fetchProductsByCategoryFromDB(cat)))
       .then(results => {
         const picked = results.flatMap(products =>
           products.filter(p => !cartIds.has(p.id)).slice(0, 5)
