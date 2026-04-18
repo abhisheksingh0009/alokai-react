@@ -1,22 +1,40 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { SfButton, SfInput, SfIconPerson, SfIconLock, SfIconEmail } from '@storefront-ui/react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, type SignupPayload } from '../../context/AuthContext';
+
+const TITLES = ['Mr', 'Mrs', 'Ms', 'Miss', 'Dr', 'Prof'];
+
+const COUNTRY_CODES = [
+  { flag: '🇺🇸', code: '+1',  label: 'US' },
+  { flag: '🇬🇧', code: '+44', label: 'GB' },
+  { flag: '🇮🇳', code: '+91', label: 'IN' },
+  { flag: '🇦🇺', code: '+61', label: 'AU' },
+  { flag: '🇨🇦', code: '+1',  label: 'CA' },
+  { flag: '🇩🇪', code: '+49', label: 'DE' },
+  { flag: '🇫🇷', code: '+33', label: 'FR' },
+  { flag: '🇸🇬', code: '+65', label: 'SG' },
+  { flag: '🇦🇪', code: '+971',label: 'AE' },
+];
 
 interface FormState {
-  username: string;
-  name: string;
+  title: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  countryCode: string;
   phone: string;
+  dateOfBirth: string;
   password: string;
   confirmPassword: string;
 }
 
 interface FormErrors {
-  username?: string;
-  name?: string;
+  title?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   phone?: string;
+  dateOfBirth?: string;
   password?: string;
   confirmPassword?: string;
 }
@@ -25,110 +43,267 @@ export default function SignupForm() {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<FormState>({ username: '', name: '', email: '', phone: '', password: '', confirmPassword: '' });
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [form, setForm] = useState<FormState>({
+    title: '', firstName: '', lastName: '', email: '',
+    countryCode: '+1', phone: '', dateOfBirth: '',
+    password: '', confirmPassword: '',
+  });
+  const [errors, setErrors]         = useState<FormErrors>({});
   const [serverError, setServerError] = useState('');
+  const [showPass, setShowPass]     = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  function handleChange(field: keyof FormState, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  function set(field: keyof FormState, value: string | boolean) {
+    setForm(p => ({ ...p, [field]: value }));
+    setErrors(p => ({ ...p, [field]: undefined }));
   }
 
   function validate(): FormErrors {
-    const errs: FormErrors = {};
-    if (!form.username.trim()) errs.username = 'Username is required.';
-    if (!form.name.trim()) errs.name = 'Full name is required.';
+    const e: FormErrors = {};
+    if (!form.title)          e.title     = 'Please select a title.';
+    if (!form.firstName.trim()) e.firstName = 'First name is required.';
+    if (!form.lastName.trim())  e.lastName  = 'Last name is required.';
     if (!form.email.trim()) {
-      errs.email = 'Email is required.';
+      e.email = 'Email is required.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      errs.email = 'Enter a valid email address.';
-    }
-    if (!form.phone.trim()) {
-      errs.phone = 'Phone number is required.';
-    } else if (!/^\+?[\d\s\-]{7,15}$/.test(form.phone)) {
-      errs.phone = 'Enter a valid phone number.';
+      e.email = 'Enter a valid email address.';
     }
     if (!form.password) {
-      errs.password = 'Password is required.';
+      e.password = 'Password is required.';
     } else if (form.password.length < 8) {
-      errs.password = 'Password must be at least 8 characters.';
+      e.password = 'Password must be at least 8 characters.';
     }
     if (!form.confirmPassword) {
-      errs.confirmPassword = 'Please confirm your password.';
+      e.confirmPassword = 'Please confirm your password.';
     } else if (form.password !== form.confirmPassword) {
-      errs.confirmPassword = 'Passwords do not match.';
+      e.confirmPassword = 'Passwords do not match.';
     }
-    return errs;
+    return e;
   }
 
-  async function handleSubmit(event: { preventDefault: () => void }) {
-    event.preventDefault();
+  async function handleSubmit(e: { preventDefault(): void }) {
+    e.preventDefault();
     setServerError('');
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+
+    const payload: SignupPayload = {
+      title:           form.title || undefined,
+      firstName:       form.firstName.trim(),
+      lastName:        form.lastName.trim(),
+      email:           form.email.trim(),
+      password:        form.password,
+      phone:           form.phone ? `${form.countryCode} ${form.phone.trim()}` : undefined,
+      dateOfBirth:     form.dateOfBirth || undefined,
+    };
+
     try {
-      await signup(form.username.trim(), form.name.trim(), form.email.trim(), form.password, form.phone.trim());
+      await signup(payload);
       navigate('/account');
-    } catch (err: any) {
-      setServerError(err.message ?? 'Signup failed');
+    } catch (err: unknown) {
+      setServerError((err as Error).message ?? 'Signup failed');
     }
   }
 
-  const field = (id: keyof FormState, label: string, type: string, placeholder: string, icon: React.ReactNode) => (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-      <label htmlFor={id} className="w-full sm:w-40 sm:shrink-0 text-sm font-medium text-neutral-700 text-left">{label}</label>
-      <div className="flex flex-col gap-1 flex-1">
-        <SfInput
-          id={id}
-          type={type}
-          placeholder={placeholder}
-          value={form[id]}
-          onChange={(e) => handleChange(id, e.target.value)}
-          invalid={!!errors[id]}
-          slotPrefix={icon}
-        />
-        {errors[id] && <p className="text-xs text-red-500">{errors[id]}</p>}
-      </div>
-    </div>
-  );
+  const inputBase = 'w-full px-4 py-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-slate-700';
+  const errStyle  = 'border-red-400 bg-red-50';
+  const okStyle   = 'border-gray-300 bg-white';
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center bg-neutral-50 px-4 py-10">
-      <div className="w-full sm:w-1/2 bg-white rounded-2xl shadow-lg border border-neutral-100 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-10">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
 
-        <div className="flex flex-col items-center mb-7">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-md"
-            style={{ background: 'linear-gradient(135deg, #6366f1, #06b6d4)' }}>
-            <SfIconPerson size="lg" className="text-white" />
-          </div>
-          <h1 className="text-2xl font-extrabold text-neutral-900">Create account</h1>
+        {/* Header */}
+        <div className="text-center mb-7">
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Create Account</h1>
+          <p className="text-sm text-gray-500 mt-1">Fill in the details below to register</p>
         </div>
 
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
-          {field('username', 'Username',    'text',     '@johndoe',         <SfIconPerson size="sm" className="text-neutral-400" />)}
-          {field('name',     'Full name',   'text',     'Jane Doe',         <SfIconPerson size="sm" className="text-neutral-400" />)}
-          {field('email',    'Email',       'email',    'you@example.com',  <SfIconEmail  size="sm" className="text-neutral-400" />)}
-          {field('phone',    'Phone number','tel',      '+1 234 567 8900',  <SfIconPerson size="sm" className="text-neutral-400" />)}
-          {field('password', 'Password',   'password', 'Min. 8 characters',<SfIconLock   size="sm" className="text-neutral-400" />)}
-          {field('confirmPassword', 'Confirm password', 'password', 'Re-enter your password', <SfIconLock size="sm" className="text-neutral-400" />)}
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
 
-          {serverError && <p className="text-xs text-red-500 text-center">{serverError}</p>}
-
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <div className="hidden sm:block sm:w-40 sm:shrink-0" />
-            <div className="flex gap-3 flex-1">
-              <SfButton type="submit" className="flex-1" variant="primary">Create account</SfButton>
-              <SfButton type="reset" variant="secondary" className="flex-1"
-                onClick={() => { setForm({ username: '', name: '', email: '', phone: '', password: '', confirmPassword: '' }); setErrors({}); setServerError(''); }}>
-                Reset
-              </SfButton>
-            </div>
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={e => set('email', e.target.value)}
+              className={`${inputBase} ${errors.email ? errStyle : okStyle}`}
+            />
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
           </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone number <span className="text-gray-400 font-normal">(Optional)</span>
+            </label>
+            <div className="flex gap-2">
+              <select
+                value={form.countryCode}
+                onChange={e => set('countryCode', e.target.value)}
+                className="border border-gray-300 rounded-lg px-2 py-2.5 text-sm bg-white outline-none focus:border-slate-700 shrink-0"
+              >
+                {COUNTRY_CODES.map(c => (
+                  <option key={`${c.flag}${c.code}`} value={c.code}>
+                    {c.flag} {c.code}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                placeholder="Phone number"
+                value={form.phone}
+                onChange={e => set('phone', e.target.value)}
+                className={`${inputBase} ${errors.phone ? errStyle : okStyle}`}
+              />
+            </div>
+            {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
+          </div>
+
+          <hr className="border-gray-100" />
+
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Title <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={form.title}
+              onChange={e => set('title', e.target.value)}
+              className={`${inputBase} ${errors.title ? errStyle : okStyle}`}
+            >
+              <option value="">Select title</option>
+              {TITLES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+            {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
+          </div>
+
+          {/* First name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              First name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="First name"
+              value={form.firstName}
+              onChange={e => set('firstName', e.target.value)}
+              className={`${inputBase} ${errors.firstName ? errStyle : okStyle}`}
+            />
+            {errors.firstName && <p className="text-xs text-red-500 mt-1">{errors.firstName}</p>}
+          </div>
+
+          {/* Last name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Last name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Last name"
+              value={form.lastName}
+              onChange={e => set('lastName', e.target.value)}
+              className={`${inputBase} ${errors.lastName ? errStyle : okStyle}`}
+            />
+            {errors.lastName && <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>}
+          </div>
+
+          {/* Date of Birth */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Date of Birth <span className="text-gray-400 font-normal">(Optional)</span>
+            </label>
+            <input
+              type="date"
+              value={form.dateOfBirth}
+              onChange={e => set('dateOfBirth', e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+              className={`${inputBase} ${okStyle}`}
+            />
+          </div>
+
+          <hr className="border-gray-100" />
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPass ? 'text' : 'password'}
+                placeholder="Min. 8 characters"
+                value={form.password}
+                onChange={e => set('password', e.target.value)}
+                className={`${inputBase} pr-10 ${errors.password ? errStyle : okStyle}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(p => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPass ? (
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                ) : (
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                )}
+              </button>
+            </div>
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Repeat the password <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showConfirm ? 'text' : 'password'}
+                placeholder="Re-enter your password"
+                value={form.confirmPassword}
+                onChange={e => set('confirmPassword', e.target.value)}
+                className={`${inputBase} pr-10 ${errors.confirmPassword ? errStyle : okStyle}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm(p => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showConfirm ? (
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                ) : (
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                )}
+              </button>
+            </div>
+            {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
+          </div>
+
+          {serverError && (
+            <p className="text-xs text-red-500 text-center bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {serverError}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full py-3 rounded-lg text-sm font-semibold text-white transition-colors hover:opacity-90"
+            style={{ background: '#1B3A6B' }}
+          >
+            Create Account
+          </button>
         </form>
 
-        <p className="text-center text-sm text-neutral-500 mt-6">
+        <p className="text-center text-sm text-gray-500 mt-5">
           Already have an account?{' '}
-          <Link to="/login" className="text-primary-700 font-semibold hover:underline">Sign in</Link>
+          <Link to="/login" className="font-semibold hover:underline" style={{ color: '#1B3A6B' }}>
+            Sign in
+          </Link>
         </p>
       </div>
     </div>

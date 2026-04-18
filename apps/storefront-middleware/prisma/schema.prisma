@@ -8,13 +8,18 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  name      String
-  email     String   @unique
-  password  String
-  phone     String
-  createdAt DateTime @default(now())
+  id               Int       @id @default(autoincrement())
+  username         String?   @unique
+  name             String?
+  title            String?
+  firstName        String?
+  lastName         String?
+  email            String    @unique
+  password         String
+  phone            String?
+  dateOfBirth      DateTime? @db.Date
+  marketingConsent Boolean   @default(false)
+  createdAt        DateTime  @default(now())
 }
 
 model ProductDetails {

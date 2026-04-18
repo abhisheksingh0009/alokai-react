@@ -2,12 +2,31 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 
 const API = 'http://localhost:4000/api/auth';
 
-interface User { id: number; username: string; name: string; email: string; phone: string }
+export interface User {
+  id: number;
+  title?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  name?: string | null;
+  email: string;
+  phone?: string | null;
+}
+
+export interface SignupPayload {
+  title?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone?: string;
+  dateOfBirth?: string;
+  marketingConsent?: boolean;
+}
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (username: string, name: string, email: string, password: string, phone: string) => Promise<void>;
+  signup: (payload: SignupPayload) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -43,8 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   };
 
-  const signup = async (username: string, name: string, email: string, password: string, phone: string) => {
-    const data = await authFetch('/register', { username, name, email, password, phone });
+  const signup = async (payload: SignupPayload) => {
+    const data = await authFetch('/register', payload);
     localStorage.setItem('token', data.token);
     setUser(data.user);
   };
