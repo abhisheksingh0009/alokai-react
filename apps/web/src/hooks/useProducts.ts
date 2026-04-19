@@ -66,11 +66,11 @@ export function useProducts(filters: Filters, _loadedPages: number) {
       );
 
     if (filters.minRating > 0)
-      list = list.filter(p => (p.rating ?? 0) >= filters.minRating);
+      list = list.filter(p => p.avgReviewRating != null && p.avgReviewRating >= filters.minRating);
 
     if (filters.sortBy === 'price_asc')  list.sort((a, b) => a.price - b.price);
     if (filters.sortBy === 'price_desc') list.sort((a, b) => b.price - a.price);
-    if (filters.sortBy === 'rating')     list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    if (filters.sortBy === 'rating')     list.sort((a, b) => (b.avgReviewRating ?? 0) - (a.avgReviewRating ?? 0));
 
     return list;
   }, [allProducts, filters]);

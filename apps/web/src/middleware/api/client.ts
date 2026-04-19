@@ -9,6 +9,8 @@ export type Product = {
   description: string;
   rating?: number;
   stock?: number;
+  reviewCount?: number;
+  avgReviewRating?: number | null;
   category?: string;
   discountPercentage?: number;
   brand?: string;
@@ -53,6 +55,8 @@ export type DBProduct = {
   returnPolicy: string | null;
   minimumOrderQuantity: number | null;
   thumbnail: string | null;
+  _count?: { reviews: number };
+  avgReviewRating?: number | null;
 };
 
 function dbProductToProduct(p: DBProduct): Product {
@@ -65,6 +69,8 @@ function dbProductToProduct(p: DBProduct): Product {
     discountPercentage:  p.discountPercentage ? parseFloat(p.discountPercentage) : undefined,
     rating:              p.rating ? parseFloat(p.rating) : undefined,
     stock:               p.stock ?? undefined,
+    reviewCount:         p._count?.reviews ?? 0,
+    avgReviewRating:     p.avgReviewRating ?? null,
     brand:               p.brand ?? undefined,
     warrantyInformation: p.warrantyInformation ?? undefined,
     shippingInformation: p.shippingInformation ?? undefined,
@@ -165,6 +171,43 @@ export async function removeCartItem(productId: number): Promise<CartItem[]> {
   if (!res.ok) return [];
   const data: CartResponse = await res.json();
   return data.items ?? [];
+}
+
+// ── Review helpers ───────────────────────────────────────────────────────────
+
+export type Review = {
+  id: number;
+  comment: string;
+  likes: number;
+  providerName: string;
+  productId: number;
+  userEmail: string;
+  rating: number;
+  createdAt: string;
+};
+
+export async function fetchReviews(productId: number): Promise<Review[]> {
+  const res = await fetch(`${middlewareUrl}/api/reviews/${productId}`);
+  if (!res.ok) return [];
+  const data: { reviews: Review[] } = await res.json();
+  return data.reviews ?? [];
+}
+
+export async function submitReview(
+  productId: number,
+  payload: { comment: string; rating: number }
+): Promise<Review> {
+  const res = await fetch(`${middlewareUrl}/api/reviews/${productId}`, {
+    method: 'POST',
+    headers: cartHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(err.error ?? 'Failed to submit review');
+  }
+  const data: { review: Review } = await res.json();
+  return data.review;
 }
 
 // ── Wishlist helpers ─────────────────────────────────────────────────────────

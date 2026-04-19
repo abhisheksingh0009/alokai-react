@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { SfButton } from '@storefront-ui/react';
@@ -6,6 +6,8 @@ import { SfButton } from '@storefront-ui/react';
 export default function LoginForm() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as { from?: string; openReviewModal?: boolean } | null;
 
 const [enteredValue,setEnteredValue]=useState({
   email:'',
@@ -31,7 +33,11 @@ async function handleForm(event:any){
   }
   try {
     await login(enteredValue.email, enteredValue.password);
-    navigate('/account');
+    const destination = locationState?.from ?? '/account';
+    navigate(destination, {
+      replace: true,
+      state: locationState?.openReviewModal ? { openReviewModal: true } : undefined,
+    });
   } catch (err: any) {
     setError('Invalid credentials. Please try again.');
   }
