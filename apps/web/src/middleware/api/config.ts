@@ -1,4 +1,4 @@
-export const middlewareUrl = import.meta.env.VITE_MIDDLEWARE_URL ?? 'http://localhost:4000';
+export const middlewareUrl = import.meta.env.VITE_MIDDLEWARE_URL || 'http://localhost:4000';
 
 // export const apiConfig = {
 //   baseUrl: 'https://dummyjson.com',

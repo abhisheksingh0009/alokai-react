@@ -13,6 +13,11 @@ import { AuthProvider } from "./context/AuthContext";
 import Footer from "./components/layout/Footer";
 import { WishlistProvider } from "./context/WishlistContext";
 import Wishlist from "./components/Wishlist/Wishlist";
+import Checkout from "./pages/Checkout";
+import PayPalMock from "./pages/PayPalMock";
+import CardPaymentMock from "./pages/CardPaymentMock";
+import OrderSuccess from "./pages/OrderSuccess";
+import GooglePayPage from "./pages/GooglePayPage";
 
 export default function App() {
   return (
@@ -31,6 +36,11 @@ export default function App() {
                 <Route path="/login" element={<LoginForm />} />
                 <Route path="/signup" element={<SignupForm />} />
                 <Route path="/account" element={<AccountPage />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/paypal-mock" element={<PayPalMock />} />
+                <Route path="/card-payment" element={<CardPaymentMock />} />
+                <Route path="/order-success" element={<OrderSuccess />} />
+                <Route path="/google-pay" element={<GooglePayPage />} />
               </Routes>
               <Footer />
             </BrowserRouter>

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import PromoCode from './PromoCode';
 import CartInfoPanels from './CartInfoPanels';
 
@@ -59,14 +60,16 @@ export default function CartSummary({ cartLength, subtotal, savings, discount, g
           <span>${grandTotal.toFixed(2)}</span>
         </div>
 
-        <button
-          className="w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-200"
-          style={{ background: '#1B3A6B', color: '#fff', border: 'none' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#162d54'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#1B3A6B'; }}
-        >
-          Go to Checkout
-        </button>
+        <Link to="/checkout" className="block w-full">
+          <button
+            className="w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-200"
+            style={{ background: '#1B3A6B', color: '#fff', border: 'none' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#162d54'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#1B3A6B'; }}
+          >
+            Go to Checkout
+          </button>
+        </Link>
       </div>
 
       <CartInfoPanels />
