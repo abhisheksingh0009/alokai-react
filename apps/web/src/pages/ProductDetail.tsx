@@ -5,17 +5,21 @@ import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShopp
 import AddToCartButton from "../components/common/AddToCartButton";
 import Breadcrumb from "../components/common/Breadcrumb";
 import ReviewsSection from "../components/common/ReviewsSection";
+import NotifyMeModal from "../components/common/NotifyMeModal";
 import { fetchProductFromDB, fetchReviews } from "../middleware/api/client";
 import BannerOverlay from "../components/Carousel/BannerOverlay";
 import YouMayAlsoLike from "../components/YouMayAlsoLike";
+import { useAuth } from "../context/AuthContext";
 
 export default function PDP() {
   const { id } = useParams();
   const productNumId = parseInt(id!);
   const location = useLocation();
+  const { user } = useAuth();
   const [activeImage, setActiveImage] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
 
   // Open modal automatically if returning from login with openReviewModal flag
   useEffect(() => {
@@ -120,14 +124,37 @@ export default function PDP() {
           {/* ── Left: Image gallery ── */}
           <div className="w-full lg:w-[48%] shrink-0">
             <div
-              className="rounded-2xl overflow-hidden flex items-center justify-center"
+              className="relative rounded-2xl overflow-hidden flex items-center justify-center"
               style={{ background: '#fff', border: '1px solid #E2E8F0', aspectRatio: '1/1' }}
             >
               <img
                 src={images[activeImage]}
                 alt={product.title}
                 className="object-contain w-full h-full p-6 transition-opacity duration-300"
+                style={product.stock === 0 ? { opacity: 0.45 } : undefined}
               />
+
+              {/* Out of stock overlay */}
+              {product.stock === 0 && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(to bottom right, transparent calc(50% - 1px), #DC2626 calc(50% - 1px), #DC2626 calc(50% + 1px), transparent calc(50% + 1px))',
+                    }}
+                  />
+                  <span
+                    className="relative z-10 text-xl font-extrabold px-4 py-1.5 rounded-xl tracking-wide"
+                    style={{
+                      color: '#DC2626',
+                      background: 'rgba(255,255,255,0.85)',
+                      border: '1.5px solid #DC2626',
+                    }}
+                  >
+                    Out of Stock
+                  </span>
+                </div>
+              )}
             </div>
 
             {images.length > 1 && (
@@ -252,33 +279,67 @@ export default function PDP() {
                   You save ${(originalPrice! - product.price).toFixed(2)}
                 </span>
               )}
-              {product.stock && (
+              {product.stock === 0 ? (
                 <span
                   className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                  style={{
-                    background: product.stock < 10 ? '#FFF7ED' : '#F0FDF4',
-                    color: product.stock < 10 ? '#EA580C' : '#16A34A',
-                    border: `1px solid ${product.stock < 10 ? '#FDBA74' : '#86EFAC'}`,
-                  }}
+                  style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}
                 >
-                  {product.stock < 10 ? `Only ${product.stock} left` : '✓ In stock'}
+                  Out of Stock
                 </span>
-              )}
+              ) : product.stock && product.stock < 10 ? (
+                <span
+                  className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                  style={{ background: '#FFF7ED', color: '#EA580C', border: '1px solid #FDBA74' }}
+                >
+                  Only {product.stock} left
+                </span>
+              ) : product.stock ? (
+                <span
+                  className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                  style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #86EFAC' }}
+                >
+                  ✓ In stock
+                </span>
+              ) : null}
             </div>
 
             <div style={{ borderTop: '1px solid #E2E8F0' }} />
 
             {/* CTA buttons */}
-            <div className="flex gap-3">
-              <AddToCartButton product={product} variant="filled" label="Add to Cart" className="flex-1" />
-              <button
-                className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shrink-0"
-                style={{ border: '1.5px solid #E2E8F0', background: '#fff', color: '#1B3A6B' }}
-                aria-label="Add to wishlist"
-              >
-                <SfIconFavorite size="sm" />
-              </button>
-            </div>
+            {product.stock === 0 ? (
+              <div className="flex flex-col gap-2">
+                <p className="text-sm font-bold" style={{ color: '#DC2626' }}>
+                  Out of Stock
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    className="flex-1 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+                    style={{ background: user ? '#1B3A6B' : '#6B7280' }}
+                    onClick={() => user ? setShowNotifyModal(true) : alert('Please log in to get notified')}
+                  >
+                    Notify Me
+                  </button>
+                  <button
+                    className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shrink-0"
+                    style={{ border: '1.5px solid #E2E8F0', background: '#fff', color: '#1B3A6B' }}
+                    aria-label="Add to wishlist"
+                  >
+                    <SfIconFavorite size="sm" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                <AddToCartButton product={product} variant="filled" label="Add to Cart" className="flex-1" />
+                <button
+                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shrink-0"
+                  style={{ border: '1.5px solid #E2E8F0', background: '#fff', color: '#1B3A6B' }}
+                  aria-label="Add to wishlist"
+                >
+                  <SfIconFavorite size="sm" />
+                </button>
+              </div>
+            )}
 
             {/* Trust badges */}
             <div
@@ -320,6 +381,14 @@ export default function PDP() {
         </div>
 
       </div>
+
+      {showNotifyModal && product && (
+        <NotifyMeModal
+          productId={product.id}
+          productName={product.title}
+          onClose={() => setShowNotifyModal(false)}
+        />
+      )}
     </div>
   );
 }

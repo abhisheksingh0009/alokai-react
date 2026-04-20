@@ -1,50 +1,100 @@
-import { SfButton } from '@storefront-ui/react';
-import bannerOverlayImg from '../../assets/banner-overlay.png';
+import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import bannerOverlayImg from '../../assets/banner-sale.jpg';
 
-const displayDetails = [
-  {
-    title: 'Cap Game Strong',
-    subtitle: 'Special Offer',
-    description: 'Score serious style points with our Open Capsule collection',
-    buttonText: 'Coming Soon....',
-    backgroundImage: bannerOverlayImg,
-  },
-];
+const SALE_END = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // 2 days from now
+
+function useCountdown(target: Date) {
+  const calc = () => {
+    const diff = Math.max(0, target.getTime() - Date.now());
+    return {
+      h: Math.floor(diff / 3600000),
+      m: Math.floor((diff % 3600000) / 60000),
+      s: Math.floor((diff % 60000) / 1000),
+    };
+  };
+  const [time, setTime] = useState(calc);
+  useEffect(() => {
+    const id = setInterval(() => setTime(calc()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
 
 export default function BannerOverlay() {
+  const { h, m, s } = useCountdown(SALE_END);
+
   return (
-    <div className="max-w-[1540px]">
-      {displayDetails.map(({ title, subtitle, description, buttonText, backgroundImage }) => (
-        <div key={title} className="relative flex text-white max-w-[1536px] @container group">
-          <a
-            className="absolute w-full h-full z-1 focus-visible:outline focus-visible:rounded-lg"
-            aria-label={title}
-            href="#"
-          />
-          <div className="h-[680px] @3xl:h-auto @3xl:aspect-[2] flex justify-center overflow-hidden grow">
-            <div className="z-[9999] relative grow flex flex-col justify-center items-center text-center p-4 @sm:p-6 @3xl:p-10 max-w-1/2">
-              <p className="uppercase text-lg block font-medium tracking-widest">
-                {subtitle}
-              </p>
-              <h2 className="mb-4 mt-2 font-semibold text-3xl md:text-6xl text-white">
-                {title}
-              </h2>
-              <p className="typography-text-base block mb-4 text-base">{description}</p>
-              <SfButton
-                blank
-                className="w-[200px] bg-white text-primary-700 ring-secondary-400 group-hover:bg-primary-100 group-hover:hover:text-primary-800 group-hover:ring-secondary-500 group-active:bg-primary-200 group-active:text-primary-900 group-active:ring-secondary-600 group-has-[:focus-visible]:outline group-has-[:focus-visible]:outline-offset pointer-events-none"
-                tabIndex={-1}
-                variant="secondary"
-              >
-                {buttonText}
-              </SfButton>
+    <div className="relative w-full rounded-2xl overflow-hidden" style={{ height: '700px' }}>
+      {/* Image */}
+      <img
+        src={bannerOverlayImg}
+        alt="Big Sale"
+        className="absolute inset-0 w-full h-full object-cover object-center"
+      />
+
+      {/* Dark overlay */}
+      <div
+        className="absolute inset-0"
+        style={{ background: 'linear-gradient(120deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.38) 55%, transparent 100%)' }}
+      />
+
+      {/* Floating discount badge — top right */}
+      <div
+        className="absolute top-5 right-5 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex flex-col items-center justify-center shadow-xl z-10 rotate-12"
+        style={{ background: '#DC2626', color: '#fff' }}
+      >
+        <span className="text-lg sm:text-2xl font-black leading-none">50%</span>
+        <span className="text-[9px] sm:text-xs font-bold uppercase tracking-wide">OFF</span>
+      </div>
+
+      {/* Text — vertically centred, left side */}
+      <div className="absolute inset-0 flex flex-col justify-center px-8 sm:px-12 z-10 max-w-lg">
+
+        {/* Live badge */}
+        <span
+          className="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+          style={{ background: '#DC2626', color: '#fff' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse inline-block" />
+          Sale is Live
+        </span>
+
+        <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-none mb-2 uppercase tracking-tight">
+          Big<br />
+          <span style={{ color: '#FCD34D' }}>Sale!</span>
+        </h2>
+
+        <p className="text-white/80 text-sm sm:text-base mb-4 max-w-xs">
+          Up to <span className="font-bold text-white">50% off</span> on top styles — limited time only.
+        </p>
+
+        {/* Countdown */}
+        <div className="flex items-center gap-2 mb-6">
+          {[{ label: 'HRS', val: h }, { label: 'MIN', val: m }, { label: 'SEC', val: s }].map(({ label, val }, i) => (
+            <div key={label} className="flex items-center gap-2">
+              <div className="flex flex-col items-center px-3 py-1.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)' }}>
+                <span className="text-xl sm:text-2xl font-black text-white tabular-nums leading-none">
+                  {String(val).padStart(2, '0')}
+                </span>
+                <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: '#FCD34D' }}>{label}</span>
+              </div>
+              {i < 2 && <span className="text-white/60 font-bold text-lg">:</span>}
             </div>
-            <div className="absolute inset-0 z-[10] overflow-hidden bg-primary-900">
-              <img src={backgroundImage} alt={title} className="w-full h-full object-cover opacity-75" />
-            </div>
-          </div>
+          ))}
         </div>
-      ))}
+
+        <Link
+          to="/products"
+          className="self-start flex items-center gap-2 px-7 py-3 rounded-full text-sm font-extrabold uppercase tracking-wide shadow-xl transition-all hover:scale-105 active:scale-95"
+          style={{ background: '#FCD34D', color: '#111827' }}
+        >
+          Shop the Sale
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
     </div>
   );
 }

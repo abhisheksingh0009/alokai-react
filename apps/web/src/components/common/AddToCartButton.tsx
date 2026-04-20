@@ -53,11 +53,12 @@ export default function AddToCartButton({
   if (quantity > 0) {
     const atMax = quantity >= MAX_QTY;
     const color = atMax ? '#F59E0B' : '#1B3A6B';
+    const stepperClass = className.replace(/\bpy-\S+\b/g, '').trim();
     return (
-      <div className={`relative ${className}`}>
+      <div className={`relative ${stepperClass}`}>
         <div
           className="flex items-center rounded-xl"
-          style={{ border: `1.5px solid ${color}`, color, background: "transparent", padding: "0.5rem 0" }}
+          style={{ border: `1.5px solid ${color}`, color, background: "transparent", padding: "0.625rem 0" }}
         >
           <button
             onClick={handleDecrease}
@@ -84,11 +85,6 @@ export default function AddToCartButton({
           </button>
         </div>
 
-        {atMax && (
-          <p className="absolute left-0 right-0 text-center text-xs font-medium mt-0.5" style={{ color: '#F59E0B' }}>
-            Max qty reached
-          </p>
-        )}
       </div>
     );
   }
@@ -117,7 +113,7 @@ export default function AddToCartButton({
       onClick={handleAddClick}
       disabled={loading}
       className={`rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed ${className}`}
-      style={{ border: "1.5px solid #1B3A6B", color: "#1B3A6B", background: "transparent", padding: "0.5rem 0" }}
+      style={{ border: "1.5px solid #1B3A6B", color: "#1B3A6B", background: "transparent", padding: "0.625rem 0" }}
       onMouseEnter={e => {
         if (loading) return;
         (e.currentTarget as HTMLButtonElement).style.background = "#1B3A6B";

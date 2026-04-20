@@ -30,7 +30,7 @@ export default function Banner2Col() {
         <div
           key={title}
           className={classNames(
-            'relative flex md:max-w-[1536px] md:[&:not(:first-of-type)]:flex-1 md:first-of-type:w-full @container group',
+            'relative flex md:max-w-[1536px] md:[&:not(:first-of-type)]:flex-1 md:first-of-type:w-full @container group rounded-2xl overflow-hidden',
             backgroundColor,
           )}
         >
