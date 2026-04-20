@@ -210,6 +210,30 @@ export async function submitReview(
   return data.review;
 }
 
+// ── Stock notification helpers ───────────────────────────────────────────────
+
+export async function subscribeStockNotification(productId: number): Promise<{ success: boolean; message: string }> {
+  const res = await fetch(`${middlewareUrl}/api/notifications/stock`, {
+    method: 'POST',
+    headers: cartHeaders(),
+    body: JSON.stringify({ productId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(err.error ?? 'Failed to subscribe');
+  }
+  return res.json();
+}
+
+export async function checkStockSubscription(productId: number): Promise<boolean> {
+  const res = await fetch(`${middlewareUrl}/api/notifications/stock/${productId}`, {
+    headers: cartHeaders(),
+  });
+  if (!res.ok) return false;
+  const data: { subscribed: boolean } = await res.json();
+  return data.subscribed;
+}
+
 // ── Wishlist helpers ─────────────────────────────────────────────────────────
 
 type WishlistResponse = { items: Product[] };

@@ -42,6 +42,7 @@ model ProductDetails {
   minimumOrderQuantity Int?     @map("minimumorderquantity")
   thumbnail            String?
   reviews              Review[]
+  stockNotifications   StockNotification[]
 
   @@map("productdetails")
 }
@@ -82,4 +83,17 @@ model Review {
   user    User           @relation(fields: [userEmail], references: [email])
 
   @@map("reviews")
+}
+
+model StockNotification {
+  id        Int      @id @default(autoincrement())
+  email     String
+  productId Int      @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  notified  Boolean  @default(false)
+
+  product ProductDetails @relation(fields: [productId], references: [id])
+
+  @@unique([email, productId])
+  @@map("stock_notifications")
 }

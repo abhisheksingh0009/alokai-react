@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { SfRating, SfLink} from "@storefront-ui/react";
 import type { Product } from "../../middleware/api/client";
 import AddToCartButton from "../common/AddToCartButton";
 import WishlistButton from "../common/WishlistButton";
+import NotifyMeModal from "../common/NotifyMeModal";
+import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { user } = useAuth();
+  const { cart } = useCart()!;
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const cartQty = cart.find(i => i.id === product.id)?.quantity ?? 0;
+  const atMax = cartQty >= 10;
   const reviewCount = product.reviewCount ?? 0;
   const avgRating = product.avgReviewRating ?? 0;
   const discount = product.discountPercentage ?? 0;
@@ -23,11 +31,35 @@ export default function ProductCard({ product }: { product: Product }) {
             src={product.thumbnail}
             alt={product.title}
             className="object-cover w-full aspect-square transition-transform duration-500 group-hover:scale-105"
+            style={product.stock === 0 ? { opacity: 0.45 } : undefined}
             loading="lazy"
           />
         </SfLink>
 
-        {isSale && (
+        {/* Out of stock overlay */}
+        {product.stock === 0 && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            {/* Diagonal strike line */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(to bottom right, transparent calc(50% - 1px), #DC2626 calc(50% - 1px), #DC2626 calc(50% + 1px), transparent calc(50% + 1px))',
+              }}
+            />
+            <span
+              className="relative z-10 text-base font-extrabold px-3 py-1 rounded-lg tracking-wide"
+              style={{
+                color: '#DC2626',
+                background: 'rgba(255,255,255,0.85)',
+                border: '1.5px solid #DC2626',
+              }}
+            >
+              Out of Stock
+            </span>
+          </div>
+        )}
+
+        {isSale && product.stock !== 0 && (
           <div
             className="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full text-white tracking-wide"
             style={{ background: '#EA580C' }}
@@ -99,9 +131,34 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* CTA */}
-        <AddToCartButton product={product} className="w-full py-2.5" />
+        {/* CTA — label row always reserves space so buttons stay aligned */}
+        <p className="text-xs font-bold mb-1.5" style={{
+          minHeight: '1rem',
+          color: product.stock === 0 ? '#DC2626' : '#F59E0B',
+          visibility: (product.stock === 0 || atMax) ? 'visible' : 'hidden',
+        }}>
+          {product.stock === 0 ? 'Out of Stock' : 'Max qty reached'}
+        </p>
+        {product.stock === 0 ? (
+          <button
+            className="w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:opacity-90"
+            style={{ background: user ? '#1B3A6B' : '#6B7280' }}
+            onClick={() => user ? setShowNotifyModal(true) : alert('Please log in to get notified')}
+          >
+            Notify Me
+          </button>
+        ) : (
+          <AddToCartButton product={product} className="w-full py-2.5" />
+        )}
       </div>
+
+      {showNotifyModal && (
+        <NotifyMeModal
+          productId={product.id}
+          productName={product.title}
+          onClose={() => setShowNotifyModal(false)}
+        />
+      )}
     </div>
   );
 }

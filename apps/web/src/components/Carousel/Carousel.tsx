@@ -85,9 +85,9 @@ export default function Carousel() {
   }, []);
 
   return (
-    <div className="relative flex flex-col w-full gap-1 mt-10 ">
+    <div className="relative flex flex-col w-full gap-1 mt-10">
       <SfScrollable
-        className="h-[500px] w-full snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="h-[500px] w-full snap-x snap-mandatory rounded-2xl overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         wrapperClassName="group/scrollable h-full"
         prevDisabled={displayIndex === 0}
         nextDisabled={displayIndex === images.length - 1}
@@ -126,6 +126,7 @@ export default function Carousel() {
             index,
           ) => (
             <div
+              key={`${index}-slide`}
               ref={(el) => { slideRefs.current[index] = el; }}
               className={classNames(
                 "relative flex flex-col md:flex-row justify-center basis-full snap-center snap-always shrink-0 grow overflow-hidden gap-6",

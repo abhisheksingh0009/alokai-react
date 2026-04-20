@@ -6,6 +6,7 @@ import productsRouter from './routes/products.js';
 import cartRouter from './routes/cart.js';
 import wishlistRouter from './routes/wishlist.js';
 import reviewsRouter from './routes/reviews.js';
+import notificationsRouter from './routes/notifications.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -20,6 +21,7 @@ app.use('/api/products', productsRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/wishlist', wishlistRouter);
 app.use('/api/reviews', reviewsRouter);
+app.use('/api/notifications', notificationsRouter);
 
 app.use(errorHandler);
 
