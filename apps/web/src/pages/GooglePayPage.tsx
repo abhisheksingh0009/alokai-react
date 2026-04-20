@@ -1,0 +1,250 @@
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+const ALLOWED_PAYMENT_METHODS = [
+  {
+    type: 'CARD',
+    parameters: {
+      allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+      allowedCardNetworks: ['AMEX', 'DISCOVER', 'MASTERCARD', 'VISA'],
+    },
+    tokenizationSpecification: {
+      type: 'PAYMENT_GATEWAY',
+      parameters: {
+        gateway: 'example',
+        gatewayMerchantId: 'exampleGatewayMerchantId',
+      },
+    },
+  },
+];
+
+const BASE_REQUEST = { apiVersion: 2, apiVersionMinor: 0 };
+
+function getClient() {
+  return new (window as any).google.payments.api.PaymentsClient({
+    environment: 'TEST',
+  });
+}
+
+export default function GooglePayPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { cart, removeFromCart } = useCart()!;
+  const total: number = (location.state as { total: number })?.total ?? 0;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const gpButtonRef = useRef<HTMLElement | null>(null);
+  const [ready, setReady] = useState(false);
+  const [notAvailable, setNotAvailable] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [simulateFailure, setSimulateFailure] = useState(false);
+  // Ref so handlePayment (captured once in createButton's onClick) always reads the latest value
+  const simulateFailureRef = useRef(false);
+
+  // Append the button only after React has rendered the container div into the DOM
+  useEffect(() => {
+    if (ready && containerRef.current && gpButtonRef.current) {
+      containerRef.current.innerHTML = '';
+      containerRef.current.appendChild(gpButtonRef.current);
+    }
+  }, [ready]);
+
+  useEffect(() => {
+    if ((window as any).google?.payments) {
+      initGooglePay();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://pay.google.com/gp/p/js/pay.js';
+    script.async = true;
+    script.onload = initGooglePay;
+    script.onerror = () => setNotAvailable(true);
+    document.body.appendChild(script);
+    return () => { document.body.removeChild(script); };
+  }, []);
+
+  async function initGooglePay() {
+    try {
+      const client = getClient();
+      const res = await client.isReadyToPay({
+        ...BASE_REQUEST,
+        allowedPaymentMethods: ALLOWED_PAYMENT_METHODS,
+      });
+      if (!res.result) { setNotAvailable(true); return; }
+      gpButtonRef.current = client.createButton({
+        onClick: handlePayment,
+        buttonType: 'pay',
+        buttonColor: 'black',
+        buttonSizeMode: 'fill',
+      });
+      setReady(true); // triggers the useEffect above to append after render
+    } catch {
+      setNotAvailable(true);
+    }
+  }
+
+  async function handlePayment() {
+    setLoading(true);
+    setError('');
+    try {
+      const client = getClient();
+      const paymentData = await client.loadPaymentData({
+        ...BASE_REQUEST,
+        allowedPaymentMethods: ALLOWED_PAYMENT_METHODS,
+        transactionInfo: {
+          totalPriceStatus: 'FINAL',
+          totalPrice: total.toFixed(2),
+          currencyCode: 'USD',
+          countryCode: 'US',
+        },
+        merchantInfo: { merchantName: 'Alokai Store' },
+      });
+
+      const res = await fetch('http://localhost:4000/api/payment/charge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentMethod: 'googlepay',
+          token: paymentData.paymentMethodData.tokenizationData.token,
+          amount: total,
+          simulateFailure: simulateFailureRef.current,
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.reason ?? 'Payment failed');
+        setLoading(false);
+        return;
+      }
+      for (const item of [...cart]) await removeFromCart(item.id);
+      navigate('/order-success', { replace: true, state: { total } });
+    } catch (e: unknown) {
+      // Google Pay throws a plain object {statusCode: "CANCELED"} on dismiss — not an Error instance
+      const statusCode = (e as any)?.statusCode ?? '';
+      const msg = e instanceof Error ? e.message : '';
+      const isCancelled = statusCode === 'CANCELED' || msg.toLowerCase().includes('cancel') || msg.toLowerCase().includes('closed');
+      if (!isCancelled) {
+        setError('Payment failed. Please try again.');
+      }
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#F5F7FA' }}>
+      <div className="w-full max-w-sm rounded-2xl shadow-xl overflow-hidden" style={{ background: '#fff' }}>
+
+        {/* Header */}
+        <div className="px-6 py-5 flex flex-col items-center gap-1" style={{ background: '#202124' }}>
+          <svg height="30" viewBox="0 0 90 30" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="24" fontFamily="'Product Sans',Arial,sans-serif" fontWeight="500" fontSize="20" fill="#4285F4">G</text>
+            <text x="15" y="24" fontFamily="'Product Sans',Arial,sans-serif" fontWeight="500" fontSize="20" fill="#EA4335">o</text>
+            <text x="27" y="24" fontFamily="'Product Sans',Arial,sans-serif" fontWeight="500" fontSize="20" fill="#FBBC05">o</text>
+            <text x="39" y="24" fontFamily="'Product Sans',Arial,sans-serif" fontWeight="500" fontSize="20" fill="#4285F4">g</text>
+            <text x="51" y="24" fontFamily="'Product Sans',Arial,sans-serif" fontWeight="500" fontSize="20" fill="#34A853">l</text>
+            <text x="57" y="24" fontFamily="'Product Sans',Arial,sans-serif" fontWeight="500" fontSize="20" fill="#EA4335">e </text>
+            <text x="72" y="24" fontFamily="'Product Sans',Arial,sans-serif" fontWeight="700" fontSize="20" fill="#fff">Pay</text>
+          </svg>
+          <p className="text-xs" style={{ color: '#9AA0A6' }}>TEST Environment</p>
+        </div>
+
+        <div className="px-6 py-6 flex flex-col gap-5">
+          {/* Merchant */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm text-white shrink-0"
+              style={{ background: 'linear-gradient(135deg,#4285F4,#1B3A6B)' }}>
+              A
+            </div>
+            <div>
+              <p className="text-sm font-bold" style={{ color: '#111827' }}>Alokai Store</p>
+              <p className="text-xs" style={{ color: '#6B7280' }}>Secure checkout</p>
+            </div>
+          </div>
+
+          {/* Amount */}
+          <div className="rounded-xl px-4 py-3 flex justify-between items-center" style={{ background: '#F3F4F6' }}>
+            <span className="text-sm font-medium" style={{ color: '#374151' }}>Total</span>
+            <span className="text-xl font-extrabold" style={{ color: '#111827' }}>${total.toFixed(2)}</span>
+          </div>
+
+          {/* Failure simulation toggle — for demo/POC only */}
+          <label className="flex items-center justify-between rounded-xl px-4 py-3 cursor-pointer select-none"
+            style={{ background: simulateFailure ? '#FEF2F2' : '#F3F4F6', border: `1.5px solid ${simulateFailure ? '#FCA5A5' : '#E5E7EB'}`, transition: 'all 0.15s' }}>
+            <div>
+              <p className="text-xs font-semibold" style={{ color: simulateFailure ? '#DC2626' : '#374151' }}>
+                Simulate payment failure
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>Demo toggle — forces a declined response</p>
+            </div>
+            <div
+              className="relative shrink-0 ml-3"
+              style={{ width: 40, height: 22 }}
+            >
+              <input type="checkbox" className="sr-only" checked={simulateFailure} onChange={e => { setSimulateFailure(e.target.checked); simulateFailureRef.current = e.target.checked; }} />
+              <div style={{
+                width: 40, height: 22, borderRadius: 11,
+                background: simulateFailure ? '#EF4444' : '#D1D5DB',
+                transition: 'background 0.2s',
+              }} />
+              <div style={{
+                position: 'absolute', top: 3, left: simulateFailure ? 21 : 3,
+                width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                transition: 'left 0.2s',
+              }} />
+            </div>
+          </label>
+
+          {/* Google Pay button area */}
+          {loading ? (
+            <div className="flex items-center justify-center py-4 gap-2">
+              <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#E5E7EB" strokeWidth="3"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="#4285F4" strokeWidth="3" strokeLinecap="round"/>
+              </svg>
+              <span className="text-sm font-medium" style={{ color: '#6B7280' }}>Processing payment…</span>
+            </div>
+          ) : notAvailable ? (
+            <div className="rounded-xl px-4 py-4 text-center" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
+              <p className="text-sm font-semibold" style={{ color: '#DC2626' }}>Google Pay Not Available</p>
+              <p className="text-xs mt-1" style={{ color: '#6B7280' }}>
+                Open this page in <strong>Chrome</strong> and make sure you're signed in to a Google account with a saved card.
+              </p>
+            </div>
+          ) : !ready ? (
+            <div className="flex items-center justify-center py-4 gap-2">
+              <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#E5E7EB" strokeWidth="3"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="#4285F4" strokeWidth="3" strokeLinecap="round"/>
+              </svg>
+              <span className="text-xs" style={{ color: '#9CA3AF' }}>Loading Google Pay…</span>
+            </div>
+          ) : (
+            <div ref={containerRef} style={{ width: '100%', minHeight: 48 }} />
+          )}
+
+          {error && (
+            <p className="text-xs text-center font-medium" style={{ color: '#DC2626' }}>{error}</p>
+          )}
+
+          <button
+            onClick={() => navigate('/checkout')}
+            disabled={loading}
+            className="w-full py-2.5 rounded-xl text-sm font-semibold transition-colors"
+            style={{ background: 'transparent', color: '#6B7280', border: '1px solid #E5E7EB' }}
+          >
+            ← Back to Checkout
+          </button>
+
+          <p className="text-xs text-center" style={{ color: '#9CA3AF' }}>
+            🔒 TEST mode — no real charges. Requires Chrome + Google account.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

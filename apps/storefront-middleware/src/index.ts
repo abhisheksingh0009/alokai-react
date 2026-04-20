@@ -7,6 +7,8 @@ import cartRouter from './routes/cart.js';
 import wishlistRouter from './routes/wishlist.js';
 import reviewsRouter from './routes/reviews.js';
 import notificationsRouter from './routes/notifications.js';
+import paymentRouter from './routes/payment.js';
+import paypalRouter from './routes/paypal.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -22,6 +24,8 @@ app.use('/api/cart', cartRouter);
 app.use('/api/wishlist', wishlistRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/payment', paymentRouter);
+app.use('/api/paypal', paypalRouter);
 
 app.use(errorHandler);
 

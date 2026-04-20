@@ -97,3 +97,30 @@ model StockNotification {
   @@unique([email, productId])
   @@map("stock_notifications")
 }
+
+model DebitCard {
+  id           Int      @id @default(autoincrement())
+  cardNumber   String   @unique @map("card_number")
+  cardHolder   String   @map("card_holder")
+  expiryMonth  Int      @map("expiry_month")
+  expiryYear   Int      @map("expiry_year")
+  cvv          String
+  balance      Decimal  @db.Decimal(12, 2)
+  userEmail    String   @map("user_email")
+  transactions PaymentTransaction[]
+
+  @@map("debit_cards")
+}
+
+model PaymentTransaction {
+  id        Int      @id @default(autoincrement())
+  cardId    Int      @map("card_id")
+  amount    Decimal  @db.Decimal(12, 2)
+  status    String
+  reason    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  card DebitCard @relation(fields: [cardId], references: [id])
+
+  @@map("payment_transactions")
+}
