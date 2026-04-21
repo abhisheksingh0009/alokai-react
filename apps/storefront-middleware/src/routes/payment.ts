@@ -8,12 +8,22 @@ router.post('/charge', async (req, res, next) => {
   try {
     const { paymentMethod, amount } = req.body as { paymentMethod?: string; amount: number };
 
-    // Google Pay (TEST env): token is not a real card — approve or decline based on demo flag
+    // Google Pay (TEST env): decline based on card network selected by user
     if (paymentMethod === 'googlepay') {
-      const { simulateFailure } = req.body as { simulateFailure?: boolean };
-      if (simulateFailure) {
-        return res.status(402).json({ success: false, reason: 'Payment declined by issuer' });
+      const { cardNetwork, authMethod } = req.body as { cardNetwork?: string; authMethod?: string };
+
+      // AMEX and DISCOVER are declined in this store (real-time, driven by what user picks)
+      if (cardNetwork === 'AMEX') {
+        return res.status(402).json({ success: false, reason: 'AMEX cards are not accepted by this merchant' });
       }
+      if (cardNetwork === 'DISCOVER') {
+        return res.status(402).json({ success: false, reason: 'DISCOVER cards are not accepted by this merchant' });
+      }
+      // PAN_ONLY auth without 3DS is declined for high-value transactions
+      if (authMethod === 'PAN_ONLY' && Number(amount) > 500) {
+        return res.status(402).json({ success: false, reason: 'Transaction requires 3DS authentication for amounts over $500' });
+      }
+
       return res.json({ success: true, transactionId: `gp_${Date.now()}` });
     }
 

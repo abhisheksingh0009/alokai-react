@@ -18,6 +18,7 @@ import PayPalMock from "./pages/PayPalMock";
 import CardPaymentMock from "./pages/CardPaymentMock";
 import OrderSuccess from "./pages/OrderSuccess";
 import GooglePayPage from "./pages/GooglePayPage";
+import OrderHistory from "./pages/OrderHistory";
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
                 <Route path="/card-payment" element={<CardPaymentMock />} />
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/google-pay" element={<GooglePayPage />} />
+                <Route path="/orders" element={<OrderHistory />} />
               </Routes>
               <Footer />
             </BrowserRouter>

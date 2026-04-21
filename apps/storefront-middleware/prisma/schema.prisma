@@ -124,3 +124,28 @@ model PaymentTransaction {
 
   @@map("payment_transactions")
 }
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  userEmail     String      @map("user_email")
+  totalAmount   Decimal     @db.Decimal(12, 2) @map("total_amount")
+  paymentMethod String      @map("payment_method")
+  status        String      @default("placed")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  items         OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int     @map("order_id")
+  productId Int     @map("product_id")
+  title     String
+  price     Decimal @db.Decimal(10, 2)
+  quantity  Int
+  thumbnail String?
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}

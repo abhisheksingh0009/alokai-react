@@ -232,6 +232,14 @@ export default function Header() {
                       <span className="text-emerald-400">&#9679;</span>
                       Profile
                     </Link>
+                    <Link
+                      to="/orders"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-slate-800 transition-colors"
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      <span className="text-indigo-400">&#9679;</span>
+                      My Orders
+                    </Link>
                     <div className="border-t border-slate-700 mx-3" />
                     <button
                       className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-slate-800 text-red-400 hover:text-red-300 transition-colors"
