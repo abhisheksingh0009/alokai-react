@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import PromoCode from './PromoCode';
 import CartInfoPanels from './CartInfoPanels';
 
@@ -12,6 +13,14 @@ type Props = {
 };
 
 export default function CartSummary({ cartLength, subtotal, savings, discount, grandTotal, onApplyPromo }: Props) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleCheckout = () => {
+    if (!user) navigate('/login');
+    else navigate('/checkout');
+  };
+
   return (
     <div className="w-full lg:w-72 shrink-0 lg:sticky lg:top-6 flex flex-col gap-3">
 
@@ -60,16 +69,15 @@ export default function CartSummary({ cartLength, subtotal, savings, discount, g
           <span>${grandTotal.toFixed(2)}</span>
         </div>
 
-        <Link to="/checkout" className="block w-full">
-          <button
-            className="w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-200"
-            style={{ background: '#1B3A6B', color: '#fff', border: 'none' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#162d54'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#1B3A6B'; }}
-          >
-            Go to Checkout
-          </button>
-        </Link>
+        <button
+          onClick={handleCheckout}
+          className="w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-200"
+          style={{ background: '#1B3A6B', color: '#fff', border: 'none' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#162d54'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#1B3A6B'; }}
+        >
+          Go to Checkout
+        </button>
       </div>
 
       <CartInfoPanels />
