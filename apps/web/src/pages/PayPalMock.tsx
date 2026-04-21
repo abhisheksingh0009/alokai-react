@@ -82,8 +82,20 @@ export default function PayPalMock() {
             setProcessing(false);
             return;
           }
-          for (const item of [...cart]) removeFromCart(item.id);
-          navigate('/order-success', { replace: true, state: { total } });
+          const token = localStorage.getItem('token');
+          const snapshot = cart.map(i => ({ id: i.id, title: i.title, price: i.price, quantity: i.quantity, thumbnail: i.thumbnail }));
+          await fetch('http://localhost:4000/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+            body: JSON.stringify({
+              items: cart.map(i => ({ productId: i.id, title: i.title, price: i.price, quantity: i.quantity, thumbnail: i.thumbnail })),
+              totalAmount: total,
+              paymentMethod: 'paypal',
+            }),
+          }).then(r => r.json()).then(orderData => {
+            for (const item of [...cart]) removeFromCart(item.id);
+            navigate('/order-success', { replace: true, state: { total, orderId: orderData.order?.id, paymentMethod: 'PayPal', items: snapshot } });
+          });
         } catch {
           setError('Network error. Please try again.');
           setProcessing(false);

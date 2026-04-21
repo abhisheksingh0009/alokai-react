@@ -230,8 +230,20 @@ export default function CardPaymentMock() {
         setLoading(false);
         return;
       }
+      const token = localStorage.getItem('token');
+      const orderRes = await fetch('http://localhost:4000/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          items: cart.map(i => ({ productId: i.id, title: i.title, price: i.price, quantity: i.quantity, thumbnail: i.thumbnail })),
+          totalAmount: total,
+          paymentMethod: 'card',
+        }),
+      });
+      const orderData = await orderRes.json();
+      const snapshot = cart.map(i => ({ id: i.id, title: i.title, price: i.price, quantity: i.quantity, thumbnail: i.thumbnail }));
       for (const item of [...cart]) await removeFromCart(item.id);
-      navigate('/order-success', { replace: true, state: { total } });
+      navigate('/order-success', { replace: true, state: { total, orderId: orderData.order?.id, paymentMethod: 'Credit / Debit Card', items: snapshot } });
     } catch {
       setErrors({ number: 'Network error, please try again' });
       setLoading(false);

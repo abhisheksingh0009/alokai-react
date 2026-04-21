@@ -45,8 +45,6 @@ export default function GooglePayPage() {
   const [notAvailable, setNotAvailable] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [simulateFailure, setSimulateFailure] = useState(false);
-  const simulateFailureRef = useRef(false);
 
   useEffect(() => {
     if (ready && containerRef.current && gpButtonRef.current) {
@@ -106,6 +104,9 @@ export default function GooglePayPage() {
         merchantInfo: { merchantName: 'Alokai Store' },
       });
 
+      const cardNetwork = paymentData.paymentMethodData.info?.cardNetwork;
+      const authMethod = paymentData.paymentMethodData.info?.cardDetails; // TEST env puts authMethod here
+
       const res = await fetch('http://localhost:4000/api/payment/charge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -113,7 +114,8 @@ export default function GooglePayPage() {
           paymentMethod: 'googlepay',
           token: paymentData.paymentMethodData.tokenizationData.token,
           amount: total,
-          simulateFailure: simulateFailureRef.current,
+          cardNetwork,
+          authMethod,
         }),
       });
       const data = await res.json();
@@ -122,8 +124,20 @@ export default function GooglePayPage() {
         setLoading(false);
         return;
       }
+      const token = localStorage.getItem('token');
+      const snapshot = cart.map(i => ({ id: i.id, title: i.title, price: i.price, quantity: i.quantity, thumbnail: i.thumbnail }));
+      const orderRes = await fetch('http://localhost:4000/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          items: cart.map(i => ({ productId: i.id, title: i.title, price: i.price, quantity: i.quantity, thumbnail: i.thumbnail })),
+          totalAmount: total,
+          paymentMethod: 'googlepay',
+        }),
+      });
+      const orderData = await orderRes.json();
       for (const item of [...cart]) await removeFromCart(item.id);
-      navigate('/order-success', { replace: true, state: { total } });
+      navigate('/order-success', { replace: true, state: { total, orderId: orderData.order?.id, paymentMethod: 'Google Pay', items: snapshot } });
     } catch (e: unknown) {
       const statusCode = (e as any)?.statusCode ?? '';
       const msg = e instanceof Error ? e.message : '';
@@ -174,21 +188,6 @@ export default function GooglePayPage() {
                   <span className="text-sm font-medium" style={{ color: '#374151' }}>Total</span>
                   <span className="text-xl font-extrabold" style={{ color: '#111827' }}>${total.toFixed(2)}</span>
                 </div>
-
-                <label className="flex items-center justify-between rounded-xl px-4 py-3 cursor-pointer select-none"
-                  style={{ background: simulateFailure ? '#FEF2F2' : '#F3F4F6', border: `1.5px solid ${simulateFailure ? '#FCA5A5' : '#E5E7EB'}`, transition: 'all 0.15s' }}>
-                  <div>
-                    <p className="text-xs font-semibold" style={{ color: simulateFailure ? '#DC2626' : '#374151' }}>
-                      Simulate payment failure
-                    </p>
-                    <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>Demo toggle — forces a declined response</p>
-                  </div>
-                  <div className="relative shrink-0 ml-3" style={{ width: 40, height: 22 }}>
-                    <input type="checkbox" className="sr-only" checked={simulateFailure} onChange={e => { setSimulateFailure(e.target.checked); simulateFailureRef.current = e.target.checked; }} />
-                    <div style={{ width: 40, height: 22, borderRadius: 11, background: simulateFailure ? '#EF4444' : '#D1D5DB', transition: 'background 0.2s' }} />
-                    <div style={{ position: 'absolute', top: 3, left: simulateFailure ? 21 : 3, width: 16, height: 16, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
-                  </div>
-                </label>
 
                 {loading ? (
                   <div className="flex items-center justify-center py-4 gap-2">
