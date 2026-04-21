@@ -61,6 +61,24 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
+// POST /api/auth/reset-password
+router.post('/reset-password', async (req, res, next) => {
+  try {
+    const { email, newPassword } = req.body as { email: string; newPassword: string };
+    if (!email || !newPassword) {
+      return res.status(400).json({ error: 'Email and new password are required' });
+    }
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ error: 'No account found with this email address' });
+
+    const hashed = await hashPassword(newPassword);
+    await prisma.user.update({ where: { email }, data: { password: hashed } });
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/auth/logout
 router.post('/logout', (_req, res) => res.json({ message: 'Logged out' }));
 
