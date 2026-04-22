@@ -9,28 +9,40 @@ export default function LoginForm() {
   const location = useLocation();
   const locationState = location.state as { from?: string; openReviewModal?: boolean } | null;
 
-const [enteredValue,setEnteredValue]=useState({
-  email:'',
-  password:''
-})
-
-function handleInputValue(identifier:string,value:string){
-  setEnteredValue(prevValue=>({
-    ...prevValue,
-    [identifier]:value
-  }
-  ))
+interface FormErrors {
+  email?: string;
+  password?: string;
 }
 
-const [error, setError] = useState('');
+const [enteredValue, setEnteredValue] = useState({ email: '', password: '' });
+const [errors, setErrors]             = useState<FormErrors>({});
+const [serverError, setServerError]   = useState('');
 
-async function handleForm(event:any){
-  event.preventDefault();
-  setError('');
-  if (!enteredValue.email || !enteredValue.password) {
-    setError('Email and password are required.');
-    return;
+function handleInputValue(identifier: string, value: string) {
+  setEnteredValue(prev => ({ ...prev, [identifier]: value }));
+  setErrors(prev => ({ ...prev, [identifier]: undefined }));
+}
+
+function validate(): FormErrors {
+  const e: FormErrors = {};
+  if (!enteredValue.email.trim()) {
+    e.email = 'Email is required.';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(enteredValue.email)) {
+    e.email = 'Enter a valid email address.';
   }
+  if (!enteredValue.password) {
+    e.password = 'Password is required.';
+  } else if (enteredValue.password.length < 8) {
+    e.password = 'Password must be at least 8 characters.';
+  }
+  return e;
+}
+
+async function handleForm(event: { preventDefault(): void }) {
+  event.preventDefault();
+  setServerError('');
+  const errs = validate();
+  if (Object.keys(errs).length > 0) { setErrors(errs); return; }
   try {
     await login(enteredValue.email, enteredValue.password);
     const destination = locationState?.from ?? '/account';
@@ -38,8 +50,8 @@ async function handleForm(event:any){
       replace: true,
       state: locationState?.openReviewModal ? { openReviewModal: true } : undefined,
     });
-  } catch (err: any) {
-    setError('Invalid credentials. Please try again.');
+  } catch (err: unknown) {
+    setServerError('Invalid credentials. Please try again.');
   }
 }
 
@@ -71,9 +83,10 @@ async function handleForm(event:any){
               type="email"
               placeholder="you@example.com"
               value={enteredValue.email}
-              onChange={(event)=>handleInputValue('email',event.target.value)}
-              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${error ? 'border-red-400' : 'border-neutral-300'}`}
+              onChange={(event) => handleInputValue('email', event.target.value)}
+              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.email ? 'border-red-400 bg-red-50' : 'border-neutral-300'}`}
             />
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="password" className="text-sm font-medium text-neutral-700">Password</label>
@@ -82,11 +95,12 @@ async function handleForm(event:any){
               type="password"
               placeholder="••••••••"
               value={enteredValue.password}
-              onChange={(event)=>handleInputValue('password',event.target.value)}
-              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${error ? 'border-red-400' : 'border-neutral-300'}`}
+              onChange={(event) => handleInputValue('password', event.target.value)}
+              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.password ? 'border-red-400 bg-red-50' : 'border-neutral-300'}`}
             />
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
           </div>
-          {error && <p className="text-xs text-red-500 text-center">{error}</p>}
+          {serverError && <p className="text-xs text-red-500 text-center bg-red-50 border border-red-200 rounded-lg px-3 py-2">{serverError}</p>}
           <div className="flex gap-3 mt-2">
             <SfButton
               type="submit"
