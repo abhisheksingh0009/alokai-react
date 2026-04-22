@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { useAsync } from "react-use";
-import { SfRating, SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout, SfIconStarFilled } from "@storefront-ui/react";
+import { SfRating, SfIconFavorite, SfIconFavoriteFilled, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout, SfIconStarFilled } from "@storefront-ui/react";
 import AddToCartButton from "../components/common/AddToCartButton";
 import Breadcrumb from "../components/common/Breadcrumb";
 import ReviewsSection from "../components/common/ReviewsSection";
@@ -10,12 +10,16 @@ import { fetchProductFromDB, fetchReviews } from "../middleware/api/client";
 import BannerOverlay from "../components/Carousel/BannerOverlay";
 import YouMayAlsoLike from "../components/YouMayAlsoLike";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
+import { useToast } from "../context/ToastContext";
 
 export default function PDP() {
   const { id } = useParams();
   const productNumId = parseInt(id!);
   const location = useLocation();
   const { user } = useAuth();
+  const { wishlist, addToWishlist } = useWishlist();
+  const { showToast } = useToast();
   const [activeImage, setActiveImage] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
@@ -306,40 +310,56 @@ export default function PDP() {
             <div style={{ borderTop: '1px solid #E2E8F0' }} />
 
             {/* CTA buttons */}
-            {product.stock === 0 ? (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm font-bold" style={{ color: '#DC2626' }}>
-                  Out of Stock
-                </p>
+            {(() => {
+              const isWishlisted = wishlist.some(item => item.id === product.id);
+              const handleWishlistClick = () => {
+                addToWishlist(product);
+                showToast(isWishlisted
+                  ? { title: 'Removed from wishlist', subtitle: 'Product removed from your wishlist', type: 'error' }
+                  : { title: 'Added to wishlist', subtitle: 'Product added to your wishlist', type: 'success' }
+                );
+              };
+              return product.stock === 0 ? (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-bold" style={{ color: '#DC2626' }}>
+                    Out of Stock
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      className="flex-1 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+                      style={{ background: user ? '#1B3A6B' : '#6B7280' }}
+                      onClick={() => user ? setShowNotifyModal(true) : alert('Please log in to get notified')}
+                    >
+                      Notify Me
+                    </button>
+                    <button
+                      className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shrink-0"
+                      style={{ border: '1.5px solid #E2E8F0', background: '#fff' }}
+                      aria-label="Add to wishlist"
+                      onClick={handleWishlistClick}
+                    >
+                      {isWishlisted
+                        ? <SfIconFavoriteFilled size="sm" style={{ color: '#DC2626' }} />
+                        : <SfIconFavorite size="sm" style={{ color: '#1B3A6B' }} />}
+                    </button>
+                  </div>
+                </div>
+              ) : (
                 <div className="flex gap-3">
-                  <button
-                    className="flex-1 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
-                    style={{ background: user ? '#1B3A6B' : '#6B7280' }}
-                    onClick={() => user ? setShowNotifyModal(true) : alert('Please log in to get notified')}
-                  >
-                    Notify Me
-                  </button>
+                  <AddToCartButton product={product} variant="filled" label="Add to Cart" className="flex-1" />
                   <button
                     className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shrink-0"
-                    style={{ border: '1.5px solid #E2E8F0', background: '#fff', color: '#1B3A6B' }}
+                    style={{ border: '1.5px solid #E2E8F0', background: '#fff' }}
                     aria-label="Add to wishlist"
+                    onClick={handleWishlistClick}
                   >
-                    <SfIconFavorite size="sm" />
+                    {isWishlisted
+                      ? <SfIconFavoriteFilled size="sm" style={{ color: '#DC2626' }} />
+                      : <SfIconFavorite size="sm" style={{ color: '#1B3A6B' }} />}
                   </button>
                 </div>
-              </div>
-            ) : (
-              <div className="flex gap-3">
-                <AddToCartButton product={product} variant="filled" label="Add to Cart" className="flex-1" />
-                <button
-                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shrink-0"
-                  style={{ border: '1.5px solid #E2E8F0', background: '#fff', color: '#1B3A6B' }}
-                  aria-label="Add to wishlist"
-                >
-                  <SfIconFavorite size="sm" />
-                </button>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Trust badges */}
             <div

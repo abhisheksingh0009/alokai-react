@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useId, useState } from 'react';
 import { useCart } from '../../context/CartContext';
+import { SfIconArrowBack } from '@storefront-ui/react';
 import YouMayAlsoLike from '../YouMayAlsoLike';
 import CartSummary from './CartSummary';
 import CartRow from './CartRow';
@@ -41,9 +42,7 @@ export default function Cart() {
                 (e.currentTarget as HTMLAnchorElement).style.color = '#1B3A6B';
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="transition-transform duration-200 group-hover:-translate-x-0.5">
-                <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <SfIconArrowBack className="transition-transform duration-200 group-hover:-translate-x-0.5" />
               Continue Shopping
             </Link>
           )}
