@@ -159,8 +159,8 @@ export default function MyAccount() {
 
       {/* Edit modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/40">
-          <div className="w-full max-w-md h-full bg-white shadow-xl flex flex-col overflow-y-auto p-8">
+        <div className="fixed inset-x-0 bottom-0 z-40 flex justify-end bg-black/40 p-4" style={{ top: '108px' }}>
+          <div className="w-full max-w-md h-full bg-white shadow-2xl rounded-2xl flex flex-col overflow-y-auto p-8">
 
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-base font-bold" style={{ color: '#1B3A6B' }}>Edit Personal Information</h2>
