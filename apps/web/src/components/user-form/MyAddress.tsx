@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SfIconLocationOn, SfIconClose, SfIconCheck } from '@storefront-ui/react';
+import { SfIconLocationOn, SfIconCheck } from '@storefront-ui/react';
 import {
   fetchAddresses,
   saveAddress,
@@ -148,7 +148,7 @@ export default function MyAddress({ onCountChange }: MyAddressProps) {
   return (
     <div>
       {/* Address list */}
-      {addresses.length > 0 && !showForm && (
+      {addresses.length > 0 && (
         <div className="flex flex-col gap-3 mb-4">
           {addresses.map(addr => (
             <div key={addr.id} className="rounded-2xl p-4 relative"
@@ -198,7 +198,7 @@ export default function MyAddress({ onCountChange }: MyAddressProps) {
       )}
 
       {/* Empty state */}
-      {addresses.length === 0 && !showForm && (
+      {addresses.length === 0 && (
         <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: '#EEF2FF' }}>
             <SfIconLocationOn size="lg" style={{ color: '#6366F1' }} />
@@ -211,7 +211,7 @@ export default function MyAddress({ onCountChange }: MyAddressProps) {
       )}
 
       {/* Add address button */}
-      {!showForm && (
+      {(
         <button onClick={openAdd}
           className="w-full py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:opacity-90"
           style={{ background: '#EEF2FF', color: '#6366F1', border: '1.5px dashed #A5B4FC' }}>
@@ -219,71 +219,68 @@ export default function MyAddress({ onCountChange }: MyAddressProps) {
         </button>
       )}
 
-      {/* Add / Edit form */}
+      {/* Add / Edit slide panel */}
       {showForm && (
-        <div className="rounded-2xl p-5" style={{ border: '1.5px solid #E2E8F0', background: '#F8FAFC' }}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-black" style={{ color: '#0F172A' }}>
-              {editing ? 'Edit Address' : 'Add New Address'}
-            </h3>
-            <button onClick={() => setShowForm(false)}
-              className="w-7 h-7 rounded-full flex items-center justify-center"
-              style={{ background: '#F1F5F9', border: 'none' }}>
-              <SfIconClose style={{ width: 14, height: 14, color: '#94A3B8' }} />
-            </button>
+        <div className="fixed inset-x-0 bottom-0 z-40 flex justify-end bg-black/40 p-4" style={{ top: '108px' }}>
+          <div className="w-full max-w-md h-full bg-white shadow-2xl rounded-2xl flex flex-col overflow-y-auto p-8">
+
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-base font-bold" style={{ color: '#1B3A6B' }}>
+                {editing ? 'Edit Address' : 'Add New Address'}
+              </h2>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-3">
+                {field('fullName', 'Full Name', { placeholder: 'John Doe' })}
+                {field('phone', 'Phone', { placeholder: '+1 555 000 0000', type: 'tel' })}
+              </div>
+
+              {field('addressLine1', 'Address Line 1', { placeholder: '123 Main Street' })}
+              {field('addressLine2', 'Address Line 2', { placeholder: 'Apt, Suite, Floor (optional)', required: false })}
+
+              <div className="grid grid-cols-2 gap-3">
+                {field('city', 'City', { placeholder: 'New York' })}
+                {field('state', 'State / Province', { placeholder: 'NY' })}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {field('postalCode', 'Postal Code', { placeholder: '10001' })}
+                {field('country', 'Country', { placeholder: 'US' })}
+              </div>
+
+              {field('label', 'Label', { placeholder: 'Home, Work, Other…', required: false })}
+
+              <label className="flex items-center gap-2 cursor-pointer mt-1">
+                <input
+                  type="checkbox"
+                  checked={!!form.isDefault}
+                  onChange={e => setForm(f => ({ ...f, isDefault: e.target.checked }))}
+                  className="rounded"
+                  style={{ accentColor: '#6366F1' }}
+                />
+                <span className="text-xs font-semibold" style={{ color: '#374151' }}>Set as default address</span>
+              </label>
+
+              {error && (
+                <p className="text-xs text-red-500 text-center bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  {error}
+                </p>
+              )}
+
+              <div className="flex gap-3 justify-start pt-2">
+                <button type="button" onClick={() => setShowForm(false)}
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" disabled={saving}
+                  className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-colors disabled:opacity-60"
+                  style={{ background: '#1B3A6B' }}>
+                  {saving ? 'Saving…' : editing ? 'Save Changes' : 'Save Address'}
+                </button>
+              </div>
+            </form>
           </div>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-3">
-              {field('fullName', 'Full Name', { placeholder: 'John Doe' })}
-              {field('phone', 'Phone', { placeholder: '+1 555 000 0000', type: 'tel' })}
-            </div>
-
-            {field('addressLine1', 'Address Line 1', { placeholder: '123 Main Street' })}
-            {field('addressLine2', 'Address Line 2', { placeholder: 'Apt, Suite, Floor (optional)', required: false })}
-
-            <div className="grid grid-cols-2 gap-3">
-              {field('city', 'City', { placeholder: 'New York' })}
-              {field('state', 'State / Province', { placeholder: 'NY' })}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {field('postalCode', 'Postal Code', { placeholder: '10001' })}
-              {field('country', 'Country', { placeholder: 'US' })}
-            </div>
-
-            {field('label', 'Label', { placeholder: 'Home, Work, Other…', required: false })}
-
-            <label className="flex items-center gap-2 cursor-pointer mt-1">
-              <input
-                type="checkbox"
-                checked={!!form.isDefault}
-                onChange={e => setForm(f => ({ ...f, isDefault: e.target.checked }))}
-                className="rounded"
-                style={{ accentColor: '#6366F1' }}
-              />
-              <span className="text-xs font-semibold" style={{ color: '#374151' }}>Set as default address</span>
-            </label>
-
-            {error && (
-              <p className="text-xs font-semibold rounded-xl px-3 py-2" style={{ background: '#FEF2F2', color: '#EF4444' }}>
-                {error}
-              </p>
-            )}
-
-            <div className="flex gap-3 mt-1">
-              <button type="button" onClick={() => setShowForm(false)}
-                className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all"
-                style={{ background: '#F1F5F9', color: '#64748B', border: 'none' }}>
-                Cancel
-              </button>
-              <button type="submit" disabled={saving}
-                className="flex-1 py-2.5 rounded-xl text-sm font-black transition-all hover:opacity-90 disabled:opacity-60"
-                style={{ background: 'linear-gradient(90deg,#6366F1,#3B82F6)', color: '#fff', border: 'none' }}>
-                {saving ? 'Saving…' : editing ? 'Save Changes' : 'Save Address'}
-              </button>
-            </div>
-          </form>
         </div>
       )}
     </div>
