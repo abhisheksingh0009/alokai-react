@@ -23,11 +23,19 @@ export interface SignupPayload {
   marketingConsent?: boolean;
 }
 
+export interface UpdateProfilePayload {
+  title?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (payload: SignupPayload) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (payload: UpdateProfilePayload) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -68,6 +76,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   };
 
+  const updateProfile = async (payload: UpdateProfilePayload) => {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API}/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? 'Update failed');
+    setUser(data.user);
+  };
+
   const logout = async () => {
     const token = localStorage.getItem('token');
     if (token) await fetch(`${API}/logout`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
@@ -76,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

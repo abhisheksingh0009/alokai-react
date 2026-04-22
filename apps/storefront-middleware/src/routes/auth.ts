@@ -60,6 +60,40 @@ router.post('/login', async (req, res, next) => {
     next(err);
   }
 });
+// PUT /api/auth/profile
+router.put('/profile', authGuard, async (req: AuthRequest, res, next) => {
+  try {
+    const { title, firstName, lastName, email } = req.body as {
+      title?: string; firstName: string; lastName: string; email: string;
+    };
+
+    if (!firstName?.trim() || !lastName?.trim())
+      return res.status(400).json({ error: 'First name and last name are required' });
+    if (!email?.trim())
+      return res.status(400).json({ error: 'Email is required' });
+
+    const conflict = await prisma.user.findFirst({
+      where: { email: email.trim(), NOT: { id: req.user!.userId } },
+    });
+    if (conflict) return res.status(409).json({ error: 'Email already in use' });
+
+    const user = await prisma.user.update({
+      where: { id: req.user!.userId },
+      data: {
+        title:     title?.trim() || null,
+        firstName: firstName.trim(),
+        lastName:  lastName.trim(),
+        name:      `${firstName.trim()} ${lastName.trim()}`,
+        email:     email.trim(),
+      },
+      select: { id: true, title: true, firstName: true, lastName: true, name: true, email: true, phone: true },
+    });
+
+    res.json({ user });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // POST /api/auth/reset-password
 router.post('/reset-password', async (req, res, next) => {
