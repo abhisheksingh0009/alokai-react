@@ -125,6 +125,25 @@ model PaymentTransaction {
   @@map("payment_transactions")
 }
 
+model Address {
+  id           Int      @id @default(autoincrement())
+  userEmail    String   @map("user_email")
+  fullName     String   @map("full_name")
+  phone        String
+  addressLine1 String   @map("address_line1")
+  addressLine2 String?  @map("address_line2")
+  city         String
+  state        String
+  postalCode   String   @map("postal_code")
+  country      String   @default("US")
+  label        String?
+  isDefault    Boolean  @default(false) @map("is_default")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt       @map("updated_at")
+
+  @@map("addresses")
+}
+
 model Order {
   id            Int         @id @default(autoincrement())
   userEmail     String      @map("user_email")
