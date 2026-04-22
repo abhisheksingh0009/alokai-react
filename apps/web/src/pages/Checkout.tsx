@@ -11,6 +11,7 @@ export default function Checkout() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<PaymentMethod>('card');
   const [step, setStep] = useState<'address' | 'payment'>('address');
+  const [addressCount, setAddressCount] = useState(0);
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const savings = cart.reduce((s, i) => s + (i.discountPercentage ?? 0) / 100 * i.price * i.quantity, 0);
@@ -112,18 +113,20 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                <MyAddress />
+                <MyAddress onCountChange={setAddressCount} />
 
                 {step === 'address' && (
                   <button
-                    className="mt-6 w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+                    onClick={() => setStep('payment')}
+                    disabled={addressCount === 0}
+                    className="mt-6 w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
                     style={{
                       background: 'linear-gradient(90deg, #6366F1, #3B82F6)',
                       color: '#fff', border: 'none',
-                      boxShadow: '0 8px 20px rgba(99,102,241,0.35)',
+                      boxShadow: addressCount > 0 ? '0 8px 20px rgba(99,102,241,0.35)' : 'none',
                     }}
                   >
-                    <span>Continue to Payment</span>
+                    <span>{addressCount === 0 ? 'Add an address to continue' : 'Continue to Payment'}</span>
                     <SfIconArrowForward />
                   </button>
                 )}
