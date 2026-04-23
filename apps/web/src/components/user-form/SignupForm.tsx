@@ -66,7 +66,7 @@ export default function SignupForm() {
     if (!form.lastName.trim())  e.lastName  = 'Last name is required.';
     if (!form.email.trim()) {
       e.email = 'Email is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(form.email)) {
       e.email = 'Enter a valid email address.';
     }
     if (!form.password) {
@@ -78,6 +78,12 @@ export default function SignupForm() {
       e.confirmPassword = 'Please confirm your password.';
     } else if (form.password !== form.confirmPassword) {
       e.confirmPassword = 'Passwords do not match.';
+    }
+    if (form.phone) {
+      const digits = form.phone.replace(/[\s\-().]/g, '');
+      if (!/^\d+$/.test(digits) || digits.length < 7 || digits.length > 15) {
+        e.phone = 'Enter a valid phone number (7–15 digits).';
+      }
     }
     return e;
   }
