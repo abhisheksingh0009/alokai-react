@@ -11,6 +11,7 @@ import paymentRouter from './routes/payment.js';
 import paypalRouter from './routes/paypal.js';
 import ordersRouter from './routes/orders.js';
 import addressesRouter from './routes/addresses.js';
+import aiRouter from './routes/ai.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/payment', paymentRouter);
 app.use('/api/paypal', paypalRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/addresses', addressesRouter);
+app.use('/api/ai', aiRouter);
 
 app.use(errorHandler);
 

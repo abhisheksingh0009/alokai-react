@@ -220,6 +220,19 @@ export async function submitReview(
 
 // ── Stock notification helpers ───────────────────────────────────────────────
 
+export async function subscribePriceDropAlert(productId: number): Promise<{ success: boolean; message: string }> {
+  const res = await apiFetch(`${middlewareUrl}/api/notifications/price-drop`, {
+    method: 'POST',
+    headers: cartHeaders(),
+    body: JSON.stringify({ productId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(err.error ?? 'Failed to subscribe');
+  }
+  return res.json();
+}
+
 export async function subscribeStockNotification(productId: number): Promise<{ success: boolean; message: string }> {
   const res = await apiFetch(`${middlewareUrl}/api/notifications/stock`, {
     method: 'POST',
@@ -363,5 +376,52 @@ export async function setDefaultAddress(id: number): Promise<Address> {
 export async function deleteAddress(id: number): Promise<boolean> {
   const res = await apiFetch(addressUrl(id), { method: 'DELETE', headers: cartHeaders() });
   return res.ok;
+}
+
+// ── AI Chat ──────────────────────────────────────────────────────────────────
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface CartAction {
+  productId: number;
+  quantity: number;
+  productName: string;
+}
+
+export interface ChatResponse {
+  message: string;
+  action?: CartAction | null;
+  navigateTo?: string;
+  wishlistAction?: { productId: number; productName: string };
+  stockAlertAction?: { productId: number; productName: string };
+  removeAction?: { productId: number; productName: string };
+  priceDropAction?: { productId: number; productName: string };
+  quantityAction?: { productId: number; quantity: number; productName: string };
+  bulkCartActions?: CartAction[];
+  bulkRemoveActions?: { productId: number; productName: string }[];
+}
+
+export interface ChatContext {
+  cart?: { id: number; title: string; price: number; quantity: number }[];
+  wishlist?: { id: number; title: string; price: number }[];
+  currentProduct?: { id: number; title: string; price: number; category?: string; description?: string };
+  page?: string;
+}
+
+export async function sendChatMessage(
+  messages: ChatMessage[],
+  context?: ChatContext
+): Promise<ChatResponse> {
+  const authToken = localStorage.getItem('token') ?? undefined;
+  const res = await apiFetch(`${middlewareUrl}/api/ai/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, context, authToken }),
+  });
+  if (!res.ok) throw new Error('AI chat request failed');
+  return res.json();
 }
 

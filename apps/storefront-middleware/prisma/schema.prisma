@@ -42,7 +42,8 @@ model ProductDetails {
   minimumOrderQuantity Int?     @map("minimumorderquantity")
   thumbnail            String?
   reviews              Review[]
-  stockNotifications   StockNotification[]
+  stockNotifications      StockNotification[]
+  priceDropNotifications  PriceDropNotification[]
 
   @@map("productdetails")
 }
@@ -96,6 +97,19 @@ model StockNotification {
 
   @@unique([email, productId])
   @@map("stock_notifications")
+}
+
+model PriceDropNotification {
+  id        Int      @id @default(autoincrement())
+  email     String
+  productId Int      @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  notified  Boolean  @default(false)
+
+  product ProductDetails @relation(fields: [productId], references: [id])
+
+  @@unique([email, productId])
+  @@map("price_drop_notifications")
 }
 
 model DebitCard {

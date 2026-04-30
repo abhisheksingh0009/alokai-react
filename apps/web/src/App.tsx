@@ -19,6 +19,7 @@ import CardPaymentMock from "./pages/CardPaymentMock";
 import OrderSuccess from "./pages/OrderSuccess";
 import GooglePayPage from "./pages/GooglePayPage";
 import OrderHistory from "./pages/OrderHistory";
+import ChatWidget from "./components/AIAssistant/ChatWidget";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
                 <Route path="/orders" element={<OrderHistory />} />
               </Routes>
               <Footer />
+              <ChatWidget />
             </BrowserRouter>
           </ToastProvider>
         </CartProvider>

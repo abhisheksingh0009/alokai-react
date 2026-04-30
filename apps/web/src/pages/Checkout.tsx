@@ -117,6 +117,7 @@ export default function Checkout() {
 
                 {step === 'address' && (
                   <button
+                    onClick={() => setStep('payment')}
                     disabled={addressCount === 0}
                     className="mt-6 w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
                     style={{
