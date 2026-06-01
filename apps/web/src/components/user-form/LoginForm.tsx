@@ -2,6 +2,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { SfButton } from '@storefront-ui/react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema, resetPasswordSchema, type LoginFormData, type ResetPasswordFormData } from '../../utils/validation';
+import { middlewareUrl } from '../../middleware/api/config';
 
 export default function LoginForm() {
   const { login } = useAuth();
@@ -9,74 +13,61 @@ export default function LoginForm() {
   const location = useLocation();
   const locationState = location.state as { from?: string; openReviewModal?: boolean } | null;
 
-  const [enteredValue, setEnteredValue] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const {
+    register: registerReset,
+    handleSubmit: handleResetSubmit,
+    formState: { errors: resetErrors, isSubmitting: isResetting },
+    reset: resetFormReset,
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
 
   const [view, setView] = useState<'login' | 'forgot'>('login');
-  const [resetForm, setResetForm] = useState({ email: '', newPassword: '', confirmPassword: '' });
+  const [loginError, setLoginError] = useState('');
   const [resetError, setResetError] = useState('');
   const [resetSuccess, setResetSuccess] = useState('');
 
-  function handleInputValue(identifier: string, value: string) {
-    setEnteredValue(prev => ({ ...prev, [identifier]: value }));
-  }
-
-  function handleResetInput(identifier: string, value: string) {
-    setResetForm(prev => ({ ...prev, [identifier]: value }));
-  }
-
-  async function handleForm(event: any) {
-    event.preventDefault();
-    setError('');
-    if (!enteredValue.email || !enteredValue.password) {
-      setError('Email and password are required.');
-      return;
-    }
+  async function onLoginSubmit(data: LoginFormData) {
+    setLoginError('');
     try {
-      await login(enteredValue.email, enteredValue.password);
+      await login(data.email, data.password);
       const destination = locationState?.from ?? '/account';
       navigate(destination, {
         replace: true,
         state: locationState?.openReviewModal ? { openReviewModal: true } : undefined,
       });
-    } catch (err: any) {
-      setError('Invalid credentials. Please try again.');
+    } catch {
+      setLoginError('Invalid credentials. Please try again.');
     }
   }
 
-  async function handleResetPassword(event: any) {
-    event.preventDefault();
+  async function onResetSubmit(data: ResetPasswordFormData) {
     setResetError('');
     setResetSuccess('');
-
-    if (!resetForm.email || !resetForm.newPassword || !resetForm.confirmPassword) {
-      setResetError('All fields are required.');
-      return;
-    }
-    if (resetForm.newPassword !== resetForm.confirmPassword) {
-      setResetError('Passwords do not match.');
-      return;
-    }
-    if (resetForm.newPassword.length < 8) {
-      setResetError('Password must be at least 8 characters.');
-      return;
-    }
-
     try {
-      const res = await fetch('http://localhost:4000/api/auth/reset-password', {
+      const res = await fetch(`${middlewareUrl}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: resetForm.email, newPassword: resetForm.newPassword }),
+        body: JSON.stringify({ email: data.email, newPassword: data.newPassword }),
       });
-      const data = await res.json();
+      const resData = await res.json();
       if (!res.ok) {
-        setResetError(data.error ?? 'Something went wrong. Please try again.');
+        setResetError(resData.error ?? 'Something went wrong. Please try again.');
         return;
       }
       setResetSuccess('Password changed successfully! Redirecting to login…');
       setTimeout(() => {
         setView('login');
-        setResetForm({ email: '', newPassword: '', confirmPassword: '' });
+        resetFormReset();
         setResetSuccess('');
       }, 2000);
     } catch {
@@ -105,17 +96,17 @@ export default function LoginForm() {
             <h1 className="text-2xl font-extrabold text-neutral-900">Reset Password</h1>
             <p className="text-sm text-neutral-500 mt-1">Enter your details to set a new password</p>
           </div>
-          <form className="w-full flex flex-col gap-4" onSubmit={handleResetPassword}>
+          <form className="w-full flex flex-col gap-4" onSubmit={handleResetSubmit(onResetSubmit)}>
             <div className="flex flex-col gap-1">
               <label htmlFor="reset-email" className="text-sm font-medium text-neutral-700">Email address</label>
               <input
                 id="reset-email"
                 type="email"
                 placeholder="you@example.com"
-                value={resetForm.email}
-                onChange={e => handleResetInput('email', e.target.value)}
-                className="border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 border-neutral-300"
+                {...registerReset('email')}
+                className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${resetErrors.email ? 'border-red-400' : 'border-neutral-300'}`}
               />
+              {resetErrors.email && <p className="text-xs text-red-500 mt-1">{resetErrors.email.message}</p>}
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="new-password" className="text-sm font-medium text-neutral-700">Choose password</label>
@@ -123,10 +114,10 @@ export default function LoginForm() {
                 id="new-password"
                 type="password"
                 placeholder="••••••••"
-                value={resetForm.newPassword}
-                onChange={e => handleResetInput('newPassword', e.target.value)}
-                className="border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 border-neutral-300"
+                {...registerReset('newPassword')}
+                className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${resetErrors.newPassword ? 'border-red-400' : 'border-neutral-300'}`}
               />
+              {resetErrors.newPassword && <p className="text-xs text-red-500 mt-1">{resetErrors.newPassword.message}</p>}
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="confirm-password" className="text-sm font-medium text-neutral-700">Confirm password</label>
@@ -134,23 +125,24 @@ export default function LoginForm() {
                 id="confirm-password"
                 type="password"
                 placeholder="••••••••"
-                value={resetForm.confirmPassword}
-                onChange={e => handleResetInput('confirmPassword', e.target.value)}
-                className="border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 border-neutral-300"
+                {...registerReset('confirmPassword')}
+                className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${resetErrors.confirmPassword ? 'border-red-400' : 'border-neutral-300'}`}
               />
+              {resetErrors.confirmPassword && <p className="text-xs text-red-500 mt-1">{resetErrors.confirmPassword.message}</p>}
             </div>
             {resetError && <p className="text-xs text-red-500 text-center">{resetError}</p>}
             {resetSuccess && <p className="text-xs text-green-600 text-center">{resetSuccess}</p>}
             <div className="flex gap-3 mt-2">
               <SfButton
                 type="submit"
-                className="flex-1 bg-primary-700 text-white font-semibold rounded-lg py-2 text-sm hover:bg-primary-800 transition-colors"
+                disabled={isResetting}
+                className="flex-1 bg-primary-700 text-white font-semibold rounded-lg py-2 text-sm hover:bg-primary-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Change Password
+                {isResetting ? 'Changing…' : 'Change Password'}
               </SfButton>
               <button
                 type="button"
-                onClick={() => { setView('login'); setResetError(''); setResetSuccess(''); }}
+                onClick={() => { setView('login'); resetFormReset(); setResetSuccess(''); setResetError(''); setLoginError(''); }}
                 className="flex-1 border border-neutral-300 text-neutral-700 font-semibold rounded-lg py-2 text-sm hover:bg-neutral-50 transition-colors"
               >
                 Back to Login
@@ -170,17 +162,17 @@ export default function LoginForm() {
           <h1 className="text-2xl font-extrabold text-neutral-900">Welcome</h1>
           <p className="text-sm text-neutral-500 mt-1">Sign in to your ALOKAI-MART account</p>
         </div>
-        <form className="w-full flex flex-col gap-4" onSubmit={handleForm}>
+        <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit(onLoginSubmit)}>
           <div className="flex flex-col gap-1">
             <label htmlFor="email" className="text-sm font-medium text-neutral-700">Email address</label>
             <input
               id="email"
               type="email"
               placeholder="you@example.com"
-              value={enteredValue.email}
-              onChange={e => handleInputValue('email', e.target.value)}
-              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${error ? 'border-red-400' : 'border-neutral-300'}`}
+              {...register('email')}
+              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.email ? 'border-red-400' : 'border-neutral-300'}`}
             />
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="password" className="text-sm font-medium text-neutral-700">Password</label>
@@ -188,16 +180,16 @@ export default function LoginForm() {
               id="password"
               type="password"
               placeholder="••••••••"
-              value={enteredValue.password}
-              onChange={e => handleInputValue('password', e.target.value)}
-              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${error ? 'border-red-400' : 'border-neutral-300'}`}
+              {...register('password')}
+              className={`border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.password ? 'border-red-400' : 'border-neutral-300'}`}
             />
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
           </div>
-          {error && <p className="text-xs text-red-500 text-center">{error}</p>}
+          {loginError && <p className="text-xs text-red-500 text-center">{loginError}</p>}
           <div className="flex justify-end">
             <button
               type="button"
-              onClick={() => { setView('forgot'); setError(''); }}
+              onClick={() => { setView('forgot'); setLoginError(''); setResetError(''); }}
               className="text-xs text-primary-700 hover:underline font-medium"
             >
               Forgot password?
@@ -206,12 +198,14 @@ export default function LoginForm() {
           <div className="flex gap-3">
             <SfButton
               type="submit"
-              className="flex-1 bg-primary-700 text-white font-semibold rounded-lg py-2 text-sm hover:bg-primary-800 transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 bg-primary-700 text-white font-semibold rounded-lg py-2 text-sm hover:bg-primary-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Login
+              {isSubmitting ? 'Signing in…' : 'Login'}
             </SfButton>
             <button
-              type="reset"
+              type="button"
+              onClick={() => reset()}
               className="flex-1 border border-neutral-300 text-neutral-700 font-semibold rounded-lg py-2 text-sm hover:bg-neutral-50 transition-colors"
             >
               Reset

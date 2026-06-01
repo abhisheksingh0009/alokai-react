@@ -11,8 +11,11 @@ import {
   SfDrawer,
   useDisclosure,
 } from '@storefront-ui/react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useUI } from '../../context/UIContext';
+import LocaleSwitcher from '../common/LocaleSwitcher';
 import SearchResults from '../common/SearchResults';
 import { fetchProductsFromDB, type Product } from '../../middleware/api/client';
 import { useNavigation } from '../../context/NavigationContext';
@@ -20,8 +23,10 @@ import { useNavigation } from '../../context/NavigationContext';
 const categories = ['Women', 'Men', 'Kids', 'Electronics'];
 
 export default function Header() {
+  const { t } = useTranslation();
   const { cart } = useCart()!;
   const { user, logout } = useAuth();
+  const { openCartDrawer } = useUI();
   const { isOpen: isDrawerOpen, open: openDrawer, close: closeDrawer } = useDisclosure();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
@@ -110,7 +115,7 @@ export default function Header() {
                 <input
                   ref={mobileSearchRef}
                   type="text"
-                  placeholder="Search products..."
+                  placeholder={t('header.search_placeholder')}
                   className="flex-1 px-4 py-2 bg-transparent text-white text-sm outline-none placeholder:text-slate-400"
                   value={inputVal}
                   onChange={(e) => setInputVal(e.target.value)}
@@ -173,7 +178,7 @@ export default function Header() {
             <div className="flex w-full bg-slate-700/60 border border-slate-500 rounded-lg overflow-hidden focus-within:border-cyan-400 focus-within:bg-slate-700 transition-all">
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder={t('header.search_placeholder')}
                 className="flex-1 px-4 py-2 bg-transparent text-white text-sm outline-none placeholder:text-slate-400"
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
@@ -198,19 +203,23 @@ export default function Header() {
             <SfIconSearch />
           </button>
 
-          <Link to="/wishlist" className="flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap" aria-label="Wishlist">
+          <LocaleSwitcher />
+
+          <Link to="/wishlist" className="flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap" aria-label={t('header.wishlist')}>
             <SfIconFavorite className="text-white" />
           </Link>
 
           {/* Account dropdown */}
           <div className="relative" ref={accountRef}>
             <button
-              className="flex items-center gap-1.5 text-white font-medium whitespace-nowrap"
+              className="flex items-center gap-1.5 text-white font-medium whitespace-nowrap min-w-[80px] justify-start"
               aria-label="Account"
               onClick={() => setIsAccountOpen(prev => !prev)}
             >
               <SfIconPerson className="text-white" />
-              <span className="hidden md:inline text-sm">{user ? user.name : ''}</span>
+              <span className="hidden md:inline text-sm min-w-[60px] text-left">
+                {user ? user.name : 'Account'}
+              </span>
             </button>
 
             {isAccountOpen && (
@@ -274,46 +283,49 @@ export default function Header() {
             )}
           </div>
 
-          <Link to="/cart" className="relative flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap">
+          <button
+            type="button"
+            onClick={openCartDrawer}
+            aria-label={t('header.cart')}
+            className="relative flex items-center gap-1 text-white font-medium hover:underline whitespace-nowrap cursor-pointer"
+          >
             <SfIconShoppingCart className="text-white" />
-            Cart
-            {cartCount > 0 && (
-              <span className="ml-1 bg-emerald-400 text-slate-900 text-xs font-bold rounded-full w-5 h-5 hidden md:flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+            <span className="hidden md:inline">{t('header.cart')}</span>
+            <span
+              className="bg-emerald-400 text-slate-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center
+                         absolute -top-1 -right-1 md:static md:ml-1 transition-opacity duration-200"
+              style={{ opacity: cartCount > 0 ? 1 : 0, visibility: cartCount > 0 ? 'visible' : 'hidden' }}
+            >
+              {cartCount || 0}
+            </span>
+          </button>
         </div>
       </div>
 
       {/* Desktop nav - main categories only */}
-      <nav className="hidden md:block bg-slate-800">
-        <ul className="flex px-6">
-          <li>
-            <Link to="/" className={`block px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 ${selectCategoryByNav === null ? 'border-b-2 border-cyan-400 bg-slate-600 text-cyan-400 font-bold' : ''
+      <nav className="hidden md:block bg-slate-800 min-h-[48px]">
+        <ul className="flex px-6 h-12">
+          <li className="flex">
+            <Link to="/" className={`flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 transition-colors ${selectCategoryByNav === null ? 'border-b-2 border-cyan-400 bg-slate-600 text-cyan-400 font-bold' : ''
               }`} onClick={() => { setSelectCategoryByNav(null) }}>
-              Home
+              {t('header.home')}
             </Link>
           </li>
           {uniqueMenuNodes?.map((menuNode) => (
-            <li key={menuNode.id}>
+            <li key={menuNode.id} className="flex">
               <button
-
-
                 onClick={() => { setSelectCategoryByNav(menuNode.category); navigate('/products'); handleOpenMenu([(menuNode.id).toString()]) }}
-
-                className={`px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 transition-colors capitalize  ${selectCategoryByNav === menuNode?.category ? 'border-b-2 border-cyan-400 bg-slate-600 text-cyan-400 font-bold' : ''
+                className={`flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 transition-colors capitalize ${selectCategoryByNav === menuNode?.category ? 'border-b-2 border-cyan-400 bg-slate-600 text-cyan-400 font-bold' : ''
                   }`}
               >
                 {menuNode.category}
               </button>
-
             </li>
           ))}
-          <li>
-            <Link to="/products" className={`block px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 ${location.pathname === '/products' && selectCategoryByNav === undefined ? 'border-b-2 border-cyan-400 bg-slate-600 text-cyan-400 font-bold' : ''
+          <li className="flex">
+            <Link to="/products" className={`flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-slate-700 transition-colors ${location.pathname === '/products' && selectCategoryByNav === undefined ? 'border-b-2 border-cyan-400 bg-slate-600 text-cyan-400 font-bold' : ''
               }`} onClick={() => { setSelectCategoryByNav(undefined) }} >
-              All Products
+              {t('header.all_products')}
             </Link>
           </li>
         </ul>

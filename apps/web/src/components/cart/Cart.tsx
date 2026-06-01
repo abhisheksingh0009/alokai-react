@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { SfIconArrowBack } from '@storefront-ui/react';
 import YouMayAlsoLike from '../YouMayAlsoLike';
@@ -8,7 +8,6 @@ import CartRow from './CartRow';
 
 export default function Cart() {
   const { cart, removeFromCart } = useCart()!;
-  const inputId = useId();
   const min = 1;
   const max = 10;
   const [discountRate, setDiscountRate] = useState(0);
@@ -104,7 +103,6 @@ export default function Cart() {
                     key={`${item.id}-${index}`}
                     item={item}
                     index={index}
-                    inputId={`${inputId}-${index}`}
                     min={min}
                     max={max}
                     onRemove={removeFromCart}

@@ -1,32 +1,26 @@
-import { SfIconRemove, SfIconAdd, SfIconDelete } from '@storefront-ui/react';
+import { SfIconDelete } from '@storefront-ui/react';
 import { Link } from 'react-router-dom';
-import { type ChangeEvent } from 'react';
-import { clamp } from '@storefront-ui/shared';
 import { useCart } from '../../context/CartContext';
+import QuantitySelector from '../common/QuantitySelector';
 import type { Product } from '../../middleware/api/client';
 
 type Props = {
   item: Product & { quantity: number };
   index: number;
-  inputId: string;
   min: number;
   max: number;
   onRemove: (productId: number) => void;
 };
 
-export default function CartRow({ item, index, inputId, min, max, onRemove }: Props) {
+export default function CartRow({ item, index, min, max, onRemove }: Props) {
   const { cart, addToCart } = useCart()!;
   const currentItem = cart[index];
   const quantity = currentItem?.quantity ?? item.quantity;
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const next = clamp(parseFloat(e.target.value), min, max);
+  function handleQuantityChange(next: number) {
     const diff = next - quantity;
     if (diff !== 0) addToCart(item, diff);
   }
-
-  function inc() { if (quantity < max) addToCart(item, 1); }
-  function dec() { if (quantity > min) addToCart(item, -1); }
 
   if (!currentItem) return null;
 
@@ -72,34 +66,12 @@ export default function CartRow({ item, index, inputId, min, max, onRemove }: Pr
         </div>
 
         <div className="flex items-center justify-center">
-          <div className="flex items-center rounded-full" style={{ border: '1.5px solid #E5E7EB', background: '#F9FAFB' }}>
-            <button
-              className="w-8 h-8 flex items-center justify-center rounded-l-full transition-colors hover:bg-gray-100 disabled:opacity-40"
-              disabled={quantity <= min}
-              aria-label="Decrease"
-              onClick={dec}
-            >
-              <SfIconRemove className="text-xs" />
-            </button>
-            <input
-              id={inputId}
-              type="number"
-              className="w-9 text-center bg-transparent font-bold text-sm focus-visible:outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
-              min={min}
-              max={max}
-              value={quantity}
-              onChange={handleChange}
-              style={{ color: '#111827' }}
-            />
-            <button
-              className="w-8 h-8 flex items-center justify-center rounded-r-full transition-colors hover:bg-gray-100 disabled:opacity-40"
-              disabled={quantity >= max}
-              aria-label="Increase"
-              onClick={inc}
-            >
-              <SfIconAdd className="text-xs" />
-            </button>
-          </div>
+          <QuantitySelector
+            value={quantity}
+            onChange={handleQuantityChange}
+            min={min}
+            max={max}
+          />
         </div>
 
         <div className="flex flex-col items-center gap-1">

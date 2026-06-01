@@ -1,0 +1,64 @@
+{
+  "header": {
+    "search_placeholder": "Rechercher des produits...",
+    "wishlist": "Favoris",
+    "cart": "Panier",
+    "account": "Compte",
+    "home": "Accueil",
+    "all_products": "Tous les produits",
+    "login": "Connexion",
+    "signup": "S'inscrire",
+    "profile": "Profil",
+    "orders": "Mes Commandes",
+    "sign_out": "Déconnexion",
+    "menu": "Menu",
+    "categories": "Catégories"
+  },
+  "cart_drawer": {
+    "title": "Votre Panier",
+    "empty_title": "Votre panier est vide",
+    "empty_subtitle": "Ajoutez des articles pour commencer.",
+    "continue_shopping": "Continuer les achats",
+    "subtotal": "Sous-total",
+    "shipping_note": "Frais de port et taxes calculés au paiement.",
+    "checkout": "Commander",
+    "view_cart": "Voir le panier"
+  },
+  "pdp": {
+    "add_to_cart": "Ajouter au panier",
+    "in_stock": "En stock",
+    "out_of_stock": "Rupture de stock",
+    "only_n_left": "Plus que {{count}} en stock",
+    "you_save": "Vous économisez {{amount}}",
+    "sale_off": "{{percent}}% de réduction",
+    "write_review": "Écrire un avis",
+    "reviews": "{{count}} Avis",
+    "review": "{{count}} Avis"
+  },
+  "plp": {
+    "title": "Produits",
+    "items_count": "{{count}} articles",
+    "filters": "Filtres",
+    "sort_by": "Trier par",
+    "sort_featured": "À la une",
+    "sort_price_asc": "Prix : Croissant",
+    "sort_price_desc": "Prix : Décroissant",
+    "sort_rating": "Mieux notés",
+    "category": "Catégorie",
+    "brand": "Marque",
+    "price": "Prix",
+    "min_rating": "Note minimum",
+    "availability": "Disponibilité",
+    "in_stock_only": "En stock uniquement",
+    "and_above": "et plus",
+    "clear_all": "Effacer tous les filtres",
+    "active_label": "Actifs :",
+    "clear_all_short": "Tout effacer",
+    "no_brands": "Aucune marque disponible."
+  },
+  "common": {
+    "add_to_cart": "Ajouter au panier",
+    "notify_me": "M'avertir",
+    "close": "Fermer"
+  }
+}

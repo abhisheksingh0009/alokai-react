@@ -1,13 +1,17 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SfIconExpandMore } from '@storefront-ui/react';
 import { PRICE_RANGES, type Filters } from '../../hooks/useProductFilters';
 
 interface Props {
   categories: string[];
+  brands: string[];
   filters: Filters;
   onToggleCategory: (cat: string) => void;
+  onToggleBrand: (brand: string) => void;
   onTogglePrice: (idx: number) => void;
   onSetMinRating: (r: number) => void;
+  onToggleInStockOnly: () => void;
   onClear: () => void;
   hasFilters: boolean;
   dark?: boolean;
@@ -55,9 +59,10 @@ function AccordionSection({ title, badge, open, onToggle, children, dark }: Acco
 }
 
 export default function ProductListFilters({
-  categories, filters, onToggleCategory, onTogglePrice, onSetMinRating, onClear, hasFilters, dark = false,
+  categories, brands, filters, onToggleCategory, onToggleBrand, onTogglePrice, onSetMinRating, onToggleInStockOnly, onClear, hasFilters, dark = false,
 }: Props) {
-  const [openSections, setOpenSections] = useState({ category: true, price: true, rating: true });
+  const { t } = useTranslation();
+  const [openSections, setOpenSections] = useState({ category: true, brand: true, price: true, rating: true, availability: true });
 
   function toggle(key: keyof typeof openSections) {
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -71,12 +76,12 @@ export default function ProductListFilters({
             onClick={onClear}
             className={`text-xs font-semibold underline ${dark ? 'text-red-400 hover:text-red-300' : 'text-[#2563EB]'}`}
           >
-            Clear all filters
+            {t('plp.clear_all')}
           </button>
         </div>
       )}
 
-      <AccordionSection title="Category" badge={filters.categories.length || undefined} open={openSections.category} onToggle={() => toggle('category')} dark={dark}>
+      <AccordionSection title={t('plp.category')} badge={filters.categories.length || undefined} open={openSections.category} onToggle={() => toggle('category')} dark={dark}>
         <ul className="space-y-3.5 max-h-56 overflow-y-auto pr-1">
           {categories.map(cat => (
             <li key={cat} className="flex items-center gap-2.5">
@@ -95,7 +100,44 @@ export default function ProductListFilters({
         </ul>
       </AccordionSection>
 
-      <AccordionSection title="Price" badge={filters.prices.length || undefined} open={openSections.price} onToggle={() => toggle('price')} dark={dark}>
+      <AccordionSection title={t('plp.brand')} badge={filters.brands.length || undefined} open={openSections.brand} onToggle={() => toggle('brand')} dark={dark}>
+        {brands.length === 0 ? (
+          <p className={`text-xs ${dark ? 'text-slate-500' : 'text-[#6B7280]'}`}>{t('plp.no_brands')}</p>
+        ) : (
+          <ul className="space-y-3.5 max-h-56 overflow-y-auto pr-1">
+            {brands.map(brand => (
+              <li key={brand} className="flex items-center gap-2.5">
+                <input
+                  type="checkbox"
+                  id={`brand-${brand}`}
+                  checked={filters.brands.includes(brand)}
+                  onChange={() => onToggleBrand(brand)}
+                  className="w-4 h-4 rounded cursor-pointer accent-indigo-500"
+                />
+                <label htmlFor={`brand-${brand}`} className={`text-sm cursor-pointer select-none ${dark ? 'text-slate-300 hover:text-white' : 'text-[#374151]'}`}>
+                  {brand}
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+      </AccordionSection>
+
+      <AccordionSection title={t('plp.availability')} badge={filters.inStockOnly ? 1 : undefined} open={openSections.availability} onToggle={() => toggle('availability')} dark={dark}>
+        <label className="flex items-center gap-2.5 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={filters.inStockOnly}
+            onChange={onToggleInStockOnly}
+            className="w-4 h-4 rounded cursor-pointer accent-indigo-500"
+          />
+          <span className={`text-sm ${dark ? 'text-slate-300 hover:text-white' : 'text-[#374151]'}`}>
+            {t('plp.in_stock_only')}
+          </span>
+        </label>
+      </AccordionSection>
+
+      <AccordionSection title={t('plp.price')} badge={filters.prices.length || undefined} open={openSections.price} onToggle={() => toggle('price')} dark={dark}>
         <ul className="space-y-3.5">
           {PRICE_RANGES.map((range, idx) => (
             <li key={range.label} className="flex items-center gap-2.5">
@@ -114,7 +156,7 @@ export default function ProductListFilters({
         </ul>
       </AccordionSection>
 
-      <AccordionSection title="Minimum Rating" badge={filters.minRating > 0 ? 1 : undefined} open={openSections.rating} onToggle={() => toggle('rating')} dark={dark}>
+      <AccordionSection title={t('plp.min_rating')} badge={filters.minRating > 0 ? 1 : undefined} open={openSections.rating} onToggle={() => toggle('rating')} dark={dark}>
         <ul className="space-y-3.5">
           {[4, 3, 2].map(r => (
             <li key={r} className="flex items-center gap-2.5">
@@ -129,7 +171,7 @@ export default function ProductListFilters({
               <label htmlFor={`rating-${r}`} className={`text-sm cursor-pointer select-none flex items-center gap-1 ${dark ? 'text-slate-300' : 'text-[#374151]'}`}>
                 <span className="text-amber-400">{'★'.repeat(r)}</span>
                 <span className={dark ? 'text-slate-600' : 'text-[#D1D5DB]'}>{'★'.repeat(5 - r)}</span>
-                <span className={`ml-1 text-xs ${dark ? 'text-slate-500' : 'text-[#6B7280]'}`}>& above</span>
+                <span className={`ml-1 text-xs ${dark ? 'text-slate-500' : 'text-[#6B7280]'}`}>{t('plp.and_above')}</span>
               </label>
             </li>
           ))}

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth, type SignupPayload } from '../../context/AuthContext';
 import { SfIconVisibility, SfIconVisibilityOff } from '@storefront-ui/react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signupSchema, type SignupFormData } from '../../utils/validation';
 
 const TITLES = ['Mr', 'Mrs', 'Ms', 'Miss', 'Dr', 'Prof'];
 
@@ -17,91 +20,36 @@ const COUNTRY_CODES = [
   { flag: '🇦🇪', code: '+971',label: 'AE' },
 ];
 
-interface FormState {
-  title: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  countryCode: string;
-  phone: string;
-  dateOfBirth: string;
-  password: string;
-  confirmPassword: string;
-}
-
-interface FormErrors {
-  title?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  dateOfBirth?: string;
-  password?: string;
-  confirmPassword?: string;
-}
-
 export default function SignupForm() {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<FormState>({
-    title: '', firstName: '', lastName: '', email: '',
-    countryCode: '+1', phone: '', dateOfBirth: '',
-    password: '', confirmPassword: '',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      countryCode: '+1',
+    },
   });
-  const [errors, setErrors]         = useState<FormErrors>({});
+
   const [serverError, setServerError] = useState('');
-  const [showPass, setShowPass]     = useState(false);
+  const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  function set(field: keyof FormState, value: string | boolean) {
-    setForm(p => ({ ...p, [field]: value }));
-    setErrors(p => ({ ...p, [field]: undefined }));
-  }
-
-  function validate(): FormErrors {
-    const e: FormErrors = {};
-    if (!form.title)          e.title     = 'Please select a title.';
-    if (!form.firstName.trim()) e.firstName = 'First name is required.';
-    if (!form.lastName.trim())  e.lastName  = 'Last name is required.';
-    if (!form.email.trim()) {
-      e.email = 'Email is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(form.email)) {
-      e.email = 'Enter a valid email address.';
-    }
-    if (!form.password) {
-      e.password = 'Password is required.';
-    } else if (form.password.length < 8) {
-      e.password = 'Password must be at least 8 characters.';
-    }
-    if (!form.confirmPassword) {
-      e.confirmPassword = 'Please confirm your password.';
-    } else if (form.password !== form.confirmPassword) {
-      e.confirmPassword = 'Passwords do not match.';
-    }
-    if (form.phone) {
-      const digits = form.phone.replace(/[\s\-().]/g, '');
-      if (!/^\d+$/.test(digits) || digits.length < 7 || digits.length > 15) {
-        e.phone = 'Enter a valid phone number (7–15 digits).';
-      }
-    }
-    return e;
-  }
-
-  async function handleSubmit(e: { preventDefault(): void }) {
-    e.preventDefault();
+  async function onSubmit(data: SignupFormData) {
     setServerError('');
-    const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
     const payload: SignupPayload = {
-      title:           form.title || undefined,
-      firstName:       form.firstName.trim(),
-      lastName:        form.lastName.trim(),
-      email:           form.email.trim(),
-      password:        form.password,
-      phone:           form.phone ? `${form.countryCode} ${form.phone.trim()}` : undefined,
-      dateOfBirth:     form.dateOfBirth || undefined,
+      title: data.title || undefined,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      phone: data.phone ? `${data.countryCode} ${data.phone.trim()}` : undefined,
+      dateOfBirth: data.dateOfBirth || undefined,
     };
 
     try {
@@ -126,7 +74,7 @@ export default function SignupForm() {
           <p className="text-sm text-gray-500 mt-1">Fill in the details below to register</p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
 
           {/* Email */}
           <div>
@@ -136,11 +84,10 @@ export default function SignupForm() {
             <input
               type="email"
               placeholder="you@example.com"
-              value={form.email}
-              onChange={e => set('email', e.target.value)}
+              {...register('email')}
               className={`${inputBase} ${errors.email ? errStyle : okStyle}`}
             />
-            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
           </div>
 
           {/* Phone */}
@@ -150,8 +97,7 @@ export default function SignupForm() {
             </label>
             <div className="flex gap-2">
               <select
-                value={form.countryCode}
-                onChange={e => set('countryCode', e.target.value)}
+                {...register('countryCode')}
                 className="border border-gray-300 rounded-lg px-2 py-2.5 text-sm bg-white outline-none focus:border-slate-700 shrink-0"
               >
                 {COUNTRY_CODES.map(c => (
@@ -163,12 +109,11 @@ export default function SignupForm() {
               <input
                 type="tel"
                 placeholder="Phone number"
-                value={form.phone}
-                onChange={e => set('phone', e.target.value)}
+                {...register('phone')}
                 className={`${inputBase} ${errors.phone ? errStyle : okStyle}`}
               />
             </div>
-            {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
+            {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
           </div>
 
           <hr className="border-gray-100" />
@@ -179,14 +124,13 @@ export default function SignupForm() {
               Title <span className="text-red-500">*</span>
             </label>
             <select
-              value={form.title}
-              onChange={e => set('title', e.target.value)}
+              {...register('title')}
               className={`${inputBase} ${errors.title ? errStyle : okStyle}`}
             >
               <option value="">Select title</option>
               {TITLES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
-            {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
+            {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
           </div>
 
           {/* First name */}
@@ -197,11 +141,10 @@ export default function SignupForm() {
             <input
               type="text"
               placeholder="First name"
-              value={form.firstName}
-              onChange={e => set('firstName', e.target.value)}
+              {...register('firstName')}
               className={`${inputBase} ${errors.firstName ? errStyle : okStyle}`}
             />
-            {errors.firstName && <p className="text-xs text-red-500 mt-1">{errors.firstName}</p>}
+            {errors.firstName && <p className="text-xs text-red-500 mt-1">{errors.firstName.message}</p>}
           </div>
 
           {/* Last name */}
@@ -212,11 +155,10 @@ export default function SignupForm() {
             <input
               type="text"
               placeholder="Last name"
-              value={form.lastName}
-              onChange={e => set('lastName', e.target.value)}
+              {...register('lastName')}
               className={`${inputBase} ${errors.lastName ? errStyle : okStyle}`}
             />
-            {errors.lastName && <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>}
+            {errors.lastName && <p className="text-xs text-red-500 mt-1">{errors.lastName.message}</p>}
           </div>
 
           {/* Date of Birth */}
@@ -226,8 +168,7 @@ export default function SignupForm() {
             </label>
             <input
               type="date"
-              value={form.dateOfBirth}
-              onChange={e => set('dateOfBirth', e.target.value)}
+              {...register('dateOfBirth')}
               max={new Date().toISOString().split('T')[0]}
               className={`${inputBase} ${okStyle}`}
             />
@@ -244,8 +185,7 @@ export default function SignupForm() {
               <input
                 type={showPass ? 'text' : 'password'}
                 placeholder="Min. 8 characters"
-                value={form.password}
-                onChange={e => set('password', e.target.value)}
+                {...register('password')}
                 className={`${inputBase} pr-10 ${errors.password ? errStyle : okStyle}`}
               />
               <button
@@ -256,7 +196,7 @@ export default function SignupForm() {
                 {showPass ? <SfIconVisibilityOff /> : <SfIconVisibility />}
               </button>
             </div>
-            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
           </div>
 
           {/* Confirm Password */}
@@ -268,8 +208,7 @@ export default function SignupForm() {
               <input
                 type={showConfirm ? 'text' : 'password'}
                 placeholder="Re-enter your password"
-                value={form.confirmPassword}
-                onChange={e => set('confirmPassword', e.target.value)}
+                {...register('confirmPassword')}
                 className={`${inputBase} pr-10 ${errors.confirmPassword ? errStyle : okStyle}`}
               />
               <button
@@ -280,7 +219,7 @@ export default function SignupForm() {
                 {showConfirm ? <SfIconVisibilityOff /> : <SfIconVisibility />}
               </button>
             </div>
-            {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</p>}
           </div>
 
           {serverError && (
@@ -291,10 +230,11 @@ export default function SignupForm() {
 
           <button
             type="submit"
-            className="w-full py-3 rounded-lg text-sm font-semibold text-white transition-colors hover:opacity-90"
+            disabled={isSubmitting}
+            className="w-full py-3 rounded-lg text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: '#1B3A6B' }}
           >
-            Create Account
+            {isSubmitting ? 'Creating account…' : 'Create Account'}
           </button>
         </form>
 

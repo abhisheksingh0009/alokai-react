@@ -54,11 +54,19 @@ export function useProducts(filters: Filters, _loadedPages: number) {
     [allProducts]
   );
 
+  const brands: string[] = useMemo(
+    () => [...new Set(allProducts.map(p => p.brand).filter((b): b is string => !!b))].sort(),
+    [allProducts]
+  );
+
   const filtered = useMemo(() => {
     let list = [...allProducts];
 
     if (filters.categories.length > 0)
       list = list.filter(p => p.category && filters.categories.includes(p.category));
+
+    if (filters.brands.length > 0)
+      list = list.filter(p => p.brand && filters.brands.includes(p.brand));
 
     if (filters.prices.length > 0)
       list = list.filter(p =>
@@ -67,6 +75,9 @@ export function useProducts(filters: Filters, _loadedPages: number) {
 
     if (filters.minRating > 0)
       list = list.filter(p => p.avgReviewRating != null && p.avgReviewRating >= filters.minRating);
+
+    if (filters.inStockOnly)
+      list = list.filter(p => (p.stock ?? 0) > 0);
 
     if (filters.sortBy === 'price_asc')  list.sort((a, b) => a.price - b.price);
     if (filters.sortBy === 'price_desc') list.sort((a, b) => b.price - a.price);
@@ -83,6 +94,7 @@ export function useProducts(filters: Filters, _loadedPages: number) {
     refetch,
     loadMore,
     categories,
+    brands,
     filtered,
     paginated: filtered,   // all loaded+filtered products visible at once
     hasMore,
