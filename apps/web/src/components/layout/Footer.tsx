@@ -36,12 +36,12 @@ const paymentMethods = ['Visa', 'Mastercard', 'PayPal', 'Apple Pay'];
 
 export default function Footer() {
   return (
-    <footer style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)' }} className="text-white">
+    <footer style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)' }} className="text-white mt-auto">
       {/* Top accent line */}
       <div className="h-1" style={{ background: 'linear-gradient(90deg, #f59e0b, #ef4444, #ec4899, #8b5cf6, #3b82f6, #10b981)' }} />
 
       <div className="max-w-7xl mx-auto pl-10 pr-2 py-14 md:pl-18 lg:pr-24">
-        <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:grid-cols-4 text-left">
+        <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:grid-cols-4 text-left min-h-[300px]">
 
           {/* Brand */}
           <div className="flex flex-col gap-4">

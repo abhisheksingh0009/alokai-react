@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Product } from "../../middleware/api/client";
 import { useCart } from "../../context/CartContext";
-import { useToast } from "../../context/ToastContext";
+import { useUI } from "../../context/UIContext";
 import Loader from "./Loader";
 import { SfIconShoppingCartCheckout, SfIconAdd, SfIconRemove } from "@storefront-ui/react";
+import { trackAddToCart } from "../../utils/analytics";
 
 type Props = {
   product: Product;
@@ -15,14 +17,16 @@ type Props = {
 
 export default function AddToCartButton({
   product,
-  label = "Add to cart",
+  label,
   variant = "outline",
   showIcon = true,
   className = "",
 }: Props) {
+  const { t } = useTranslation();
   const { cart, addToCart, removeFromCart } = useCart()!;
-  const { showToast } = useToast();
+  const { openCartDrawer } = useUI();
   const [loading, setLoading] = useState(false);
+  const buttonLabel = label ?? t('common.add_to_cart');
 
   const MAX_QTY = 10;
   const cartItem = cart.find(i => i.id === product.id);
@@ -32,13 +36,20 @@ export default function AddToCartButton({
     if (loading) return;
     setLoading(true);
     await addToCart(product, 1);
+    
+    // Track GA event
+    trackAddToCart(product.title, product.id);
+    
     setLoading(false);
-    showToast();
+    openCartDrawer();
   }
 
   async function handleIncrease() {
     if (quantity >= MAX_QTY) return;
     await addToCart(product, 1);
+    
+    // Track GA event for quantity increase
+    trackAddToCart(product.title, product.id);
   }
 
   async function handleDecrease() {
@@ -101,7 +112,7 @@ export default function AddToCartButton({
         {loading ? <Loader size="sm" className="text-white" /> : (
           <>
             {showIcon && <SfIconShoppingCartCheckout size="sm" />}
-            {label}
+            {buttonLabel}
           </>
         )}
       </button>
@@ -127,7 +138,7 @@ export default function AddToCartButton({
       {loading ? <Loader size="sm" /> : (
         <>
           {showIcon && <SfIconShoppingCartCheckout size="sm" />}
-          {label}
+          {buttonLabel}
         </>
       )}
     </button>

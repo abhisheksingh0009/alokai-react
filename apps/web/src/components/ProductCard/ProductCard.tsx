@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { SfRating, SfLink} from "@storefront-ui/react";
 import type { Product } from "../../middleware/api/client";
 import AddToCartButton from "../common/AddToCartButton";
@@ -6,8 +7,11 @@ import WishlistButton from "../common/WishlistButton";
 import NotifyMeModal from "../common/NotifyMeModal";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { useCurrency } from "../../hooks/useCurrency";
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { t } = useTranslation();
+  const { format } = useCurrency();
   const { user } = useAuth();
   const { cart } = useCart()!;
   const [showNotifyModal, setShowNotifyModal] = useState(false);
@@ -32,7 +36,10 @@ export default function ProductCard({ product }: { product: Product }) {
             alt={product.title}
             className="object-cover w-full aspect-square transition-transform duration-500 group-hover:scale-105"
             style={product.stock === 0 ? { opacity: 0.45 } : undefined}
+            width="300"
+            height="300"
             loading="lazy"
+            decoding="async"
           />
         </SfLink>
 
@@ -54,7 +61,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 border: '1.5px solid #DC2626',
               }}
             >
-              Out of Stock
+              {t('pdp.out_of_stock')}
             </span>
           </div>
         )}
@@ -64,7 +71,7 @@ export default function ProductCard({ product }: { product: Product }) {
             className="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full text-white tracking-wide"
             style={{ background: '#EA580C' }}
           >
-            {Math.round(discount)}% Off
+            {t('pdp.sale_off', { percent: Math.round(discount) })}
           </div>
         )}
 
@@ -117,12 +124,12 @@ export default function ProductCard({ product }: { product: Product }) {
         {/* Price row */}
         <div className="flex items-center gap-2 flex-wrap mt-auto mb-3">
           <span className="text-xl font-bold" style={{ color: '#111827' }}>
-            ${product.price.toFixed(2)}
+            {format(product.price)}
           </span>
           {originalPrice && (
             <>
               <span className="text-sm line-through" style={{ color: '#9CA3AF' }}>
-                ${originalPrice.toFixed(2)}
+                {format(originalPrice)}
               </span>
               <span className="text-xs font-semibold" style={{ color: '#16A34A' }}>
                 {Math.round(discount)}% off
@@ -137,7 +144,7 @@ export default function ProductCard({ product }: { product: Product }) {
           color: product.stock === 0 ? '#DC2626' : '#F59E0B',
           visibility: (product.stock === 0 || atMax) ? 'visible' : 'hidden',
         }}>
-          {product.stock === 0 ? 'Out of Stock' : 'Max qty reached'}
+          {product.stock === 0 ? t('pdp.out_of_stock') : 'Max qty reached'}
         </p>
         {product.stock === 0 ? (
           <button
@@ -145,7 +152,7 @@ export default function ProductCard({ product }: { product: Product }) {
             style={{ background: user ? '#1B3A6B' : '#6B7280' }}
             onClick={() => user ? setShowNotifyModal(true) : alert('Please log in to get notified')}
           >
-            Notify Me
+            {t('common.notify_me')}
           </button>
         ) : (
           <AddToCartButton product={product} className="w-full py-2.5" />

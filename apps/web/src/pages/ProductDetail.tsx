@@ -1,9 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { useAsync } from "react-use";
+import { useCurrency } from "../hooks/useCurrency";
 import { SfRating, SfIconFavorite, SfIconFavoriteFilled, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout, SfIconStarFilled } from "@storefront-ui/react";
 import AddToCartButton from "../components/common/AddToCartButton";
 import Breadcrumb from "../components/common/Breadcrumb";
+import ProductJsonLd from "../components/common/ProductJsonLd";
 import ReviewsSection from "../components/common/ReviewsSection";
 import NotifyMeModal from "../components/common/NotifyMeModal";
 import { fetchProductFromDB, fetchReviews } from "../middleware/api/client";
@@ -14,6 +17,8 @@ import { useWishlist } from "../context/WishlistContext";
 import { useToast } from "../context/ToastContext";
 
 export default function PDP() {
+  const { t } = useTranslation();
+  const { format } = useCurrency();
   const { id } = useParams();
   const productNumId = parseInt(id!);
   const location = useLocation();
@@ -106,6 +111,11 @@ export default function PDP() {
 
   return (
     <div className="min-h-screen" style={{ background: '#F4F6F9' }}>
+      <ProductJsonLd
+        product={product}
+        reviewCount={hasReviews ? reviews.length : undefined}
+        avgRating={hasReviews ? avgRating : undefined}
+      />
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Breadcrumb */}
@@ -207,7 +217,7 @@ export default function PDP() {
                   className="text-xs font-bold px-3 py-1 rounded-full text-white"
                   style={{ background: '#EA580C' }}
                 >
-                  {Math.round(discount)}% Off
+                  {t('pdp.sale_off', { percent: Math.round(discount) })}
                 </span>
               )}
             </div>
@@ -261,18 +271,18 @@ export default function PDP() {
                 style={{ color: '#1B3A6B' }}
               >
                 <SfIconStarFilled size="xs" style={{ color: '#F59E0B' }} />
-                Write a Review
+                {t('pdp.write_review')}
               </button>
             )}
 
             {/* Price */}
             <div className="flex items-baseline gap-3 flex-wrap">
               <span className="text-4xl font-bold" style={{ color: '#111827' }}>
-                ${product.price.toFixed(2)}
+                {format(product.price)}
               </span>
               {originalPrice && (
                 <span className="text-xl line-through" style={{ color: '#9CA3AF' }}>
-                  ${originalPrice.toFixed(2)}
+                  {format(originalPrice)}
                 </span>
               )}
               {isSale && (
@@ -280,7 +290,7 @@ export default function PDP() {
                   className="text-sm font-bold px-2.5 py-1 rounded-lg"
                   style={{ background: '#DCFCE7', color: '#16A34A' }}
                 >
-                  You save ${(originalPrice! - product.price).toFixed(2)}
+                  {t('pdp.you_save', { amount: format(originalPrice! - product.price) })}
                 </span>
               )}
               {product.stock === 0 ? (
@@ -288,21 +298,21 @@ export default function PDP() {
                   className="text-xs font-semibold px-2.5 py-1 rounded-full"
                   style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}
                 >
-                  Out of Stock
+                  {t('pdp.out_of_stock')}
                 </span>
               ) : product.stock && product.stock < 10 ? (
                 <span
                   className="text-xs font-semibold px-2.5 py-1 rounded-full"
                   style={{ background: '#FFF7ED', color: '#EA580C', border: '1px solid #FDBA74' }}
                 >
-                  Only {product.stock} left
+                  {t('pdp.only_n_left', { count: product.stock })}
                 </span>
               ) : product.stock ? (
                 <span
                   className="text-xs font-semibold px-2.5 py-1 rounded-full"
                   style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #86EFAC' }}
                 >
-                  ✓ In stock
+                  ✓ {t('pdp.in_stock')}
                 </span>
               ) : null}
             </div>
@@ -346,7 +356,7 @@ export default function PDP() {
                 </div>
               ) : (
                 <div className="flex gap-3">
-                  <AddToCartButton product={product} variant="filled" label="Add to Cart" className="flex-1" />
+                  <AddToCartButton product={product} variant="filled" className="flex-1" />
                   <button
                     className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shrink-0"
                     style={{ border: '1.5px solid #E2E8F0', background: '#fff' }}

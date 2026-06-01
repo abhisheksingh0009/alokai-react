@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "@storefront-ui/react/tailwind-config.css";
-@source "../node_modules/@storefront-ui/react/dist";
+@source "../../../node_modules/@storefront-ui/react/dist";
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -114,4 +114,67 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* Prevent layout shifts by reserving space for images */
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure images maintain their aspect ratio during loading */
+img[width][height] {
+  height: auto;
+}
+
+/* Prevent layout shift for carousel images */
+.carousel-image-container {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+/* Prevent layout shift for banner images */
+.banner-image-container {
+  aspect-ratio: 12 / 7;
+  overflow: hidden;
+}
+
+/* Layout stability improvements */
+.layout-stable {
+  contain: layout style;
+}
+
+/* Prevent layout shifts from dynamic content */
+.min-width-stable {
+  min-width: fit-content;
+}
+
+/* Reserve space for dynamic elements */
+.cart-badge {
+  min-width: 20px;
+  min-height: 20px;
+}
+
+/* Prevent footer from jumping */
+footer {
+  flex-shrink: 0;
+}
+
+/* Stable header height */
+header {
+  min-height: 64px;
+}
+
+/* Navigation stability */
+nav ul {
+  min-height: 48px;
+}
+
+/* Prevent button size changes */
+button, .button {
+  min-height: 36px;
 }

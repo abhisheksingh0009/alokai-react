@@ -162,11 +162,15 @@ export default function Carousel() {
                   )}
                 </div>
               )}
-              <div className={classNames("w-full md:h-full overflow-hidden", { "md:w-1/2": title || subtitle || buttonText || description })}>
+              <div className={classNames("w-full md:h-full overflow-hidden carousel-image-container", { "md:w-1/2": title || subtitle || buttonText || description })}>
                 <img
                   src={imageSrc}
                   alt={alt}
                   className="w-full h-full object-cover object-top"
+                  width="800"
+                  height="500"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>

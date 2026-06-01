@@ -1,0 +1,64 @@
+{
+  "header": {
+    "search_placeholder": "Search products...",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "account": "Account",
+    "home": "Home",
+    "all_products": "All Products",
+    "login": "Login",
+    "signup": "Sign up",
+    "profile": "Profile",
+    "orders": "My Orders",
+    "sign_out": "Sign Out",
+    "menu": "Menu",
+    "categories": "Categories"
+  },
+  "cart_drawer": {
+    "title": "Your Cart",
+    "empty_title": "Your cart is empty",
+    "empty_subtitle": "Add items to get started.",
+    "continue_shopping": "Continue Shopping",
+    "subtotal": "Subtotal",
+    "shipping_note": "Shipping & taxes calculated at checkout.",
+    "checkout": "Checkout",
+    "view_cart": "View Cart"
+  },
+  "pdp": {
+    "add_to_cart": "Add to Cart",
+    "in_stock": "In Stock",
+    "out_of_stock": "Out of Stock",
+    "only_n_left": "Only {{count}} left",
+    "you_save": "You save {{amount}}",
+    "sale_off": "{{percent}}% Off",
+    "write_review": "Write a Review",
+    "reviews": "{{count}} Reviews",
+    "review": "{{count}} Review"
+  },
+  "plp": {
+    "title": "Products",
+    "items_count": "{{count}} items",
+    "filters": "Filters",
+    "sort_by": "Sort by",
+    "sort_featured": "Featured",
+    "sort_price_asc": "Price: Low → High",
+    "sort_price_desc": "Price: High → Low",
+    "sort_rating": "Top Rated",
+    "category": "Category",
+    "brand": "Brand",
+    "price": "Price",
+    "min_rating": "Minimum Rating",
+    "availability": "Availability",
+    "in_stock_only": "In stock only",
+    "and_above": "& above",
+    "clear_all": "Clear all filters",
+    "active_label": "Active:",
+    "clear_all_short": "Clear all",
+    "no_brands": "No brands available."
+  },
+  "common": {
+    "add_to_cart": "Add to cart",
+    "notify_me": "Notify Me",
+    "close": "Close"
+  }
+}

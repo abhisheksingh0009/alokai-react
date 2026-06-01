@@ -1,24 +1,34 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { SfIconMenu, SfIconExpandMore, SfIconClose } from '@storefront-ui/react';
-import { useProductFilters, SORT_OPTIONS } from '../hooks/useProductFilters';
+import { useTranslation } from 'react-i18next';
+import { SfIconMenu, SfIconExpandMore, SfIconClose, SfDrawer, SfButton } from '@storefront-ui/react';
+import { useProductFilters } from '../hooks/useProductFilters';
 import { useProducts } from '../hooks/useProducts';
 import ProductListFilters from '../components/ProductList/ProductListFilters';
 import ProductListGrid from '../components/ProductList/ProductListGrid';
 import ProductListSkeleton from '../components/ProductList/ProductListSkeleton';
+import ActiveFilterChips from '../components/ProductList/ActiveFilterChips';
 import { useNavigation } from '../context/NavigationContext';
 
 export default function PLP() {
+  const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const SORT_OPTIONS = [
+    { label: t('plp.sort_featured'),   value: 'featured' },
+    { label: t('plp.sort_price_asc'),  value: 'price_asc' },
+    { label: t('plp.sort_price_desc'), value: 'price_desc' },
+    { label: t('plp.sort_rating'),     value: 'rating' },
+  ];
 
   const {
     filters, currentPage,
-    toggleCategory, togglePrice, setMinRating, setSortBy,
+    toggleCategory, toggleBrand, togglePrice, setMinRating, toggleInStockOnly, setSortBy,
     clearAll, hasFilters, activeFilterCount,
   } = useProductFilters();
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const { loading, loadingMore, refetch, loadMore, categories, filtered, paginated, hasMore } = useProducts(filters, currentPage);
+  const { loading, loadingMore, refetch, loadMore, categories, brands, filtered, paginated, hasMore } = useProducts(filters, currentPage);
 
   const handleClearAll = useCallback(() => { clearAll(); refetch(); }, [clearAll, refetch]);
 
@@ -54,8 +64,8 @@ export default function PLP() {
         {/* Title + sort row */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight" style={{ color: '#111827' }}>Products</h1>
-            <p className="mt-1 text-sm" style={{ color: '#6B7280' }}>{filtered.length} items</p>
+            <h1 className="text-4xl font-bold tracking-tight" style={{ color: '#111827' }}>{t('plp.title')}</h1>
+            <p className="mt-1 text-sm" style={{ color: '#6B7280' }}>{t('plp.items_count', { count: filtered.length })}</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -66,7 +76,7 @@ export default function PLP() {
               onClick={() => setSidebarOpen(true)}
             >
               <SfIconMenu size="sm" />
-              Filters
+              {t('plp.filters')}
               {activeFilterCount > 0 && (
                 <span
                   className="bg-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center"
@@ -104,49 +114,70 @@ export default function PLP() {
           >
             <ProductListFilters
               categories={categories}
+              brands={brands}
               filters={filters}
               onToggleCategory={toggleCategory}
+              onToggleBrand={toggleBrand}
               onTogglePrice={togglePrice}
               onSetMinRating={setMinRating}
+              onToggleInStockOnly={toggleInStockOnly}
               onClear={handleClearAll}
               hasFilters={hasFilters}
             />
           </aside>
 
-          {/* Mobile sidebar drawer — dark */}
-          {sidebarOpen && (
-            <div className="fixed inset-0 z-50 lg:hidden">
-              <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-              <div className="absolute left-0 top-0 bottom-0 w-72 overflow-y-auto bg-slate-900 border-r border-slate-700 flex flex-col">
-                <div className="flex items-center justify-between px-4 py-3.5 bg-slate-800 border-b border-slate-700">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M1 3h12M3 7h8M5 11h4" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
-                      </svg>
-                    </div>
-                    <span className="font-bold text-sm text-white tracking-wide">Filters</span>
-                  </div>
-                  <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white transition-colors">
-                    <SfIconClose size="sm" />
-                  </button>
+          {/* Mobile sidebar drawer — SfDrawer for Alokai-pattern consistency */}
+          <SfDrawer
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            placement="left"
+            className="w-72 max-w-full bg-slate-900 flex flex-col h-full !z-[9999] backdrop:bg-black/50 backdrop:backdrop-blur-sm lg:hidden"
+          >
+            <div className="flex items-center justify-between px-4 py-3.5 bg-slate-800 border-b border-slate-700">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center">
+                  <SfIconMenu size="sm" className="text-white" />
                 </div>
-                <ProductListFilters
-                  dark
-                  categories={categories}
-                  filters={filters}
-                  onToggleCategory={toggleCategory}
-                  onTogglePrice={togglePrice}
-                  onSetMinRating={setMinRating}
-                  onClear={handleClearAll}
-                  hasFilters={hasFilters}
-                />
+                <span className="font-bold text-sm text-white tracking-wide">{t('plp.filters')}</span>
               </div>
+              <SfButton
+                variant="tertiary"
+                square
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close filters"
+                className="!text-slate-400 hover:!text-white"
+              >
+                <SfIconClose size="sm" />
+              </SfButton>
             </div>
-          )}
+            <div className="flex-1 overflow-y-auto px-3">
+              <ProductListFilters
+                dark
+                categories={categories}
+                brands={brands}
+                filters={filters}
+                onToggleCategory={toggleCategory}
+                onToggleBrand={toggleBrand}
+                onTogglePrice={togglePrice}
+                onSetMinRating={setMinRating}
+                onToggleInStockOnly={toggleInStockOnly}
+                onClear={handleClearAll}
+                hasFilters={hasFilters}
+              />
+            </div>
+          </SfDrawer>
 
           {/* Product grid + pagination */}
           <div className="flex-1 min-w-0">
+            <ActiveFilterChips
+              filters={filters}
+              onToggleCategory={toggleCategory}
+              onToggleBrand={toggleBrand}
+              onTogglePrice={togglePrice}
+              onSetMinRating={setMinRating}
+              onToggleInStockOnly={toggleInStockOnly}
+              onClear={handleClearAll}
+            />
             <ProductListGrid
               products={paginated}
               hasFilters={hasFilters}

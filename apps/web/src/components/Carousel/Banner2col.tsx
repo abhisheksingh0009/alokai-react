@@ -61,7 +61,15 @@ export default function Banner2Col() {
               </SfButton>
             </div>
             <div className="flex shrink-0 items-center w-full @md:w-1/2 @md:self-start @md:object-contain">
-              <img src={image} alt={title} className="w-full" />
+              <img 
+                src={image} 
+                alt={title} 
+                className="w-full" 
+                width="600"
+                height="400"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>
         </div>

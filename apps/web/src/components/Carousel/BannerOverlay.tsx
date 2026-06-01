@@ -25,12 +25,16 @@ export default function BannerOverlay() {
   const { h, m, s } = useCountdown(SALE_END);
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden" style={{ height: '700px' }}>
+    <div className="relative w-full rounded-2xl overflow-hidden banner-image-container" style={{ height: '700px' }}>
       {/* Image */}
       <img
         src={bannerOverlayImg}
         alt="Big Sale"
         className="absolute inset-0 w-full h-full object-cover object-center"
+        width="1200"
+        height="700"
+        loading="lazy"
+        decoding="async"
       />
 
       {/* Dark overlay */}

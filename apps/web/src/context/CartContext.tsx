@@ -29,22 +29,61 @@ function saveLocalCart(cart: CartItem[]) {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // ── Merge guest cart with user cart on login
+  const mergeGuestCartWithUserCart = async (guestCart: CartItem[]) => {
+    if (guestCart.length === 0) return;
+    
+    try {
+      // Add each guest cart item to the user's cart
+      for (const item of guestCart) {
+        await upsertCartItem(item.id, item.quantity);
+      }
+      
+      console.log(`Cart items restored: ${guestCart.length} item${guestCart.length > 1 ? 's' : ''} added to your cart`);
+    } catch (error) {
+      console.error('Failed to merge guest cart:', error);
+    }
+  };
 
   // ── On auth change: load DB cart on login, restore localStorage on logout
   useEffect(() => {
     if (!user) {
       // Logged out — restore guest cart from localStorage
       setCart(loadLocalCart());
+      setIsInitialized(true);
       return;
     }
 
     (async () => {
-      // DB cart is the source of truth — discard any guest localStorage items
-      localStorage.removeItem('cart');
-      const dbCart = await fetchCart();
-      setCart(dbCart);
+      try {
+        // Get guest cart before clearing it
+        const guestCart = loadLocalCart();
+        
+        // Load user's existing cart from database
+        const dbCart = await fetchCart();
+        
+        // If user had items in guest cart, merge them
+        if (guestCart.length > 0 && isInitialized) {
+          await mergeGuestCartWithUserCart(guestCart);
+          // Reload cart after merge
+          const updatedCart = await fetchCart();
+          setCart(updatedCart);
+        } else {
+          setCart(dbCart);
+        }
+        
+        // Clear guest cart from localStorage
+        localStorage.removeItem('cart');
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('Failed to load user cart:', error);
+        setCart([]);
+        setIsInitialized(true);
+      }
     })();
-  }, [user]);
+  }, [user, isInitialized]);
 
   // ── Persist guest cart to localStorage whenever it changes (not logged in)
   useEffect(() => {
