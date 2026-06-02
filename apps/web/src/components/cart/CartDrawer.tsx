@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useAlokaiI18n } from "../../hooks/useAlokaiI18n";
 import {
   SfDrawer,
   SfButton,
@@ -16,7 +16,7 @@ import { useCurrency } from "../../hooks/useCurrency";
 const MAX_QTY = 10;
 
 export default function CartDrawer() {
-  const { t } = useTranslation();
+  const { t } = useAlokaiI18n();
   const { format } = useCurrency();
   const { cart, addToCart, removeFromCart } = useCart()!;
   const { isCartDrawerOpen, closeCartDrawer } = useUI();

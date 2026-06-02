@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useAlokaiI18nContext } from "../context/AlokaiI18nContext";
 import { SfIconMenu, SfIconExpandMore, SfIconClose, SfDrawer, SfButton } from '@storefront-ui/react';
 import { useProductFilters } from '../hooks/useProductFilters';
 import { useProducts } from '../hooks/useProducts';
@@ -10,7 +10,7 @@ import ActiveFilterChips from '../components/ProductList/ActiveFilterChips';
 import { useNavigation } from '../context/NavigationContext';
 
 export default function PLP() {
-  const { t } = useTranslation();
+  const { t } = useAlokaiI18nContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const SORT_OPTIONS = [

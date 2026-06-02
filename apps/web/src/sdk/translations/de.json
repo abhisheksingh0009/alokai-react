@@ -1,0 +1,81 @@
+{
+  "header": {
+    "search_placeholder": "Produkte suchen...",
+    "wishlist": "Wunschliste",
+    "cart": "Warenkorb",
+    "account": "Konto",
+    "home": "Startseite",
+    "all_products": "Alle Produkte",
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "profile": "Profil",
+    "orders": "Meine Bestellungen",
+    "sign_out": "Abmelden",
+    "menu": "Menü",
+    "categories": "Kategorien"
+  },
+  "cart_drawer": {
+    "title": "Ihr Warenkorb",
+    "empty_title": "Ihr Warenkorb ist leer",
+    "empty_subtitle": "Fügen Sie Artikel hinzu, um zu beginnen.",
+    "continue_shopping": "Weiter einkaufen",
+    "subtotal": "Zwischensumme",
+    "shipping_note": "Versand und Steuern werden an der Kasse berechnet.",
+    "checkout": "Zur Kasse",
+    "view_cart": "Warenkorb anzeigen"
+  },
+  "pdp": {
+    "add_to_cart": "In den Warenkorb",
+    "in_stock": "Auf Lager",
+    "out_of_stock": "Ausverkauft",
+    "only_n_left": "Nur noch {{count}} verfügbar",
+    "you_save": "Sie sparen {{amount}}",
+    "sale_off": "{{percent}}% Rabatt",
+    "write_review": "Bewertung schreiben",
+    "reviews": "{{count}} Bewertungen",
+    "review": "{{count}} Bewertung"
+  },
+  "plp": {
+    "title": "Produkte",
+    "items_count": "{{count}} Artikel",
+    "filters": "Filter",
+    "sort_by": "Sortieren nach",
+    "sort_featured": "Empfohlen",
+    "sort_price_asc": "Preis: Niedrig → Hoch",
+    "sort_price_desc": "Preis: Hoch → Niedrig",
+    "sort_rating": "Bestbewertet",
+    "category": "Kategorie",
+    "brand": "Marke",
+    "price": "Preis",
+    "min_rating": "Mindestbewertung",
+    "availability": "Verfügbarkeit",
+    "in_stock_only": "Nur auf Lager",
+    "and_above": "und höher",
+    "clear_all": "Alle Filter löschen",
+    "active_label": "Aktiv:",
+    "clear_all_short": "Alle löschen",
+    "no_brands": "Keine Marken verfügbar."
+  },
+  "common": {
+    "add_to_cart": "In den Warenkorb",
+    "notify_me": "Benachrichtigen",
+    "close": "Schließen",
+    "home": "Startseite",
+    "about": "Über uns",
+    "contact": "Kontakt",
+    "logout": "Abmelden"
+  },
+  "product": {
+    "add_to_cart": "In den Warenkorb",
+    "in_stock": "Auf Lager",
+    "out_of_stock": "Ausverkauft",
+    "price": "Preis",
+    "description": "Beschreibung"
+  },
+  "cart": {
+    "empty_cart": "Ihr Warenkorb ist leer",
+    "checkout": "Zur Kasse",
+    "subtotal": "Summe",
+    "total": "Gesamtsumme"
+  }
+}
