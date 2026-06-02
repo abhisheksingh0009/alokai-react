@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^5.4.0",
     "@storefront-ui/react": "^4.0.0",
     "@storefront-ui/shared": "^3.1.0",
+    "@vue-storefront/sdk": "^3.4.2",
     "@tailwindcss/vite": "^4.2.2",
     "express": "^5.2.1",
     "i18next": "^26.3.0",
