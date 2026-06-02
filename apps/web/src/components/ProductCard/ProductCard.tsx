@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useAlokaiI18n } from "../../hooks/useAlokaiI18n";
 import { SfRating, SfLink} from "@storefront-ui/react";
 import type { Product } from "../../middleware/api/client";
 import AddToCartButton from "../common/AddToCartButton";
@@ -10,7 +10,7 @@ import { useCart } from "../../context/CartContext";
 import { useCurrency } from "../../hooks/useCurrency";
 
 export default function ProductCard({ product }: { product: Product }) {
-  const { t } = useTranslation();
+  const { t } = useAlokaiI18n();
   const { format } = useCurrency();
   const { user } = useAuth();
   const { cart } = useCart()!;

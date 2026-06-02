@@ -11,7 +11,7 @@ import {
   SfDrawer,
   useDisclosure,
 } from '@storefront-ui/react';
-import { useTranslation } from 'react-i18next';
+import { useAlokaiI18nContext } from '../../context/AlokaiI18nContext';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
@@ -23,7 +23,7 @@ import { useNavigation } from '../../context/NavigationContext';
 const categories = ['Women', 'Men', 'Kids', 'Electronics'];
 
 export default function Header() {
-  const { t } = useTranslation();
+  const { t } = useAlokaiI18nContext();
   const { cart } = useCart()!;
   const { user, logout } = useAuth();
   const { openCartDrawer } = useUI();
@@ -105,7 +105,7 @@ export default function Header() {
   return (
     <header className="bg-slate-900 text-white sticky top-0 z-50">
       {/* Top bar */}
-      <div className="flex items-center gap-4 px-4 py-3 md:px-6">
+      <div className="flex items-center gap-3 px-4 py-3 md:gap-4 md:px-6">
 
         {/* Mobile search expanded — replaces entire bar */}
         {mobileSearchOpen ? (
@@ -153,7 +153,7 @@ export default function Header() {
             </SfButton>
 
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 mr-6 whitespace-nowrap">
+            <Link to="/" className="flex items-center gap-2 md:mr-6 whitespace-nowrap">
               <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="34" height="34" rx="9" fill="url(#logoGrad)" />
                 <path d="M11 14h12l-1.6 9.5H12.6L11 14z" fill="white" />
@@ -193,7 +193,7 @@ export default function Header() {
         </form>
 
         {/* Right actions — hidden on mobile when search is open */}
-        <div className={`flex items-center gap-4 ml-auto ${mobileSearchOpen ? 'hidden md:flex' : ''}`}>
+        <div className={`flex items-center gap-3 md:gap-4 ml-auto ${mobileSearchOpen ? 'hidden md:flex' : ''}`}>
           {/* Search icon - mobile only */}
           <button
             className="md:hidden text-white"
@@ -212,7 +212,7 @@ export default function Header() {
           {/* Account dropdown */}
           <div className="relative" ref={accountRef}>
             <button
-              className="flex items-center gap-1.5 text-white font-medium whitespace-nowrap min-w-[80px] justify-start"
+              className="flex items-center gap-1.5 text-white font-medium whitespace-nowrap md:min-w-[80px] justify-start"
               aria-label="Account"
               onClick={() => setIsAccountOpen(prev => !prev)}
             >

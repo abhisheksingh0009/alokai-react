@@ -1,15 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useAlokaiI18nContext } from "../../context/AlokaiI18nContext";
 import { SfIconExpandMore } from "@storefront-ui/react";
-import { SUPPORTED_LOCALES, changeLocale, type LocaleCode } from "../../i18n";
 
 export default function LocaleSwitcher() {
-  const { i18n } = useTranslation();
+  const { config, locales, setLocale } = useAlokaiI18nContext();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const current =
-    SUPPORTED_LOCALES.find(l => l.code === i18n.language) ?? SUPPORTED_LOCALES[0];
+  const current = locales.find(l => l.code === config.locale) ?? locales[0];
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -21,8 +19,8 @@ export default function LocaleSwitcher() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  function pick(code: LocaleCode) {
-    changeLocale(code);
+  function pick(code: string) {
+    setLocale(code);
     setOpen(false);
   }
 
@@ -49,7 +47,7 @@ export default function LocaleSwitcher() {
             </span>
           </div>
           <ul>
-            {SUPPORTED_LOCALES.map(loc => {
+            {locales.map(loc => {
               const isActive = loc.code === current.code;
               return (
                 <li key={loc.code}>

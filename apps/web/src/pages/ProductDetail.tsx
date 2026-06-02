@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useAlokaiI18nContext } from "../context/AlokaiI18nContext";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { useAsync } from "react-use";
 import { useCurrency } from "../hooks/useCurrency";
@@ -17,7 +17,7 @@ import { useWishlist } from "../context/WishlistContext";
 import { useToast } from "../context/ToastContext";
 
 export default function PDP() {
-  const { t } = useTranslation();
+  const { t } = useAlokaiI18nContext();
   const { format } = useCurrency();
   const { id } = useParams();
   const productNumId = parseInt(id!);

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useAlokaiI18nContext } from "../../context/AlokaiI18nContext";
 import type { Product } from "../../middleware/api/client";
 import { useCart } from "../../context/CartContext";
 import { useUI } from "../../context/UIContext";
@@ -22,11 +22,11 @@ export default function AddToCartButton({
   showIcon = true,
   className = "",
 }: Props) {
-  const { t } = useTranslation();
+  const { t } = useAlokaiI18nContext();
   const { cart, addToCart, removeFromCart } = useCart()!;
   const { openCartDrawer } = useUI();
   const [loading, setLoading] = useState(false);
-  const buttonLabel = label ?? t('common.add_to_cart');
+  const buttonLabel = label ?? t('product.add_to_cart');
 
   const MAX_QTY = 10;
   const cartItem = cart.find(i => i.id === product.id);

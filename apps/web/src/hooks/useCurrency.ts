@@ -1,12 +1,13 @@
-import { useTranslation } from "react-i18next";
-import { SUPPORTED_LOCALES, type CurrencyCode } from "../i18n";
+import { useAlokaiI18n } from "./useAlokaiI18n";
 
 // FX rates against the base price currency (USD).
 // In a real Alokai stack these come from the middleware (currency-aware product feed).
-const FX_RATES: Record<CurrencyCode, number> = {
+const FX_RATES: Record<string, number> = {
   USD: 1,
   EUR: 0.92,
 };
+
+type CurrencyCode = 'USD' | 'EUR';
 
 const CURRENCY_LOCALE: Record<CurrencyCode, string> = {
   USD: "en-US",
@@ -14,11 +15,9 @@ const CURRENCY_LOCALE: Record<CurrencyCode, string> = {
 };
 
 export function useCurrency() {
-  const { i18n } = useTranslation();
-
-  const meta =
-    SUPPORTED_LOCALES.find(l => l.code === i18n.language) ?? SUPPORTED_LOCALES[0];
-  const currency = meta.currency;
+  const { config } = useAlokaiI18n();
+  
+  const currency = config.currency as CurrencyCode;
   const rate = FX_RATES[currency];
 
   function format(usdPrice: number): string {

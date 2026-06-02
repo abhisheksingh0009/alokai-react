@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useAlokaiI18nContext } from "../../context/AlokaiI18nContext";
 import { SfIconExpandMore } from '@storefront-ui/react';
 import { PRICE_RANGES, type Filters } from '../../hooks/useProductFilters';
 
@@ -61,7 +61,7 @@ function AccordionSection({ title, badge, open, onToggle, children, dark }: Acco
 export default function ProductListFilters({
   categories, brands, filters, onToggleCategory, onToggleBrand, onTogglePrice, onSetMinRating, onToggleInStockOnly, onClear, hasFilters, dark = false,
 }: Props) {
-  const { t } = useTranslation();
+  const { t } = useAlokaiI18nContext();
   const [openSections, setOpenSections] = useState({ category: true, brand: true, price: true, rating: true, availability: true });
 
   function toggle(key: keyof typeof openSections) {

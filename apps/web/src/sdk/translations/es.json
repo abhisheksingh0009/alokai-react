@@ -1,0 +1,81 @@
+{
+  "header": {
+    "search_placeholder": "Buscar productos...",
+    "wishlist": "Lista de deseos",
+    "cart": "Carrito",
+    "account": "Cuenta",
+    "home": "Inicio",
+    "all_products": "Todos los productos",
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "profile": "Perfil",
+    "orders": "Mis pedidos",
+    "sign_out": "Cerrar sesión",
+    "menu": "Menú",
+    "categories": "Categorías"
+  },
+  "cart_drawer": {
+    "title": "Tu carrito",
+    "empty_title": "Tu carrito está vacío",
+    "empty_subtitle": "Añade productos para empezar.",
+    "continue_shopping": "Seguir comprando",
+    "subtotal": "Subtotal",
+    "shipping_note": "Envío e impuestos calculados al pagar.",
+    "checkout": "Pagar",
+    "view_cart": "Ver carrito"
+  },
+  "pdp": {
+    "add_to_cart": "Añadir al carrito",
+    "in_stock": "En stock",
+    "out_of_stock": "Sin stock",
+    "only_n_left": "Solo quedan {{count}}",
+    "you_save": "Ahorras {{amount}}",
+    "sale_off": "{{percent}}% Descuento",
+    "write_review": "Escribir reseña",
+    "reviews": "{{count}} Reseñas",
+    "review": "{{count}} Reseña"
+  },
+  "plp": {
+    "title": "Productos",
+    "items_count": "{{count}} artículos",
+    "filters": "Filtros",
+    "sort_by": "Ordenar por",
+    "sort_featured": "Destacados",
+    "sort_price_asc": "Precio: Menor → Mayor",
+    "sort_price_desc": "Precio: Mayor → Menor",
+    "sort_rating": "Mejor valorados",
+    "category": "Categoría",
+    "brand": "Marca",
+    "price": "Precio",
+    "min_rating": "Valoración mínima",
+    "availability": "Disponibilidad",
+    "in_stock_only": "Solo en stock",
+    "and_above": "y superior",
+    "clear_all": "Limpiar todos los filtros",
+    "active_label": "Activo:",
+    "clear_all_short": "Limpiar todo",
+    "no_brands": "No hay marcas disponibles."
+  },
+  "common": {
+    "add_to_cart": "Añadir al carrito",
+    "notify_me": "Notificarme",
+    "close": "Cerrar",
+    "home": "Inicio",
+    "about": "Acerca de",
+    "contact": "Contacto",
+    "logout": "Cerrar sesión"
+  },
+  "product": {
+    "add_to_cart": "Añadir al carrito",
+    "in_stock": "En stock",
+    "out_of_stock": "Sin stock",
+    "price": "Precio",
+    "description": "Descripción"
+  },
+  "cart": {
+    "empty_cart": "Tu carrito está vacío",
+    "checkout": "Pagar",
+    "subtotal": "Subtotal",
+    "total": "Total"
+  }
+}

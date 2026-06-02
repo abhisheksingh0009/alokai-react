@@ -1,5 +1,5 @@
-import { useTranslation } from "react-i18next";
 import { SfIconClose } from "@storefront-ui/react";
+import { useAlokaiI18nContext } from "../../context/AlokaiI18nContext";
 import { PRICE_RANGES, type Filters } from "../../hooks/useProductFilters";
 
 type Props = {
@@ -17,7 +17,7 @@ type Chip = { key: string; label: string; remove: () => void };
 export default function ActiveFilterChips({
   filters, onToggleCategory, onToggleBrand, onTogglePrice, onSetMinRating, onToggleInStockOnly, onClear,
 }: Props) {
-  const { t } = useTranslation();
+  const { t } = useAlokaiI18nContext();
   const chips: Chip[] = [
     ...filters.categories.map(c => ({
       key: `cat-${c}`,

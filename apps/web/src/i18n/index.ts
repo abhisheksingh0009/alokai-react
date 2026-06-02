@@ -1,8 +1,5 @@
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import en from "./locales/en.json";
-import es from "./locales/es.json";
-import fr from "./locales/fr.json";
+// This file has been replaced by Alokai's i18n system
+// See src/sdk/i18n.ts and src/hooks/useAlokaiI18n.ts
 
 export const SUPPORTED_LOCALES = [
   { code: "en", label: "English", flag: "🇺🇸", currency: "USD" },
@@ -13,35 +10,10 @@ export const SUPPORTED_LOCALES = [
 export type LocaleCode = typeof SUPPORTED_LOCALES[number]["code"];
 export type CurrencyCode = typeof SUPPORTED_LOCALES[number]["currency"];
 
-const STORAGE_KEY = "locale";
-
-function getInitialLocale(): LocaleCode {
-  if (typeof window === "undefined") return "en";
-  const saved = window.localStorage.getItem(STORAGE_KEY);
-  if (saved && SUPPORTED_LOCALES.some(l => l.code === saved)) {
-    return saved as LocaleCode;
-  }
-  return "en";
+// Legacy exports for compatibility
+export function changeLocale(_code: LocaleCode) {
+  console.warn('changeLocale is deprecated. Use useAlokaiI18n().setLocale() instead.');
 }
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources: {
-      en: { translation: en },
-      es: { translation: es },
-      fr: { translation: fr },
-    },
-    lng: getInitialLocale(),
-    fallbackLng: "en",
-    interpolation: { escapeValue: false },
-  });
-
-export function changeLocale(code: LocaleCode) {
-  i18n.changeLanguage(code);
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(STORAGE_KEY, code);
-  }
-}
-
-export default i18n;
+// Export empty object to prevent import errors
+export default {};
