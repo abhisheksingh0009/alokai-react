@@ -22,8 +22,17 @@ export default function AddToCartButton({
   showIcon = true,
   className = "",
 }: Props) {
-  const { t } = useAlokaiI18nContext();
+  const { t, config } = useAlokaiI18nContext();
   const { cart, addToCart, removeFromCart } = useCart()!;
+
+  const trackAdd = () =>
+    trackAddToCart({
+      id: product.id,
+      name: product.title,
+      price: product.price,
+      quantity: 1,
+      currency: config.currency,
+    });
   const { openCartDrawer } = useUI();
   const [loading, setLoading] = useState(false);
   const buttonLabel = label ?? t('product.add_to_cart');
@@ -36,10 +45,10 @@ export default function AddToCartButton({
     if (loading) return;
     setLoading(true);
     await addToCart(product, 1);
-    
-    // Track GA event
-    trackAddToCart(product.title, product.id);
-    
+
+    // Track GA4 add_to_cart event
+    trackAdd();
+
     setLoading(false);
     openCartDrawer();
   }
@@ -47,9 +56,9 @@ export default function AddToCartButton({
   async function handleIncrease() {
     if (quantity >= MAX_QTY) return;
     await addToCart(product, 1);
-    
-    // Track GA event for quantity increase
-    trackAddToCart(product.title, product.id);
+
+    // Track GA4 add_to_cart event for quantity increase
+    trackAdd();
   }
 
   async function handleDecrease() {

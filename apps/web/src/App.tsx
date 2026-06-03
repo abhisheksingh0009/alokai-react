@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import Header from "./components/layout/Header";
 import Home from "./pages/Home";
 import ProductList from "./pages/ProductList";
@@ -22,9 +23,18 @@ import OrderSuccess from "./pages/OrderSuccess";
 import GooglePayPage from "./pages/GooglePayPage";
 import OrderHistory from "./pages/OrderHistory";
 import { AlokaiI18nProvider } from "./context/AlokaiI18nContext";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import { usePageTracking } from "./hooks/usePageTracking";
+
+// Fires GA4 page_view on every route change. Must live inside the Router.
+function PageTracker() {
+  usePageTracking();
+  return null;
+}
 
 export default function App() {
   return (
+    <HelmetProvider>
     <AuthProvider>
       <WishlistProvider>
         <UIProvider>
@@ -32,6 +42,7 @@ export default function App() {
             <ToastProvider>
               <AlokaiI18nProvider>
                 <BrowserRouter>
+                  <PageTracker />
                   <div className="min-h-screen flex flex-col">
                     <Header />
                     <CartDrawer />
@@ -44,13 +55,13 @@ export default function App() {
                         <Route path="/wishlist" element={<Wishlist />} />
                         <Route path="/login" element={<LoginForm />} />
                         <Route path="/signup" element={<SignupForm />} />
-                        <Route path="/account" element={<AccountPage />} />
-                        <Route path="/checkout" element={<Checkout />} />
+                        <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
+                        <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                         <Route path="/paypal-mock" element={<PayPalMock />} />
                         <Route path="/card-payment" element={<CardPaymentMock />} />
                         <Route path="/order-success" element={<OrderSuccess />} />
                         <Route path="/google-pay" element={<GooglePayPage />} />
-                        <Route path="/orders" element={<OrderHistory />} />
+                        <Route path="/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
                       </Routes>
                     </main>
                     <Footer />
@@ -62,5 +73,6 @@ export default function App() {
         </UIProvider>
       </WishlistProvider>
     </AuthProvider>
+    </HelmetProvider>
   );
 }
