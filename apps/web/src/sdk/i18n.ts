@@ -1,9 +1,6 @@
 // Alokai i18n SDK - Multi-Language & Multi-Currency Support
 // Uses vsf-locale cookie pattern and Alokai middleware API
-import enTranslations from './translations/en.json';
-import esTranslations from './translations/es.json';
-import frTranslations from './translations/fr.json';
-import deTranslations from './translations/de.json';
+import i18next from 'i18next';
 import alokaiI18nApi from '../services/alokaiI18nApi';
 import type { LocaleConfig, I18nConfig } from '../types/i18n';
 
@@ -41,14 +38,6 @@ export const ALOKAI_LOCALES: AlokaiLocale[] = [
 ];
 
 export const DEFAULT_LOCALE = 'en-US';
-
-// Local translations fallback
-const translations: Record<string, any> = {
-  'en-US': enTranslations,
-  'es-ES': esTranslations,
-  'fr-FR': frTranslations,
-  'de-DE': deTranslations,
-};
 
 export interface AlokaiI18nConfig extends I18nConfig {}
 
@@ -147,6 +136,11 @@ class AlokaiI18n {
       region: locale.region
     };
 
+    // Switch the i18next language so react-i18next consumers re-render
+    if (i18next.language !== localeCode) {
+      await i18next.changeLanguage(localeCode);
+    }
+
     // Update vsf-locale cookie
     setVsfLocaleCookie(localeCode);
 
@@ -195,32 +189,10 @@ class AlokaiI18n {
     }
   }
 
-  // Translation helper with nested object support
+  // Translation helper — delegates to i18next so the legacy context API and
+  // the idiomatic useTranslation() hook share a single source of truth.
   t(key: string, params?: Record<string, any>): string {
-    const { locale } = this.currentConfig;
-    const localeTranslations = translations[locale as keyof typeof translations] || translations['en-US'];
-    
-    const keys = key.split('.');
-    let value: any = localeTranslations;
-    
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
-      } else {
-        return key; // Return key if translation not found
-      }
-    }
-    
-    if (typeof value !== 'string') {
-      return key;
-    }
-    
-    // Interpolate parameters
-    if (!params) return value;
-    
-    return Object.entries(params).reduce((result, [param, paramValue]) => {
-      return result.replace(new RegExp(`{{${param}}}`, 'g'), String(paramValue));
-    }, value);
+    return i18next.t(key, params);
   }
 
   // Listen for configuration changes

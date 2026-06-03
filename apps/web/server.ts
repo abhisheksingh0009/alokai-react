@@ -7,6 +7,8 @@ import { createServer as createViteServer } from "vite";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.SSR_PORT ?? 5174);
 const MIDDLEWARE_URL = process.env.VITE_MIDDLEWARE_URL ?? "http://localhost:4000";
+// Public base URL of the storefront — used to build absolute canonical URLs.
+const SITE_URL = process.env.SITE_URL ?? `http://localhost:${PORT}`;
 
 async function bootstrap() {
   const app = express();
@@ -62,13 +64,17 @@ async function bootstrap() {
       const { renderPDP } = await vite.ssrLoadModule("/src/entry-server.tsx");
       const appHtml = renderPDP(product);
 
+      const canonicalUrl = `${SITE_URL}/product/${product.id}`;
+
       const metaTags = `
     <title>${escapeHtml(product.title)} | my-alokai-store</title>
     <meta name="description" content="${escapeHtml((product.description || "").slice(0, 160))}" />
+    <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
     <meta property="og:type" content="product" />
     <meta property="og:title" content="${escapeHtml(product.title)}" />
     <meta property="og:description" content="${escapeHtml((product.description || "").slice(0, 160))}" />
-    <meta property="og:image" content="${escapeHtml(product.thumbnail)}" />`;
+    <meta property="og:image" content="${escapeHtml(product.thumbnail)}" />
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />`;
 
       const html = transformed
         .replace("<title>my-alokai-store</title>", metaTags)

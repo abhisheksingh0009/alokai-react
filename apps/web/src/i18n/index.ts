@@ -1,19 +1,38 @@
-// This file has been replaced by Alokai's i18n system
-// See src/sdk/i18n.ts and src/hooks/useAlokaiI18n.ts
+// i18next initialization (Alokai-idiomatic i18n)
+// Reuses the existing translation JSON files unchanged — they already use
+// i18next's native nested-key + {{param}} interpolation format.
+import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
 
-export const SUPPORTED_LOCALES = [
-  { code: "en", label: "English", flag: "🇺🇸", currency: "USD" },
-  { code: "es", label: "Español", flag: "🇪🇸", currency: "EUR" },
-  { code: "fr", label: "Français", flag: "🇫🇷", currency: "EUR" },
-] as const;
+import enTranslations from '../sdk/translations/en.json';
+import esTranslations from '../sdk/translations/es.json';
+import frTranslations from '../sdk/translations/fr.json';
+import deTranslations from '../sdk/translations/de.json';
+import { DEFAULT_LOCALE } from '../sdk/i18n';
 
-export type LocaleCode = typeof SUPPORTED_LOCALES[number]["code"];
-export type CurrencyCode = typeof SUPPORTED_LOCALES[number]["currency"];
+// Read the persisted locale (vsf-locale cookie) so the initial language
+// matches what the SDK resolved, keeping the two systems in sync.
+const getInitialLng = (): string => {
+  if (typeof document === 'undefined') return DEFAULT_LOCALE;
+  const match = document.cookie
+    .split(';')
+    .map((c) => c.trim().split('='))
+    .find(([name]) => name === 'vsf-locale');
+  return match ? decodeURIComponent(match[1]) : DEFAULT_LOCALE;
+};
 
-// Legacy exports for compatibility
-export function changeLocale(_code: LocaleCode) {
-  console.warn('changeLocale is deprecated. Use useAlokaiI18n().setLocale() instead.');
-}
+i18next.use(initReactI18next).init({
+  resources: {
+    'en-US': { translation: enTranslations },
+    'es-ES': { translation: esTranslations },
+    'fr-FR': { translation: frTranslations },
+    'de-DE': { translation: deTranslations },
+  },
+  lng: getInitialLng(),
+  fallbackLng: DEFAULT_LOCALE,
+  interpolation: {
+    escapeValue: false, // React already escapes
+  },
+});
 
-// Export empty object to prevent import errors
-export default {};
+export default i18next;

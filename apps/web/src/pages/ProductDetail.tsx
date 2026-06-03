@@ -1,15 +1,17 @@
 import { useState, useCallback, useEffect } from "react";
-import { useAlokaiI18nContext } from "../context/AlokaiI18nContext";
+import { useTranslation } from "react-i18next";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { useAsync } from "react-use";
 import { useCurrency } from "../hooks/useCurrency";
 import { SfRating, SfIconFavorite, SfIconFavoriteFilled, SfIconPackage, SfIconSafetyCheck, SfIconShoppingCartCheckout, SfIconStarFilled } from "@storefront-ui/react";
 import AddToCartButton from "../components/common/AddToCartButton";
 import Breadcrumb from "../components/common/Breadcrumb";
+import Seo from "../components/common/Seo";
 import ProductJsonLd from "../components/common/ProductJsonLd";
 import ReviewsSection from "../components/common/ReviewsSection";
 import NotifyMeModal from "../components/common/NotifyMeModal";
 import { fetchProductFromDB, fetchReviews } from "../middleware/api/client";
+import { trackViewItem } from "../utils/analytics";
 import BannerOverlay from "../components/Carousel/BannerOverlay";
 import YouMayAlsoLike from "../components/YouMayAlsoLike";
 import { useAuth } from "../context/AuthContext";
@@ -17,8 +19,8 @@ import { useWishlist } from "../context/WishlistContext";
 import { useToast } from "../context/ToastContext";
 
 export default function PDP() {
-  const { t } = useAlokaiI18nContext();
-  const { format } = useCurrency();
+  const { t } = useTranslation();
+  const { format, currency } = useCurrency();
   const { id } = useParams();
   const productNumId = parseInt(id!);
   const location = useLocation();
@@ -43,6 +45,18 @@ export default function PDP() {
     () => fetchProductFromDB(id!),
     [id]
   );
+
+  // GA4 view_item — fire once the product has loaded
+  useEffect(() => {
+    if (product) {
+      trackViewItem({
+        id: product.id,
+        name: product.title,
+        price: product.price,
+        currency,
+      });
+    }
+  }, [product, currency]);
 
   const {
     loading: reviewsLoading,
@@ -111,6 +125,12 @@ export default function PDP() {
 
   return (
     <div className="min-h-screen" style={{ background: '#F4F6F9' }}>
+      <Seo
+        title={product.title}
+        description={product.description}
+        image={images[0]}
+        type="product"
+      />
       <ProductJsonLd
         product={product}
         reviewCount={hasReviews ? reviews.length : undefined}

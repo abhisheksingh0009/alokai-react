@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 interface OrderItem {
@@ -43,14 +43,14 @@ function formatTime(iso: string) {
 
 export default function OrderHistory() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expanded, setExpanded] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!user) { navigate('/login', { replace: true }); return; }
+    // Access is enforced by <ProtectedRoute>; bail if user not yet hydrated.
+    if (!user) return;
     const token = localStorage.getItem('token');
     fetch('http://localhost:4000/api/orders', {
       headers: { Authorization: `Bearer ${token}` },
@@ -58,7 +58,7 @@ export default function OrderHistory() {
       .then(r => r.json())
       .then(data => { setOrders(data.orders ?? []); setLoading(false); })
       .catch(() => { setError('Could not load orders.'); setLoading(false); });
-  }, [user, navigate]);
+  }, [user]);
 
   const totalSpent = orders.reduce((s, o) => s + parseFloat(o.totalAmount), 0);
   const totalItems = orders.reduce((s, o) => s + o.items.reduce((a, i) => a + i.quantity, 0), 0);

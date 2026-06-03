@@ -17,10 +17,8 @@ export default function AccountPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>('My Account');
 
-  if (!user) {
-    navigate('/login');
-    return null;
-  }
+  // Access is enforced by <ProtectedRoute>; this guards the type only.
+  if (!user) return null;
 
   const avatarLetter = (user.firstName || user.name || user.email)[0].toUpperCase();
 
